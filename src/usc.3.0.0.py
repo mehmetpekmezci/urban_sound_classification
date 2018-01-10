@@ -6,7 +6,7 @@ Created on Thu Sep 14 22:46:52 2017
 """
 import math
 import tensorflow as tf
-#import urllib3
+import urllib3
 import tarfile
 import csv
 import glob
@@ -95,24 +95,27 @@ def prepareData():
     if not  os.path.exists(raw_data_dir) :
        if not  os.path.exists(main_data_dir+'/../data/0.raw'):
          os.makedirs(main_data_dir+'/../data/0.raw')   
-       if os.path.exists(main_data_dir+"/0.raw/UrbanSound8K.tar.gz") :
-         #print("Extracting "+main_data_dir+"/0.raw/UrbanSound8K.tar.gz")
+    if not os.path.exists(main_data_dir+"/0.raw/UrbanSound8K"):
+      if os.path.exists(main_data_dir+"/0.raw/UrbanSound8K.tar.gz"):
+         print("Extracting "+main_data_dir+"/0.raw/UrbanSound8K.tar.gz")
          tar = tarfile.open(main_data_dir+"/0.raw/UrbanSound8K.tar.gz")
          tar.extractall(main_data_dir+'/../data/0.raw')
          tar.close()
-       else :   
-         print("download "+main_data_dir+"/0.raw/UrbanSound8K.tar.gz from https://serv.cusp.nyu.edu/projects/urbansounddataset/download-urbansound8k.html by hand and re-run this script")
-         exit(1)
-#     http = urllib3.PoolManager()
-#     chunk_size=100000
-#     r = http.request('GET', 'https://www.google.com/url?q=http://serv.cusp.nyu.edu/files/jsalamon/datasets/content_loader.php?id%3D2&sa=D&ust=1504002907380000&usg=AFQjCNHVd9935Q5lVS5SRtBjuuwEZrJR8w', preload_content=False)
-#     with open(main_data_dir+"/0.raw/UrbanSound8K.tar.gz", 'wb') as out:
-#      while True:
-#         data = r.read(chunk_size)
-#         if not data:
+         print("Extracted "+main_data_dir+"/0.raw/UrbanSound8K.tar.gz")
+      else :   
+        print("download "+main_data_dir+"/0.raw/UrbanSound8K.tar.gz from http://serv.cusp.nyu.edu/files/jsalamon/datasets/content_loader.php?id=2  using firefox browser or chromium  and re-run this script")
+         #print("download "+main_data_dir+"/0.raw/UrbanSound8K.tar.gz from https://serv.cusp.nyu.edu/projects/urbansounddataset/download-urbansound8k.html using firefox browser or chromium  and re-run this script")
+        exit(1)
+#         http = urllib3.PoolManager()
+#         chunk_size=100000
+#         r = http.request('GET', 'http://serv.cusp.nyu.edu/files/jsalamon/datasets/content_loader.php?id=2', preload_content=False)
+#         with open(main_data_dir+"/0.raw/UrbanSound8K.tar.gz", 'wb') as out:
+#          while True:
+#           data = r.read(chunk_size)
+#           if not data:
 #             break
-#         out.write(data)
-#     r.release_conn()
+#           out.write(data)
+#         r.release_conn()
 
     if not os.path.exists(csv_data_dir) :
        os.makedirs(csv_data_dir)  
