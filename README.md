@@ -1,2 +1,6 @@
-# urban_sound_classification_using_raw_cnn
-Urban Sound Classification Using RAW sound data , using CNN
+# urban_sound_classification
+Urban Sound Classification 
+
+cd src
+python3 usc.3.0.0.py
+
