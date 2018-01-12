@@ -54,7 +54,7 @@ def augment_data():
       print("Augmenting Data in the Fold :"+fold)
       csvData=np.array(np.loadtxt(open(csv_data_dir+"/"+fold+".csv", "rb"), delimiter=","))
       #for i in range(csvData.shape[0]) :
-      for i in range(20) :
+      for i in range(10) :
           csvDataLine=csvData[i]
 
           csvDataLineX=csvDataLine[:4*SOUND_RECORD_SAMPLING_RATE]
@@ -69,7 +69,7 @@ def augment_data():
           augmentDataX=augment_speedx(csvDataLineX,SPEED_FACTOR)
           librosa.output.write_wav('/tmp/'+str(i)+'.speedx.wav',  augmentDataX , SOUND_RECORD_SAMPLING_RATE)
 
-          PITCH_SHIFT_FACTOR=1.1
+          PITCH_SHIFT_FACTOR=14.0
           augmentDataX=augment_pitchshift(csvDataLineX,PITCH_SHIFT_FACTOR)
           librosa.output.write_wav('/tmp/'+str(i)+'.pitchshift.wav',  augmentDataX , SOUND_RECORD_SAMPLING_RATE)
 
