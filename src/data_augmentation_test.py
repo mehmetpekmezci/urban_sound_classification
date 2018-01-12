@@ -69,9 +69,25 @@ def augment_data():
           augmentDataX=augment_speedx(csvDataLineX,SPEED_FACTOR)
           librosa.output.write_wav('/tmp/'+str(i)+'.speedx.wav',  augmentDataX , SOUND_RECORD_SAMPLING_RATE)
 
-          PITCH_SHIFT_FACTOR=14.0
+          PITCH_SHIFT_FACTOR=0.00001
           augmentDataX=augment_pitchshift(csvDataLineX,PITCH_SHIFT_FACTOR)
           librosa.output.write_wav('/tmp/'+str(i)+'.pitchshift.wav',  augmentDataX , SOUND_RECORD_SAMPLING_RATE)
+
+          augmentDataX=augment_inverse(csvDataLineX)
+          librosa.output.write_wav('/tmp/'+str(i)+'.inverse.wav',  augmentDataX , SOUND_RECORD_SAMPLING_RATE)
+
+          csvDataFileB=open("/tmp/"+str(i)+".base.csv", 'w')
+          csvDataWriterB = csv.writer(csvDataFileB, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+          csvDataWriterB.writerow(csvDataLineX)
+          csvDataFileB.close()
+  
+          csvDataFileI=open("/tmp/"+str(i)+".inverse.csv", 'w')
+          csvDataWriterI = csv.writer(csvDataFileI, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+          csvDataWriterI.writerow(augmentDataX)
+          csvDataFileI.close()
+  
+
+
 
 def augment_speedx(sound_array, factor):
     """ Multiplies the sound's speed by some `factor` """
@@ -79,6 +95,8 @@ def augment_speedx(sound_array, factor):
     indices = indices[indices < len(sound_array)].astype(int)
     return sound_array[ indices.astype(int) ]
 
+def augment_inverse(sound_array):
+    return -sound_array
 
 def augment_stretch(sound_array, f, window_size, h):
     """ Stretches the sound by a factor `f` """
