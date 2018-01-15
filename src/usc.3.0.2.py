@@ -4,6 +4,7 @@
 Created on Thu Sep 14 22:46:52 2017
 @author: mpekmezci
 """
+from scipy.stats import truncnorm
 import math
 import tensorflow as tf
 import urllib3
@@ -20,6 +21,7 @@ import librosa
 import pandas as pd
 import time
 import random
+import math
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 plt.rcParams['font.family'] = 'serif'
@@ -34,7 +36,7 @@ plt.rcParams['ytick.labelsize'] = 9
 plt.rcParams['legend.fontsize'] = 11
 plt.rcParams['figure.titlesize'] = 13
 
-
+np.set_printoptions(threshold=np.nan)
 script_dir=os.path.dirname(os.path.realpath(__file__))
 main_data_dir = script_dir+'/../data/'
 raw_data_dir = main_data_dir+'/0.raw/UrbanSound8K/audio'
@@ -43,12 +45,14 @@ csv_data_dir=main_data_dir+"/1.csv"
 fold_dirs = ['fold1']
 fold_data_dictionary=dict()
 
+
 # 1 RECORD is 4 seconds = 4 x sampling rate double values = 4 x 22050 = 88200 = (2^3) x ( 3^2) x (5^2) x (7^2)
 SOUND_RECORD_SAMPLING_RATE=22050
 
 # 88200 = (2^3)=8 x ( 3^2)=9 x (5^2)=25 x (7^2)=49
 #PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [8,9] , [8*25,49],[8*25,63],[9*25,49*4], [8*9,5*49] ])
 #PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [2,3,25] , [3,5,49],[5,7,63],[7,2,9], [8,9,49] ])
+#PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [7*5,7,7,3,3,2,3,3,2,3,2]  ])
 PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [2,2,7,3,3,2,3,3,2,3,2]  ])
 NUMBER_OF_KERNELS=2
 LEARNING_RATE = 0.000001
@@ -59,6 +63,7 @@ NUMBER_OF_FULLY_CONNECTED_NEURONS=512
 DROP_OUT=0.5
 MAX_VALUE_FOR_NORMALIZATION=0
 MIN_VALUE_FOR_NORMALIZATION=0
+
 
 
 def parse_audio_files():
@@ -178,7 +183,7 @@ def deepnn(x):
      #conv_stride=1
 
      with tf.name_scope(convName):
-       W_conv = weight_variable([conv_kernel_length_x, conv_kernel_length_y, conv_input_channel, conv_kernel_count])
+       W_conv = weight_variable_4d([conv_kernel_length_x, conv_kernel_length_y, conv_input_channel, conv_kernel_count])
        b_conv = bias_variable([conv_kernel_count])
        #Based on conv2d doc:
        #    shape of input = [batch, in_height, in_width, in_channels]
@@ -213,7 +218,7 @@ def deepnn(x):
   # is down to 4*SOUND_RECORD_SAMPLING_RATE/(pool1_length*pool2_length*pool3_length) (147) feature maps -- maps this to NUMBER_OF_FULLY_CONNECTED_NEURONS features.
   with tf.name_scope('fc1'):
     print(concatanation_of_parallel_conv_layers.shape)
-    W_fc1 = weight_variable([int(concatanation_of_parallel_conv_layers.shape[1]), NUMBER_OF_FULLY_CONNECTED_NEURONS])
+    W_fc1 = weight_variable_2d([int(concatanation_of_parallel_conv_layers.shape[1]), NUMBER_OF_FULLY_CONNECTED_NEURONS])
     print("W_fc1.shape="+str(W_fc1.shape))
     b_fc1 = bias_variable([NUMBER_OF_FULLY_CONNECTED_NEURONS])
     print("b_fc1.shape="+str(b_fc1.shape))
@@ -248,7 +253,7 @@ def deepnn(x):
 
   # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS(1024) features to NUMBER_OF_CLASSES(10) classes, one for each class
   with tf.name_scope('fc2'):
-    W_fc2 = weight_variable([NUMBER_OF_FULLY_CONNECTED_NEURONS, NUMBER_OF_CLASSES])
+    W_fc2 = weight_variable_2d([NUMBER_OF_FULLY_CONNECTED_NEURONS, NUMBER_OF_CLASSES])
     b_fc2 = bias_variable([NUMBER_OF_CLASSES])
     y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
     print("y_conv.shape="+str(y_conv.shape))
@@ -265,12 +270,57 @@ def max_pool_1xL(x,L):
   return tf.nn.max_pool(x, ksize=[1, 1, L, 1],
                         strides=[1, 1, L, 1], padding='SAME')
 
+def get_truncated_normal_generator():
+    mean=0
+    standard_deviation=0.1
+    a=-2*standard_deviation
+    b=2*standard_deviation
+    return truncnorm(a, b, loc=mean, scale=standard_deviation)
 
-def weight_variable(shape):
+
+def weight_variable_2d(shape):
   """weight_variable generates a weight variable of a given shape."""
   initial = tf.truncated_normal(shape, stddev=0.1)
 #  initial = tf.Print(initial, [initial], message="This is initial: ",summarize=200, first_n=70)
   return tf.Variable(initial)
+
+
+def weight_variable_4d(shape):
+  """weight_variable generates a weight variable of a given shape."""
+  
+
+  truncated_normal_generator=get_truncated_normal_generator()
+  conv_kernel_length_x=shape[0]
+  conv_kernel_length_y=shape[1]
+  conv_input_channel=shape[2]
+  conv_kernel_count=shape[3]
+
+
+  initial=np.zeros([conv_kernel_length_x,conv_kernel_length_y,conv_input_channel,conv_kernel_count])
+
+  for i in range(conv_kernel_length_x):
+    for j in range(conv_input_channel) :
+      for k in range(conv_kernel_count) :
+         initial[i,0:conv_kernel_length_y,j,k]=truncated_normal_generator.rvs(conv_kernel_length_y)
+
+  for i in range(conv_kernel_count):
+      initialization_type=random.randint(0, 3)
+      if initialization_type == 0 :
+       # first conv_kernel_length_y/2 elements  are set to 0
+       initial[:,:,0:math.floor(conv_kernel_count/2),i]=0
+      elif initialization_type == 1 :
+       # last conv_kernel_length_y/2 elements  are set to 0
+       initial[:,:,math.floor(conv_input_channel/2):,i]=0
+      elif initialization_type == 2 :
+       ## bir 0 bir 1
+       for j in range(conv_input_channel):
+             if (j+i)%2==0 :
+                initial[:,:,j,i]=0 
+      else :
+       ## do nothing
+       initial=initial
+  print(initial)
+  return tf.Variable(tf.convert_to_tensor(initial, np.float32))
 
 
 def bias_variable(shape):
