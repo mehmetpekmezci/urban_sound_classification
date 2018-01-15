@@ -41,8 +41,8 @@ script_dir=os.path.dirname(os.path.realpath(__file__))
 main_data_dir = script_dir+'/../data/'
 raw_data_dir = main_data_dir+'/0.raw/UrbanSound8K/audio'
 csv_data_dir=main_data_dir+"/1.csv"
-#fold_dirs = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-fold_dirs = ['fold1']
+fold_dirs = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
+#fold_dirs = ['fold1']
 fold_data_dictionary=dict()
 
 
@@ -53,13 +53,13 @@ SOUND_RECORD_SAMPLING_RATE=22050
 #PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [8,9] , [8*25,49],[8*25,63],[9*25,49*4], [8*9,5*49] ])
 #PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [2,3,25] , [3,5,49],[5,7,63],[7,2,9], [8,9,49] ])
 #PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [7*5,7,7,3,3,2,3,3,2,3,2]  ])
-PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [2,2,7,3,3,2,3,3,2,3,2]  ])
-NUMBER_OF_KERNELS=2
+PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [7*5,5,7,3,3,2,3,3,2,3,2]  ])
+NUMBER_OF_KERNELS=256
 LEARNING_RATE = 0.000001
 TRAINING_ITERATIONS = 800
 MINI_BATCH_SIZE=10
 NUMBER_OF_CLASSES=10
-NUMBER_OF_FULLY_CONNECTED_NEURONS=512
+NUMBER_OF_FULLY_CONNECTED_NEURONS=1024
 DROP_OUT=0.5
 MAX_VALUE_FOR_NORMALIZATION=0
 MIN_VALUE_FOR_NORMALIZATION=0
