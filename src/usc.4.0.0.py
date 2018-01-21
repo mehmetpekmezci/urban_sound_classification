@@ -36,31 +36,25 @@ plt.rcParams['ytick.labelsize'] = 9
 plt.rcParams['legend.fontsize'] = 11
 plt.rcParams['figure.titlesize'] = 13
 
-np.set_printoptions(threshold=np.nan)
 script_dir=os.path.dirname(os.path.realpath(__file__))
 main_data_dir = script_dir+'/../data/'
 raw_data_dir = main_data_dir+'/0.raw/UrbanSound8K/audio'
 csv_data_dir=main_data_dir+"/1.csv"
 fold_dirs = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-#fold_dirs = ['fold1']
 fold_data_dictionary=dict()
 
+config = tf.ConfigProto()
+config.gpu_options.allow_growth=True
+sess = tf.InteractiveSession(config=config)
+
+net = ModelNetwork(in_size = in_size,lstm_size = lstm_size,num_layers = num_layers,
+		   out_size = out_size,session = sess,learning_rate = 0.0001,
+		   name = "human_position_rnn_network")
 
 # 1 RECORD is 4 seconds = 4 x sampling rate double values = 4 x 22050 = 88200 = (2^3) x ( 3^2) x (5^2) x (7^2)
+NUMBER_OF_SLICES=22050
 SOUND_RECORD_SAMPLING_RATE=22050
-
-# 88200 = (2^3)=8 x ( 3^2)=9 x (5^2)=25 x (7^2)=49
-#PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [8,9] , [8*25,49],[8*25,63],[9*25,49*4], [8*9,5*49] ])
-#PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [2,3,25] , [3,5,49],[5,7,63],[7,2,9], [8,9,49] ])
-#PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [7*5,7,7,3,3,2,3,3,2,3,2]  ])
-PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [7*5,5,7,3,3,2,3,3,2,3,2]  ])
-NUMBER_OF_KERNELS=256
-LEARNING_RATE = 0.000001
-TRAINING_ITERATIONS = 800
-MINI_BATCH_SIZE=10
 NUMBER_OF_CLASSES=10
-NUMBER_OF_FULLY_CONNECTED_NEURONS=1024
-DROP_OUT=0.5
 MAX_VALUE_FOR_NORMALIZATION=0
 MIN_VALUE_FOR_NORMALIZATION=0
 
@@ -134,7 +128,6 @@ def normalize(data):
     data_normalized=(data-MIN_VALUE_FOR_NORMALIZATION)/(MAX_VALUE_FOR_NORMALIZATION-MIN_VALUE_FOR_NORMALIZATION)
     return data_normalized
 
-
 def one_hot_encode_array(arrayOfYData):
    returnMatrix=np.empty([0,NUMBER_OF_CLASSES]);
    for i in range(arrayOfYData.shape[0]):
@@ -148,8 +141,6 @@ def one_hot_encode(classNumber):
    one_hot_encoded_class_number[int(classNumber)]=1
    return one_hot_encoded_class_number
 
-
-
 def deepnn(x):
   epsilon = 1e-3
   with tf.name_scope('reshape'):
@@ -159,12 +150,8 @@ def deepnn(x):
   ## for all convolutions our kernel is one dimensional
   conv_kernel_length_x=1
   conv_kernel_count=NUMBER_OF_KERNELS 
-  # NUMBER_OF_KERNELS tane conv_kernel_length_x * conv_kernel_length_y lik convolution kernel uygulanacak , sonucta 1x22050x64 luk tensor cikacak.
   
-  #concatanation_of_parallel_conv_layers = tf.placeholder(tf.float32, shape=[None,None])
   concatanation_of_parallel_conv_layers = tf.zeros([MINI_BATCH_SIZE,1],tf.float32)
-  #concatanation_of_parallel_conv_layers = tf.zeros([1,1],tf.float32)
-                                                              
 
   for columnNo in range(PARALLEL_CONVOLUTION_KERNELS_SIZES.shape[0]) :
 
@@ -180,15 +167,10 @@ def deepnn(x):
      conv_stride=math.ceil(convSize/3)
      if conv_stride < 2 :
         conv_stride=2
-     #conv_stride=1
 
      with tf.name_scope(convName):
        W_conv = weight_variable_4d([conv_kernel_length_x, conv_kernel_length_y, conv_input_channel, conv_kernel_count])
        b_conv = bias_variable([conv_kernel_count])
-       #Based on conv2d doc:
-       #    shape of input = [batch, in_height, in_width, in_channels]
-       #    shape of filter = [filter_height, filter_width, in_channels, out_channels]
-       #    Last dimension of input and third dimension of filter represents the number of input channels. In your case they are not equal.
        h_conv = tf.nn.relu(conv2d(previous_level_conv_output, W_conv,conv_stride) + b_conv)
        print(convName+"_h.shape="+str(h_conv.shape))
 
@@ -214,8 +196,6 @@ def deepnn(x):
     print(concatanation_of_parallel_conv_layers)
     print("concatanation_of_parallel_conv_layers.shape="+str( concatanation_of_parallel_conv_layers.shape))
     
-  # Fully connected layer 1 -- after 3 round of downsampling, our 1x4*SOUND_RECORD_SAMPLING_RATE (1x4*22050) wav 
-  # is down to 4*SOUND_RECORD_SAMPLING_RATE/(pool1_length*pool2_length*pool3_length) (147) feature maps -- maps this to NUMBER_OF_FULLY_CONNECTED_NEURONS features.
   with tf.name_scope('fc1'):
     print(concatanation_of_parallel_conv_layers.shape)
     W_fc1 = weight_variable_2d([int(concatanation_of_parallel_conv_layers.shape[1]), NUMBER_OF_FULLY_CONNECTED_NEURONS])
@@ -232,127 +212,17 @@ def deepnn(x):
     h_fc1 = tf.nn.relu( batch_normalization_fc1 )
     print("h_fc1.shape="+str(h_fc1.shape))
 
-    # Layer 2 with BN, using Tensorflows built-in BN function
-    #w2_BN = tf.Variable(w2_initial)
-    #z2_BN = tf.matmul(l1_BN,w2_BN)
-    #batch_mean2, batch_var2 = tf.nn.moments(z2_BN,[0])
-    #scale2 = tf.Variable(tf.ones([100]))
-    #beta2 = tf.Variable(tf.zeros([100]))
-    #BN2 = tf.nn.batch_normalization(z2_BN,batch_mean2,batch_var2,beta2,scale2,epsilon)
-    #l2_BN = tf.nn.sigmoid(BN2)
-
-
-
-
-  # Dropout - controls the complexity of the model, prevents co-adaptation of
-  # features.
   with tf.name_scope('dropout'):
     keep_prob = tf.placeholder(tf.float32)
     h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
     print("h_fc1_drop.shape="+str(h_fc1_drop.shape))
 
-  # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS(1024) features to NUMBER_OF_CLASSES(10) classes, one for each class
   with tf.name_scope('fc2'):
     W_fc2 = weight_variable_2d([NUMBER_OF_FULLY_CONNECTED_NEURONS, NUMBER_OF_CLASSES])
     b_fc2 = bias_variable([NUMBER_OF_CLASSES])
     y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
     print("y_conv.shape="+str(y_conv.shape))
   return y_conv, keep_prob
-
-
-def conv2d(x, W,stride):
-  """conv2d returns a 2d convolution layer with full stride."""
-  return tf.nn.conv2d(x, W, strides=[1, stride, 1, 1], padding='SAME')
-
-
-def max_pool_1xL(x,L):
-  """max_pool_1x10 downsamples a feature map by 2X."""
-  return tf.nn.max_pool(x, ksize=[1, 1, L, 1],
-                        strides=[1, 1, L, 1], padding='SAME')
-
-def get_truncated_normal_generator():
-    mean=0
-    standard_deviation=0.1
-    a=-2*standard_deviation
-    b=2*standard_deviation
-    return truncnorm(a, b, loc=mean, scale=standard_deviation)
-
-
-def weight_variable_2d(shape):
-  """weight_variable generates a weight variable of a given shape."""
-  initial = tf.truncated_normal(shape, stddev=0.1)
-#  initial = tf.Print(initial, [initial], message="This is initial: ",summarize=200, first_n=70)
-  return tf.Variable(initial)
-
-
-def weight_variable_4d(shape):
-  """weight_variable generates a weight variable of a given shape."""
-  
-
-  truncated_normal_generator=get_truncated_normal_generator()
-  conv_kernel_length_x=shape[0]
-  conv_kernel_length_y=shape[1]
-  conv_input_channel=shape[2]
-  conv_kernel_count=shape[3]
-
-
-  initial=np.zeros([conv_kernel_length_x,conv_kernel_length_y,conv_input_channel,conv_kernel_count])
-
-  for i in range(conv_kernel_length_x):
-    for j in range(conv_input_channel) :
-      for k in range(conv_kernel_count) :
-         initial[i,0:conv_kernel_length_y,j,k]=truncated_normal_generator.rvs(conv_kernel_length_y)
-
-  for i in range(conv_kernel_count):
-      initialization_type=random.randint(0, 3)
-      if initialization_type == 0 :
-       # first conv_kernel_length_y/2 elements  are set to 0
-       initial[:,:,0:math.floor(conv_kernel_count/2),i]=0
-      elif initialization_type == 1 :
-       # last conv_kernel_length_y/2 elements  are set to 0
-       initial[:,:,math.floor(conv_input_channel/2):,i]=0
-      elif initialization_type == 2 :
-       ## bir 0 bir 1
-       for j in range(conv_input_channel):
-             if (j+i)%2==0 :
-                initial[:,:,j,i]=0 
-      else :
-       ## do nothing
-       initial=initial
-  print(initial)
-  return tf.Variable(tf.convert_to_tensor(initial, np.float32))
-
-
-def bias_variable(shape):
-  """bias_variable generates a bias variable of a given shape."""
-  initial = tf.constant(0.1, shape=shape)
-  return tf.Variable(initial)
-
-
-
-def augment_speedx(sound_array, factor):
-    """ Multiplies the sound's speed by some `factor` """
-    result=np.zeros(len(sound_array))
-    indices = np.round( np.arange(0, len(sound_array), factor) )
-    indices = indices[indices < len(sound_array)].astype(int)
-    result_calculated= sound_array[ indices.astype(int) ]
-    if len(result) > len(result_calculated) :
-       result[:len(result_calculated)]=result_calculated
-    else :
-        result=result_calculated[:len(result)]
-    return result
-
-def augment_inverse(sound_array):
-    return -sound_array
-
-def augment_translate(snd_array, n):
-    """ Translates the sound wave by n indices, fill the first n elements of the array with zeros """
-    new_array=np.zeros(len(snd_array))
-    for i in range(snd_array.shape[0]):
-       if i+n == len(new_array) :
-          break
-       new_array[i+n]=snd_array[i] 
-    return new_array
 
 
 def main(_):
@@ -428,7 +298,7 @@ def main(_):
                   train_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:(current_batch_counter+1)*MINI_BATCH_SIZE,:]
               else:
                   train_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:,:]
-              train_x_data=augment_random(train_data[:,:4*SOUND_RECORD_SAMPLING_RATE])
+              train_x_data=train_data[:,:4*SOUND_RECORD_SAMPLING_RATE]
               train_y_data=train_data[:,4*SOUND_RECORD_SAMPLING_RATE]
               train_y_data_one_hot_encoded=one_hot_encode_array(train_y_data)
               train_step.run(feed_dict={x: train_x_data, y: train_y_data_one_hot_encoded, keep_prob: DROP_OUT})
@@ -439,32 +309,6 @@ def main(_):
             print('Total time spent in the fold %s is %g seconds' % (fold, totalTime))
             sys.stdout.flush()
 
-def augment_random(x_data):
-
-  augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
-  for i in range(x_data.shape[0]) :
-    augmentation_type=random.randint(0, 5)
-    if augmentation_type == 0 :
-       SPEED_FACTOR=1.1
-       augmented_data[i]= augment_speedx(x_data[i],SPEED_FACTOR)
-    elif augmentation_type == 1 :
-       SPEED_FACTOR=0.9
-       augmented_data[i]= augment_speedx(x_data[i],SPEED_FACTOR)
-    elif augmentation_type == 2 :
-       SPEED_FACTOR=1.2
-       augmented_data[i]= augment_speedx(x_data[i],SPEED_FACTOR)
-    elif augmentation_type == 3 :
-       TRANSLATION_FACTOR=8820
-       augmented_data[i]= augment_translate(x_data[i],TRANSLATION_FACTOR)
-    elif augmentation_type == 4 :
-       TRANSLATION_FACTOR=4410
-       augmented_data[i]= augment_translate(x_data[i],TRANSLATION_FACTOR)
-    elif augmentation_type == 5 :
-       augmented_data[i]= -x_data[i]    
-    else :
-       augmented_data[i]=x_data[i] 
-  return augmented_data
- 
 
 def load_all_csv_data_back_to_memory():
      print ("load_all_csv_data_back_to_memory function started ...")
@@ -510,212 +354,7 @@ if __name__ == '__main__':
  tf.app.run(main=main, argv=[sys.argv[0]] + unparsed)
 
 
-    
-#https://youtu.be/cWomSFLAwM8
 
-import tensorflow as tf
-import csv
-import glob
-import sys
-import os
-import argparse
-import sys
-import tempfile
-import numpy as np
-import pandas as pd
-import time 
-import random
-import mpl_toolkits.mplot3d.axes3d as p3
-import matplotlib.animation as animation
-import matplotlib.pyplot as plt
-plt.style.use('ggplot')
-plt.rcParams['font.family'] = 'serif'
-plt.rcParams['font.serif'] = 'Ubuntu'
-plt.rcParams['font.monospace'] = 'Ubuntu Mono'
-plt.rcParams['font.size'] = 12
-plt.rcParams['axes.labelsize'] = 11
-plt.rcParams['axes.labelweight'] = 'bold'
-plt.rcParams['axes.titlesize'] = 12
-plt.rcParams['xtick.labelsize'] = 9
-plt.rcParams['ytick.labelsize'] = 9
-plt.rcParams['legend.fontsize'] = 11
-plt.rcParams['figure.titlesize'] = 13
-
-
-
-FRAME_DATA_POINT_COUNT=20
-script_dir=os.path.dirname(os.path.realpath(__file__))
-main_data_dir = script_dir+'/../data/MSRAction3D/MSRAction3DSkeleton20joints'
-data_dictionary=dict()
-
-
-def load_data():
- global data_dictionary
- for action_no in range(20) :
-   data_dictionary[action_no]=dict()
-   for subject_no in range(10) :
-      data_dictionary[action_no][subject_no]=dict()
-      for example_no in range(3) :
-         fname="a"
-         if action_no < 9 :
-            fname=fname+"0"+str(action_no+1)
-         else :
-            fname=fname+str(action_no+1)
-         fname=fname+"_s"
-         if subject_no < 9 :
-            fname=fname+"0"+str(subject_no+1)
-         else :
-            fname=fname+str(subject_no+1)
-         fname=fname+"_e"
-         if example_no < 9 :
-            fname=fname+"0"+str(example_no+1)
-         else :
-            fname=fname+str(example_no+1)
-         fname=fname+"_skeleton.txt"
-         
-         if os.path.isfile(main_data_dir+"/"+fname) :
-           #print("loading "+main_data_dir+"/"+fname+"  ... ")
-           frames=[] ## list of frames
-           data=np.array(np.genfromtxt(main_data_dir+"/"+fname ,converters = {3: lambda s: float(s or 0)}, dtype=float,delimiter="  "))
-           for frame_no in range(int(data.shape[0]/FRAME_DATA_POINT_COUNT)) :
-              frames.append(data[frame_no*FRAME_DATA_POINT_COUNT:(frame_no+1)*FRAME_DATA_POINT_COUNT,:] )
-           data_dictionary[action_no][subject_no][example_no]=frames
-         else :
-           print(main_data_dir+"/"+fname+" does not exists")
-
-def centralize_data_taking_point_7_as_center(): 
- global data_dictionary
- for action_no in range(20) :
-  for subject_no in range(10) :
-     for example_no in range(3) :
-        if action_no in data_dictionary and subject_no in data_dictionary[action_no] and  example_no in data_dictionary[action_no][subject_no] :
-         if action_no == 10 and subject_no == 5 and example_no == 2 :
-           title="a"+str(action_no)+"_s" + str(subject_no) +"_e"+str(example_no)
-           frames=data_dictionary[action_no][subject_no][example_no]
-           centered_frames=[]
-           for frameno in range(len(data_dictionary[action_no][subject_no][example_no]) -1) :
-              frame=data_dictionary[action_no][subject_no][example_no][frameno]
-              ##  6 = 7 -1 (0 dan saymaya basladigi icin)
-              frame[:,0]=frame[:,0]-frame[6,0]
-              frame[:,1]=frame[:,1]-frame[6,1]
-              frame[:,2]=frame[:,2]-frame[6,2]
-              frame[:,3]=0
-              centered_frames.append(frame)
-           data_dictionary[action_no][subject_no][example_no]=centered_frames
-
-
-#              20
-#               |
-#           2---3---1
-#         9     |     8
-#       11      |      10
-#      13       4      12
-#               |
-#               7 
-#             5   6
-#           14      15
-#        16            17
-#      18               19    
-
-
-
-def print_data():
- global data_dictionary
- for action_no in range(20) :
-  for subject_no in range(10) :
-     for example_no in range(3) :
-        if action_no in data_dictionary and subject_no in data_dictionary[action_no] and  example_no in data_dictionary[action_no][subject_no] :
-         if action_no == 10 and subject_no == 5 and example_no == 2 :
-           title="a"+str(action_no)+"_s" + str(subject_no) +"_e"+str(example_no)
-           frames=data_dictionary[action_no][subject_no][example_no]
-           animate(frames,title)
-#         else :
-#           for frame_no in range(len(data_dictionary[action_no][subject_no][example_no])) :
-#            print("Action = "+str(action_no)+" --  Subject = " + str(subject_no) +"  --  Example No = "+str(example_no) + " Fame No = "+str(frame_no))
-#            print(data_dictionary[action_no][subject_no][example_no][frame_no]) 
-
-
-
-#              20
-#               |
-#           2---3---1
-#         9     |     8
-#       11      |      10
-#      13       4      12
-#               |
-#               7 
-#             5   6
-#           14      15
-#        16            17
-#      18               19    
-
-
-def animate(list_of_frames,animation_title):
-
-  J=np.matrix([ [20  ,   1  ,   2  ,   1  ,   8 ,   10  ,   2  ,   9  ,  11  ,   3   ,  4  ,   7  ,   7  ,   5  ,   6  ,  14  ,  15  ,  16  ,  17],
-      [3  ,   3  ,   3  ,   8  ,  10  ,  12  ,   9  ,  11  ,  13  ,   4   ,  7  ,   5  ,   6  ,  14  ,  15  ,  16  ,  17 ,   18  ,  19]
-    ])
-
-  # Attaching 3D axis to the figure
-  fig = plt.figure()
-  ax = p3.Axes3D(fig)
-
-  # Setting the axes properties
-  ax.set_xlim3d([-100.0, 400.0])
-  ax.set_xlabel('X')
-
-  ax.set_ylim3d([-100.0, 100.0])
-  ax.set_ylabel('Y')
-
-  ax.set_zlim3d([-100.0, 100.0])
-  ax.set_zlabel('Z')
-
-  title=ax.set_title(animation_title)
-
-  #lines = [ax.plot(dat[0, : ], dat[1, : ], dat[2,  : ])[0] for dat in data]
-
-  sequence_number=0
-  S=list_of_frames[sequence_number]
-  X_VECTOR=S[:,0]
-  Z_VECTOR=np.subtract(np.full((len(S)), 100),S[:,1])
-  Y_VECTOR=S[:,2]/4
-  joints, = ax.plot(X_VECTOR,Y_VECTOR,Z_VECTOR, linestyle="", marker=".")
-  lines = []
-
-  for i in range(FRAME_DATA_POINT_COUNT-1) :
-    c1=J[0,i]-1;
-    c2=J[1,i]-1;
-    line , =ax.plot([X_VECTOR[c1], X_VECTOR[c2]], [Y_VECTOR[c1], Y_VECTOR[c2]],[Z_VECTOR[c1], Z_VECTOR[c2]])
-    lines.append(line)
-
-
-
-    
-  def update(sequence_number):
-    S=list_of_frames[sequence_number]
-    X_VECTOR=S[:,0]
-    Z_VECTOR=np.subtract(np.full((len(S)), 100),S[:,1])
-    Y_VECTOR=S[:,2]/4
-    joints.set_data (X_VECTOR, Y_VECTOR)
-    joints.set_3d_properties(Z_VECTOR)
-    
-    for i in range(FRAME_DATA_POINT_COUNT-1) :
-        c1=J[0,i]-1;
-        c2=J[1,i]-1;
-        lines[i].set_data([X_VECTOR[c1], X_VECTOR[c2]], [Y_VECTOR[c1], Y_VECTOR[c2]]);
-        lines[i].set_3d_properties([Z_VECTOR[c1], Z_VECTOR[c2]]);
-
-    title.set_text(animation_title+' sequence={}'.format(sequence_number))
-    return  tuple(lines) + (title,joints)
-    #return title, joints 
-
-
-  # Creating the Animation object
-  #line_ani = animation.FuncAnimation(fig, update, len(list_of_frames), fargs=(frames, lines),interval=400, blit=True)
-  line_ani = animation.FuncAnimation(fig, update, len(list_of_frames), interval=400, blit=True)
-  line_ani.save('action_recognition.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
-  plt.show()
-  
 
 
 class ModelNetwork:
@@ -796,17 +435,6 @@ class ModelNetwork:
 
 		return cost
 
-
-load_data()
-#centralize_data_taking_point_7_as_center()
-#print_data()
-
-
-
-
-
-
-ckpt_file = "saved.model.ckpt"
 test_action_no=10
 test_subject_no=5
 test_example_no=2
@@ -823,13 +451,7 @@ time_steps = 100
 
 
 ## Initialize the network
-config = tf.ConfigProto()
-config.gpu_options.allow_growth=True
-sess = tf.InteractiveSession(config=config)
 
-net = ModelNetwork(in_size = in_size,lstm_size = lstm_size,num_layers = num_layers,
-		   out_size = out_size,session = sess,learning_rate = 0.0001,
-		   name = "human_position_rnn_network")
 
 sess.run(tf.global_variables_initializer())
 
@@ -838,30 +460,6 @@ saver = tf.train.Saver(tf.global_variables())
 
 
 
-#print "Usage:"
-#print '\t\t ', sys.argv[0], ' [ckpt model to load] [prefix, e.g., "The "]'
-#if len(sys.argv)>=2:
-#	ckpt_file=sys.argv[1]
-#if len(sys.argv)==3:
-#	TEST_FRAME = sys.argv[2]
-
-
-start_time=time.time()
-
-## 1) TRAIN THE NETWORK
-if not os.path.isfile(ckpt_file) :
- for trainingStep in range(NUMBER_OF_TRAINING_STEPS):
-  action_no=random.randint(0, 19)
-  subject_no=random.randint(0, 9)
-  example_no=random.randint(0, 2)
-  if action_no != test_action_no and subject_no != test_subject_no and  example_no != test_example_no :
-    if action_no in data_dictionary and subject_no in data_dictionary[action_no] and  example_no in data_dictionary[action_no][subject_no] :
-      #print("Learning Frames of Action No ="+str(action_no)+"  Subject No = "+str(subject_no)+" Example No = "+str(example_no))
-      
-      #batch_size=len(data_dictionary[action_no][subject_no][example_no])
-      batch_size=1
-      batch = np.zeros((batch_size, time_steps, in_size))
-      batch_y = np.zeros((batch_size, time_steps, in_size))
       for i in range(len(data_dictionary[action_no][subject_no][example_no])) :
         input_frame=data_dictionary[action_no][subject_no][example_no][i]
         input_frame=np.reshape(input_frame[:,0:3], (60))

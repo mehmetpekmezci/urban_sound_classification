@@ -53,13 +53,13 @@ SOUND_RECORD_SAMPLING_RATE=22050
 #PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [8,9] , [8*25,49],[8*25,63],[9*25,49*4], [8*9,5*49] ])
 #PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [2,3,25] , [3,5,49],[5,7,63],[7,2,9], [8,9,49] ])
 #PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [7*5,7,7,3,3,2,3,3,2,3,2]  ])
-PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [7*5,5,7,3,3,2,3,1,2,1,2,1,2,1]  ])
+PARALLEL_CONVOLUTION_KERNELS_SIZES=np.array([ [7*5,5,7,3,3,2,3,1,2,1,2,1,2,1,2,1]  ])
 NUMBER_OF_KERNELS=128
 LEARNING_RATE = 0.00001
-TRAINING_ITERATIONS = 2000 
+TRAINING_ITERATIONS = 4000 
 MINI_BATCH_SIZE=10
 NUMBER_OF_CLASSES=10
-NUMBER_OF_FULLY_CONNECTED_NEURONS=512
+NUMBER_OF_FULLY_CONNECTED_NEURONS=1024
 DROP_OUT=0.5
 MAX_VALUE_FOR_NORMALIZATION=0
 MIN_VALUE_FOR_NORMALIZATION=0
@@ -183,7 +183,7 @@ def deepnn(x):
      #conv_stride=1
 
      with tf.name_scope(convName):
-       W_conv = weight_variable_4d([conv_kernel_length_x, conv_kernel_length_y, conv_input_channel, conv_kernel_count])
+       W_conv = weight_variable([conv_kernel_length_x, conv_kernel_length_y, conv_input_channel, conv_kernel_count])
        b_conv = bias_variable([conv_kernel_count])
        #Based on conv2d doc:
        #    shape of input = [batch, in_height, in_width, in_channels]
@@ -218,7 +218,7 @@ def deepnn(x):
   # is down to 4*SOUND_RECORD_SAMPLING_RATE/(pool1_length*pool2_length*pool3_length) (147) feature maps -- maps this to NUMBER_OF_FULLY_CONNECTED_NEURONS features.
   with tf.name_scope('fc1'):
     print(concatanation_of_parallel_conv_layers.shape)
-    W_fc1 = weight_variable_2d([int(concatanation_of_parallel_conv_layers.shape[1]), NUMBER_OF_FULLY_CONNECTED_NEURONS])
+    W_fc1 = weight_variable([int(concatanation_of_parallel_conv_layers.shape[1]), NUMBER_OF_FULLY_CONNECTED_NEURONS])
     print("W_fc1.shape="+str(W_fc1.shape))
     b_fc1 = bias_variable([NUMBER_OF_FULLY_CONNECTED_NEURONS])
     print("b_fc1.shape="+str(b_fc1.shape))
@@ -253,7 +253,7 @@ def deepnn(x):
 
   # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS(1024) features to NUMBER_OF_CLASSES(10) classes, one for each class
   with tf.name_scope('fc2'):
-    W_fc2 = weight_variable_2d([NUMBER_OF_FULLY_CONNECTED_NEURONS, NUMBER_OF_CLASSES])
+    W_fc2 = weight_variable([NUMBER_OF_FULLY_CONNECTED_NEURONS, NUMBER_OF_CLASSES])
     b_fc2 = bias_variable([NUMBER_OF_CLASSES])
     y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
     print("y_conv.shape="+str(y_conv.shape))
@@ -278,51 +278,11 @@ def get_truncated_normal_generator():
     return truncnorm(a, b, loc=mean, scale=standard_deviation)
 
 
-def weight_variable_2d(shape):
+def weight_variable(shape):
   """weight_variable generates a weight variable of a given shape."""
   initial = tf.truncated_normal(shape, stddev=0.1)
 #  initial = tf.Print(initial, [initial], message="This is initial: ",summarize=200, first_n=70)
   return tf.Variable(initial)
-
-
-def weight_variable_4d(shape):
-  """weight_variable generates a weight variable of a given shape."""
-  
-
-  truncated_normal_generator=get_truncated_normal_generator()
-  conv_kernel_length_x=shape[0]
-  conv_kernel_length_y=shape[1]
-  conv_input_channel=shape[2]
-  conv_kernel_count=shape[3]
-
-
-  initial=np.zeros([conv_kernel_length_x,conv_kernel_length_y,conv_input_channel,conv_kernel_count])
-
-  for i in range(conv_kernel_length_x):
-    for j in range(conv_input_channel) :
-      for k in range(conv_kernel_count) :
-         initial[i,0:conv_kernel_length_y,j,k]=truncated_normal_generator.rvs(conv_kernel_length_y)
-
-  for i in range(conv_kernel_count):
-      initialization_type=random.randint(0, 3)
-      if initialization_type == 0 :
-       # first conv_kernel_length_y/2 elements  are set to 0
-       initial[:,:,0:math.floor(conv_kernel_count/2),i]=0
-      elif initialization_type == 1 :
-       # last conv_kernel_length_y/2 elements  are set to 0
-       initial[:,:,math.floor(conv_input_channel/2):,i]=0
-      elif initialization_type == 2 :
-       ## bir 0 bir 1
-       for j in range(conv_input_channel):
-             if (j+i)%2==0 :
-                initial[:,:,j,i]=0 
-      else :
-       ## do nothing
-       initial=initial
-  #print(initial)
-  initial = tf.truncated_normal(shape, stddev=0.1)
-  return tf.Variable(tf.convert_to_tensor(initial, np.float32))
-
 
 def bias_variable(shape):
   """bias_variable generates a bias variable of a given shape."""
@@ -345,6 +305,9 @@ def augment_speedx(sound_array, factor):
 
 def augment_inverse(sound_array):
     return -sound_array
+
+def augment_volume(sound_array,factor):
+    return factor * sound_array
 
 def augment_translate(snd_array, n):
     """ Translates the sound wave by n indices, fill the first n elements of the array with zeros """
@@ -441,38 +404,22 @@ def main(_):
             sys.stdout.flush()
 
 def augment_random(x_data):
-
   augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
   for i in range(x_data.shape[0]) :
-    augmentation_type=random.randint(0, 9)
-    if augmentation_type == 0 :
-       SPEED_FACTOR=1.1
-       augmented_data[i]= augment_speedx(x_data[i],SPEED_FACTOR)
-    elif augmentation_type == 1 :
-       SPEED_FACTOR=0.9
-       augmented_data[i]= augment_speedx(x_data[i],SPEED_FACTOR)
-    elif augmentation_type == 2 :
-       SPEED_FACTOR=0.8
-       augmented_data[i]= augment_speedx(x_data[i],SPEED_FACTOR)
-    elif augmentation_type == 3 :
-       SPEED_FACTOR=1.3
-       augmented_data[i]= augment_speedx(x_data[i],SPEED_FACTOR)
-    elif augmentation_type == 4 :
-       SPEED_FACTOR=1.2
-       augmented_data[i]= augment_speedx(x_data[i],SPEED_FACTOR)
-    elif augmentation_type == 5 :
-       TRANSLATION_FACTOR=8820
-       augmented_data[i]= augment_translate(x_data[i],TRANSLATION_FACTOR)
-    elif augmentation_type == 6 :
-       TRANSLATION_FACTOR=4410
-       augmented_data[i]= augment_translate(x_data[i],TRANSLATION_FACTOR)
-    elif augmentation_type == 6 :
-       TRANSLATION_FACTOR=2050
-       augmented_data[i]= augment_translate(x_data[i],TRANSLATION_FACTOR)
-    elif augmentation_type == 7 :
-       augmented_data[i]= -x_data[i]    
-    else :
-       augmented_data[i]=x_data[i] 
+    augmented_data[i]=x_data[i]
+    IS_AUGMENT_DATA=random.randint(0, 9)
+    # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
+    if IS_AUGMENT_DATA != 0 :
+      SPEED_FACTOR=random.uniform(0.7,1.3)
+      TRANSLATION_FACTOR=random.randint(2000,10000)
+      #VOLUME_FACTOR=random.uniform(0.5,2)
+      INVERSE_FACTOR=random.randint(0, 1)
+      if INVERSE_FACTOR == 1 :
+       augmented_data[i]=-augmented_data[i]
+      augmented_data[i]=augment_speedx(augmented_data[i],SPEED_FACTOR)
+      augmented_data[i]=augment_translate(augmented_data[i],TRANSLATION_FACTOR)
+      #augmented_data[i]=augment_volume(augmented_data[i],VOLUME_FACTOR)
+
   return augmented_data
  
 
