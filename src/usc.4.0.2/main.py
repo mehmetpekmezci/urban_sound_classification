@@ -53,13 +53,21 @@ def main(_):
     logger.info("Test Accuracy : "+str(np.mean(testAccuracies)))
     
     ## GRAPH (FOR LOGGING)
-    tariningSummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies)})
-    trainingAccuracyWriter.add_summary(tariningSummary, trainingIterationNo)
+    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies)})
+    trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
     trainingAccuracyWriter.flush()
 
-    testSummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var:np.mean(testAccuracies)})
-    testAccuracyWriter.add_summary(testSummary, trainingIterationNo)
+    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var:np.mean(testAccuracies)})
+    testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
     testAccuracyWriter.flush()
+
+    tariningTimeSummary = session.run(tfSummaryTimeMergedWriter, {tf_summary_time_log_var: np.sum(trainingTimes)})
+    trainingTimeWriter.add_summary(tariningTimeSummary, trainingIterationNo)
+    trainingTimeWriter.flush()
+
+    testTimeSummary = session.run(tfSummaryTimeMergedWriter, {tf_summary_time_log_var:np.mean(testTimess)})
+    testTimeWriter.add_summary(testTimeSummary, trainingIterationNo)
+    testTimeWriter.flush()
 
 
 if __name__ == '__main__':

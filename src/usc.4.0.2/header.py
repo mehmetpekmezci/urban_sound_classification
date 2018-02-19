@@ -56,11 +56,18 @@ logger.addHandler(loggingFileHandler)
 ##
 ## CONFIGURE TF.SUMMARY
 ##
+## ONE VARIABLE , TWO WRITERS TO OBTAIN TWO GRPAHS ON THE SAME IMAGE
 trainingAccuracyWriter = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/trainingAccuracyWriter")
 testAccuracyWriter =tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/testAccuracyWriter")
 tf_summary_accuracy_log_var = tf.Variable(0.0)
 tf.summary.scalar("Accuracy (Test/Train)", tf_summary_accuracy_log_var)
 tfSummaryAccuracyMergedWriter = tf.summary.merge_all()
+
+trainingTimeWriter = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/trainingTimeWriter")
+testTimeWriter =tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/testTimeWriter")
+tf_summary_time_log_var = tf.Variable(0.0)
+tf.summary.scalar("Time (Test/Train)", tf_summary_time_log_var)
+tfSummaryTimeMergedWriter = tf.summary.merge_all()
 
 
 
