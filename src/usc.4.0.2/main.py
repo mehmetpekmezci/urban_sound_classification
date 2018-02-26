@@ -4,7 +4,7 @@ from data import *
 from NeuralNetworkModel import *
 
 def main(_):
-    
+
   # if not already done  : Download from internet , convert to  csv files.   
   prepareData()
   # load all data into the memory

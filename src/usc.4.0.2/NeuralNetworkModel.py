@@ -54,13 +54,13 @@ class NeuralNetworkModel :
    ## INPUT  LAYER
    ##
    number_of_input_channels=1
-   #self.x_input                      = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.number_of_time_slices, self.input_size,input_channel_size), name="input")
    self.x_input                      = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.input_size), name="input")
    with tf.name_scope('input_reshape'):
     print("self.x_input.shape="+str(self.x_input.shape))
-    self.x_input = tf.reshape(self.x_input, [self.mini_batch_size, self.number_of_time_slices, self.input_size/self.number_of_time_slices, number_of_input_channels])
+    self.x_input = tf.reshape(self.x_input, [self.mini_batch_size, self.number_of_time_slices, int(self.input_size/self.number_of_time_slices), number_of_input_channels])
     ## image analogy : [ batch_size, image_height, image_width, RGB_channel_3 ]    
-
+    print("self.x_input.shape="+str(self.x_input.shape))
+    
    ##
    ## CNN LAYERS
    ##
@@ -69,27 +69,30 @@ class NeuralNetworkModel :
    for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
      cnnLayerName    = "cnn-"+str(cnnLayerNo)     
      cnnKernelCount  = self.cnn_kernel_counts[cnnLayerNo]   # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
-     cnnKernelSizeX  = self.cnn_kernel_y_sizes[cnnLayerNo]
+     cnnKernelSizeX  = self.cnn_kernel_x_sizes[cnnLayerNo]
      cnnKernelSizeY  = self.cnn_kernel_y_sizes[cnnLayerNo]         
      cnnStrideSizeX  = self.cnn_stride_x_sizes[cnnLayerNo] 
      cnnStrideSizeY  = self.cnn_stride_y_sizes[cnnLayerNo]                     
      cnnPoolSizeX    = self.cnn_pool_x_sizes[cnnLayerNo]          
-     cnnPoolSizeY    = self.cnn_pool_y_sizes[cnnLayerNo]          
+     cnnPoolSizeY    = self.cnn_pool_y_sizes[cnnLayerNo]      
+     cnnOutputChannel= cnnKernelCount   
      if cnnLayerNo == 0 :
        cnnInputChannel = 1
      else :
        cnnInputChannel = self.cnn_kernel_counts[int(cnnLayerNo-1)]   
-    
-     with tf.name_scope(cnnLayerName+"-convolution"):  
-       W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnKernelCount], stddev=0.1))
-       B = tf.Variable(tf.constant(0.1, shape=[cnnInputChannel, cnnKernelCount]))
+     with tf.name_scope(cnnLayerName+"-convolution"):
+       ## WEIGHT    
+       W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
+       print(W)
+       ## BIAS
+       B = tf.Variable(tf.constant(0.1, shape=[cnnOutputChannel]))
        #Based on conv2d doc:
        #    shape of input = [batch, in_height, in_width, in_channels]
        #    shape of filter = [filter_height, filter_width, in_channels, out_channels]
-       #    Last dimension of input and third dimension of filter represents the number of input channels. In your case they are not equal.
+       #    Last dimension of input and third dimension of filter represents the number of input channels
        C = tf.nn.conv2d(previous_level_convolution_output,W,strides=[cnnStrideSizeX, cnnStrideSizeY, 1, 1], padding='SAME')+B
        self.logger.info(cnnLayerName+"_C.shape="+str(C.shape))
-
+     print(C)
      with tf.name_scope(cnnLayerName+"-relu"):  
        H = tf.nn.relu(C)
        self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
@@ -97,12 +100,13 @@ class NeuralNetworkModel :
      with tf.name_scope(cnnLayerName+"-pool"):
        # Max Pooling layer - downsamples by pool_length.
        # pooled by 1 x cnnPoolSize
-       P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeY,cnnPoolSizeY, 1], padding='SAME') 
+       P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY, 1], padding='SAME') 
        self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
        ## put the output of this layer to the next layer's input layer.
-       previous_level_conv_output=P
+       previous_level_convolution_output=P
+       print(P)
 
-   cnn_last_layer_output=previous_level_conv_output
+   cnn_last_layer_output=previous_level_convolution_output
 
 
    with tf.name_scope("cnn-result-reshape"):

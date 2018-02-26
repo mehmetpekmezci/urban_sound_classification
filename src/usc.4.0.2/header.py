@@ -28,8 +28,8 @@ datetime    = importlib.import_module("datetime")
 ##
 ## DATA DIRECTORY NAMES
 ##
-FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-#FOLD_DIRS = ['fold1','fold10']
+#FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
+FOLD_DIRS = ['fold1','fold10']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
 RAW_DATA_DIR = MAIN_DATA_DIR+'/0.raw/UrbanSound8K/audio'
@@ -38,7 +38,12 @@ LOG_DIR_FOR_LOGGER=SCRIPT_DIR+"/../../logs/logger"
 LOG_DIR_FOR_TF_SUMMARY=SCRIPT_DIR+"/../../logs/tf-summary"
 
 
-
+if not os.path.exists(LOG_DIR_FOR_TF_SUMMARY):
+    os.makedirs(LOG_DIR_FOR_TF_SUMMARY)
+if not os.path.exists(LOG_DIR_FOR_LOGGER):
+    os.makedirs(LOG_DIR_FOR_LOGGER)
+    
+    
 ## CONFUGRE LOGGING
 logger=logging.getLogger('usc')
 #ch = logging.StreamHandler()
@@ -79,7 +84,7 @@ SOUND_RECORD_SAMPLING_RATE=22050
 TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
 # EVERY 4 second RECORD WILL BE CUT INTO 20 SLICES ( SO INPUT_SIZE WILL BE 4*22050/20 = 22050/5 = 4410 )
 # 1 TRACK IS LIKE SUCCESIVE 20 SLICES (for LSTM)
-NUMBER_OF_TIME_SLICES=20
+NUMBER_OF_TIME_SLICES=8
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
 
@@ -100,10 +105,12 @@ NUMBER_OF_FULLY_CONNECTED_NEURONS=512
 ## CNN PARAMETERS
 ##
 ## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
-CNN_KERNEL_COUNTS   = np.array([128   ,64  ,64   ,32    ,32    ,32    ,32 ,24 ,24 ,16 ,16 ,16 ,16 ,16])
-CNN_KERNEL_X_SIZES     = np.array([1     ,1   ,1    ,1     ,1     ,1     ,1  ,1  ,1  ,1  ,1  ,1  ,1  ,1 ])
+CNN_KERNEL_COUNTS   = np.array([64   ,64  ,64   ,32    ,32    ,32    ,32 ,24 ,24 ,16 ,16 ,16 ,16 ,16])
+CNN_KERNEL_X_SIZES     =  np.full((len(CNN_KERNEL_COUNTS)), NUMBER_OF_TIME_SLICES)
+#CNN_KERNEL_X_SIZES     = np.array([1     ,1   ,1    ,1     ,1     ,1     ,1  ,1  ,1  ,1  ,1  ,1  ,1  ,1 ])  ## np.full((len(CNN_KERNEL_COUNTS)), NUMBER_OF_TIME_SLICES)
 CNN_KERNEL_Y_SIZES     = np.array([7*5   ,7*3 ,7*2  ,5*3   ,5*2   ,3*2   ,7  ,5  ,4  ,3  ,2  ,3  ,3  ,2 ])
-CNN_STRIDE_X_SIZES       = np.array([1     ,1   ,1    ,1     ,1     ,1     ,1  ,1  ,1  ,1  ,1  ,1  ,1  ,1 ])
+#CNN_STRIDE_X_SIZES       = np.array([1     ,1   ,1    ,1     ,1     ,1     ,1  ,1  ,1  ,1  ,1  ,1  ,1  ,1 ])
+CNN_STRIDE_X_SIZES       = CNN_KERNEL_X_SIZES
 CNN_STRIDE_Y_SIZES        = np.array([6*5   ,6*3 ,6*2  ,4*3   ,4*2   ,2*2   ,6  ,4  ,3  ,2  ,1  ,2  ,2  ,1 ])
 CNN_POOL_X_SIZES          = np.array([1     ,1   ,1    ,1     ,1     ,1     ,1  ,1  ,1  ,1  ,1  ,1  ,1  ,1 ])
 CNN_POOL_Y_SIZES          = np.array([5*5   ,5*3 ,5*2  ,3*3   ,3*2   ,1*2   ,5  ,3  ,2  ,2  ,1  ,2  ,2  ,1 ])

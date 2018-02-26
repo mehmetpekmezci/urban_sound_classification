@@ -119,22 +119,9 @@ def get_fold_data(fold):
      return np.random.permutation(fold_data_dictionary[fold])
 
 
-def slice_data(data,NUMBER_OF_SLICES) :
-   NUMBER_OF_BATCHES=data.shape[0]
-   SLICE_WIDTH=int(data.shape[1]/NUMBER_OF_SLICES)
-   sliced_data=np.empty((NUMBER_OF_BATCHES,NUMBER_OF_SLICES,SLICE_WIDTH))
-   for current_batch in range(NUMBER_OF_BATCHES) :
-     for current_slice in range(NUMBER_OF_SLICES) :
-         sliced_data[current_batch][current_slice]=data[current_batch][current_slice*SLICE_WIDTH:(current_slice+1)*SLICE_WIDTH]
-   return sliced_data
-                
-def replicate_data(data,NUMBER_OF_SLICES) :
-   NUMBER_OF_BATCHES=data.shape[0]
-   replicated_data=np.empty((NUMBER_OF_BATCHES,NUMBER_OF_SLICES,data.shape[1]))
-   for current_batch in range(NUMBER_OF_BATCHES) :
-        for current_slice in range(NUMBER_OF_SLICES) :
-           ## replicate all data (y_one_hot_encoded_batch) ,for all slices
-           replicated_data[current_batch][current_slice]=data[current_batch]
-   return replicated_data
+def slice_data(data,NUMBER_OF_TIME_SLICES) :
+   return np.reshape(data,[-1,NUMBER_OF_TIME_SLICES,int(data.shape[1]/NUMBER_OF_TIME_SLICES)])
+  
+
                 
   

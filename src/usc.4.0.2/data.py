@@ -6,11 +6,11 @@ def parse_audio_files():
     global RAW_DATA_DIR,CSV_DATA_DIR,FOLD_DIRS
     sub4SecondSoundFilesCount=0
     for sub_dir in FOLD_DIRS:
-       logger.info("Parsing : "+sub_dir)
+      logger.info("Parsing : "+sub_dir)
       csvDataFile=open(CSV_DATA_DIR+"/"+sub_dir+".csv", 'w')
       csvDataWriter = csv.writer(csvDataFile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
       for file_path in glob.glob(os.path.join(RAW_DATA_DIR, sub_dir, '*.wav')):
-          logger.info(file_path)
+         logger.info(file_path)
          try :
           classNumber=file_path.split('/')[-1].split('.')[0].split('-')[1]
           sound_data,sampling_rate=librosa.load(file_path)
@@ -27,31 +27,31 @@ def parse_audio_files():
           csvDataWriter.writerow(sound_data_in_4_second)       
          except :
                 e = sys.exc_info()[0]
-                 logger.info ("Exception :")
-                 logger.info (e)
+                logger.info ("Exception :")
+                logger.info (e)
       csvDataFile.close()       
-     logger.info("sub4SecondSoundFilesCount="+str(sub4SecondSoundFilesCount));  
+      logger.info("sub4SecondSoundFilesCount="+str(sub4SecondSoundFilesCount));  
 
 
 def prepareData():
     logger.info("Starting to prepare the data ...  ")
 
     global RAW_DATA_DIR,CSV_DATA_DIR,FOLD_DIRS
-     logger.info ("prepareData function ...")
+    logger.info ("prepareData function ...")
     if not  os.path.exists(RAW_DATA_DIR) :
        if not  os.path.exists(MAIN_DATA_DIR+'/../data/0.raw'):
          os.makedirs(MAIN_DATA_DIR+'/../data/0.raw')   
     if not os.path.exists(MAIN_DATA_DIR+"/0.raw/UrbanSound8K"):
       if os.path.exists(MAIN_DATA_DIR+"/0.raw/UrbanSound8K.tar.gz"):
-          logger.info("Extracting "+MAIN_DATA_DIR+"/0.raw/UrbanSound8K.tar.gz")
+         logger.info("Extracting "+MAIN_DATA_DIR+"/0.raw/UrbanSound8K.tar.gz")
          tar = tarfile.open(MAIN_DATA_DIR+"/0.raw/UrbanSound8K.tar.gz")
          tar.extractall(MAIN_DATA_DIR+'/../data/0.raw')
          tar.close()
-          logger.info("Extracted "+MAIN_DATA_DIR+"/0.raw/UrbanSound8K.tar.gz")
+         logger.info("Extracted "+MAIN_DATA_DIR+"/0.raw/UrbanSound8K.tar.gz")
       else :   
          logger.info("download "+MAIN_DATA_DIR+"/0.raw/UrbanSound8K.tar.gz from http://serv.cusp.nyu.edu/files/jsalamon/datasets/content_loader.php?id=2  using firefox browser or chromium  and re-run this script")
          # logger.info("download "+MAIN_DATA_DIR+"/0.raw/UrbanSound8K.tar.gz from https://serv.cusp.nyu.edu/projects/urbansounddataset/download-urbansound8k.html using firefox browser or chromium  and re-run this script")
-        exit(1)
+         exit(1)
 #         http = urllib3.PoolManager()
 #         chunk_size=100000
 #         r = http.request('GET', 'http://serv.cusp.nyu.edu/files/jsalamon/datasets/content_loader.php?id=2', preload_content=False)
@@ -87,7 +87,7 @@ def one_hot_encode(classNumber):
    return one_hot_encoded_class_number
 
 def load_all_csv_data_back_to_memory():
-      logger.info ("load_all_csv_data_back_to_memory function started ...")
+     logger.info ("load_all_csv_data_back_to_memory function started ...")
      global fold_data_dictionary, MAX_VALUE_FOR_NORMALIZATION ,  MIN_VALUE_FOR_NORMALIZATION
      for fold in FOLD_DIRS:
        fold_data_dictionary[fold]=np.array(np.loadtxt(open(CSV_DATA_DIR+"/"+fold+".csv", "rb"), delimiter=","))
@@ -103,10 +103,11 @@ def load_all_csv_data_back_to_memory():
               MIN_VALUE_FOR_NORMALIZATION = minOfArray
           ## Then append Y data to the end of row
           fold_data_dictionary[fold][i]=np.append(loadedDataX,loadedDataY)
-      logger.info ("load_all_csv_data_back_to_memory function finished ...")
+     
+     logger.info ("load_all_csv_data_back_to_memory function finished ...")
 
 def normalize_all_data():
-      logger.info ("normalize_all_data function started ...")
+     logger.info ("normalize_all_data function started ...")
      global fold_data_dictionary
      for fold in FOLD_DIRS:
        for i in range(fold_data_dictionary[fold].shape[0]) :
@@ -115,7 +116,7 @@ def normalize_all_data():
           loadedDataY=loadedData[4*SOUND_RECORD_SAMPLING_RATE]
           normalizedLoadedDataX=normalize(loadedDataX)
           fold_data_dictionary[fold][i]=np.append(normalizedLoadedDataX,loadedDataY)
-      logger.info ("normalize_all_data function finished ...")
+     logger.info ("normalize_all_data function finished ...")
 
 def get_fold_data(fold):
      global fold_data_dictionary
