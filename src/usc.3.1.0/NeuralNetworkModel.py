@@ -197,19 +197,32 @@ class NeuralNetworkModel :
   ##   S1 S2 0  0
   ##   S1 S2 S3 0
   ##   S1 S2 S3 S4
-  x_data_reshaped=np.zeros((x_data.shape[0],self.input_size_x,self.input_size_y,self.number_of_input_channels))
-  self.logger.debug(x_data_reshaped.shape)
-  for i in range( self.mini_batch_size) :
-   for j in range(self.input_size_x) :
-    for k in range(int(TRACK_LENGTH/NUMBER_OF_TIME_SLICES)) :
-      x_data_reshaped[i,j,k+j*SLIDE_STEP,0]=x_data[i,int(j*TRACK_LENGTH/NUMBER_OF_TIME_SLICES+k)]
+  ##   0  S2 S3 S4
+  ##   0  0  S3 S4
+  ##   0  0  0  S4
 
-  self.logger.debug(x_data_reshaped[-1,-1,-10:-1])
-  self.logger.debug(x_data_reshaped[-1,-2,-10:-1])
-  self.logger.debug(x_data_reshaped[-1,-3,-10:-1])
+  ## slice data
+  x_data_sliced=np.reshape(x_data,(x_data.shape[0],NUMBER_OF_TIME_SLICES,int(TRACK_LENGTH/NUMBER_OF_TIME_SLICES),1))
+
+
+  # shift data
+  x_data_sliced_shifted=np.zeros((x_data_sliced.shape[0],self.input_size_x,self.input_size_y,self.number_of_input_channels))
+  for j in range(NUMBER_OF_TIME_SLICES) :
+     x_data_sliced_shifted[:,j,int(j*SLIDE_STEP):int(j*SLIDE_STEP+TRACK_LENGTH/NUMBER_OF_TIME_SLICES),:]=x_data_sliced[:,j,:,:]
+
+  #self.logger.debug('NORMAL AUGMENTED DATA:')
+  #self.logger.debug(x_data.shape)
+  #self.logger.debug(x_data)
+  #self.logger.debug('SLICED DATA:')
+  #self.logger.debug(x_data_sliced.shape)
+  #self.logger.debug(x_data_sliced)
+  #self.logger.debug('SLICED AND SHIFTED DATA:')
+  #self.logger.debug(x_data_sliced_shifted.shape)
+  #self.logger.debug(x_data_sliced_shifted)
+  # one hot encode
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
-  return x_data_reshaped,y_data_one_hot_encoded
+  return x_data_sliced_shifted,y_data_one_hot_encoded
 
  def train(self,data):
   trainingTimeStart = int(round(time.time())) 

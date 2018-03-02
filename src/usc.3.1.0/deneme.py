@@ -3,10 +3,12 @@ from header import *
 from data import *
 from NeuralNetworkModel import *
 
+
 def main(_):
 
   logger.info("Main is started ... ")
   # load all data into the memory
+
   load_all_csv_data_back_to_memory()
   data=get_fold_data('fold1')
   TRACK_LENGTH=20
@@ -26,14 +28,14 @@ def main(_):
 
   print(time.time())
   for j in range(NUMBER_OF_TIME_SLICES) :
-    x_data_reshaped2[:,:,int(j*SLIDE_STEP):int(j*SLIDE_STEP+TRACK_LENGTH/NUMBER_OF_TIME_SLICES),:]=x_data_reshaped3[:,:,:,:]
+      x_data_reshaped2[:,j,int(j*SLIDE_STEP):int(j*SLIDE_STEP+TRACK_LENGTH/NUMBER_OF_TIME_SLICES),:]=x_data_reshaped3[:,j,:,:]
   
   print(time.time())
 
   print(x_data)
 #  print(x_data_reshaped)
-#  print(x_data_reshaped2)
-  print(x_data_reshaped3)
+  print(x_data_reshaped2)
+#  print(x_data_reshaped3)
 
 
 if __name__ == '__main__':

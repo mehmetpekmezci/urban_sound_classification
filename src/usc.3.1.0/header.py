@@ -25,11 +25,13 @@ datetime    = importlib.import_module("datetime")
 ## DEFAULT CONFIGS
 ##
 
+# uncomment below for debugging
+#np.set_printoptions(threshold=np.nan)
+
 ##
 ## DATA DIRECTORY NAMES
 ##
-#FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-FOLD_DIRS = ['fold1','fold10']
+FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
 RAW_DATA_DIR = MAIN_DATA_DIR+'/0.raw/UrbanSound8K/audio'
@@ -47,6 +49,7 @@ if not os.path.exists(LOG_DIR_FOR_LOGGER):
 ## CONFUGRE LOGGING
 logger=logging.getLogger('usc')
 logger.setLevel(logging.INFO)
+#logger.setLevel(logging.DEBUG)
 # create file handler and set level to debug
 loggingFileHandler = logging.FileHandler(LOG_DIR_FOR_LOGGER+'/usc-'+str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y.%m.%d_%H.%M.%S'))+'.log')
 loggingFileHandler.setLevel(logging.DEBUG)
@@ -125,9 +128,11 @@ CNN_POOL_Y_SIZES          = np.array([5    ,5   ,3    ,3     ,3    ,2   ,2  ,2  
 ##
 ## TRAINING PARAMETERS
 ##
-LEARNING_RATE = 0.00001
+#LEARNING_RATE = 0.00001
+LEARNING_RATE = 0.0001
 TRAINING_ITERATIONS=2000
-MINI_BATCH_SIZE=10
+#MINI_BATCH_SIZE=175
+MINI_BATCH_SIZE=100
 
 ##
 ## LSTM PARAMETERS
