@@ -52,7 +52,7 @@ def augment_data():
     global csv_data_dir,fold_dirs
     for fold in fold_dirs:
       print("Augmenting Data in the Fold :"+fold)
-      csvData=np.array(np.loadtxt(open(csv_data_dir+"/"+fold+".csv", "rb"), delimiter=","))
+      csvData=np.array(np.loadtxt(open(csv_data_dir+"/"+fold+".csv.reduced", "rb"), delimiter=","))
       #for i in range(csvData.shape[0]) :
       for i in range(10) :
           csvDataLine=csvData[i]
@@ -63,7 +63,9 @@ def augment_data():
           TRANSLATION_FACTOR=2000
           augmentDataX=augment_translate(csvDataLineX,TRANSLATION_FACTOR)
           librosa.output.write_wav('/tmp/'+str(i)+'.translation.wav',  augmentDataX , SOUND_RECORD_SAMPLING_RATE)
-
+    
+          addedData=csvData[i]+csvData[i-1]
+          librosa.output.write_wav('/tmp/'+str(i)+'.added.wav',  addedData , SOUND_RECORD_SAMPLING_RATE)
 
           SPEED_FACTOR=1.1
           augmentDataX=augment_speedx(csvDataLineX,SPEED_FACTOR)
@@ -85,8 +87,13 @@ def augment_data():
           csvDataWriterI = csv.writer(csvDataFileI, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
           csvDataWriterI.writerow(augmentDataX)
           csvDataFileI.close()
+ 
+          if i>1 :
+            csvDataFileA=open("/tmp/"+str(i)+".add.csv", 'w')
+            csvDataWriterA = csv.writer(csvDataFileA, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+            csvDataWriterA.writerow(addedData)
+            csvDataFileI.close()
   
-
 
 
 def augment_speedx(sound_array, factor):

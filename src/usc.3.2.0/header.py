@@ -93,7 +93,7 @@ SOUND_RECORD_SAMPLING_RATE=22050
 TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
 # EVERY 4 second RECORD WILL BE CUT INTO 20 SLICES ( SO INPUT_SIZE WILL BE 4*22050/20 = 22050/5 = 4410 )
 # 1 TRACK IS LIKE SUCCESIVE 20 SLICES (for LSTM)
-NUMBER_OF_TIME_SLICES=4
+NUMBER_OF_MERGED_TRACK=20
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
 
@@ -102,9 +102,9 @@ NUMBER_OF_CLASSES=10
 ## GENERAL CONSTANTS
 ##
 OUTPUT_SIZE=NUMBER_OF_CLASSES
-INPUT_SIZE_X=NUMBER_OF_TIME_SLICES
-SLIDE_STEP=int(TRACK_LENGTH/NUMBER_OF_TIME_SLICES/2)
-INPUT_SIZE_Y=int(TRACK_LENGTH/NUMBER_OF_TIME_SLICES+NUMBER_OF_TIME_SLICES*SLIDE_STEP)
+INPUT_SIZE_X=NUMBER_OF_MERGED_TRACK
+SLIDE_STEP=int(TRACK_LENGTH/NUMBER_OF_MERGED_TRACK/2)
+INPUT_SIZE_Y=int(TRACK_LENGTH+NUMBER_OF_MERGED_TRACK*SLIDE_STEP)
 
 ##
 ## FULLY CONNECTED LAYER PARAMETERS
@@ -115,19 +115,19 @@ NUMBER_OF_FULLY_CONNECTED_NEURONS=512
 ##
 ## CNN PARAMETERS
 ##
-CNN_KERNEL_COUNTS   = np.array([64   ,64  ,64   ,32    ,32    ,32    ,32 ,32 ,32 ,32 ,32 ])
-CNN_KERNEL_X_SIZES     = np.array([2  ,1   ,1    ,1     ,1     ,1    ,1  ,1  ,1  ,1  ,1  ]) 
-CNN_KERNEL_Y_SIZES     = np.array([7  , 7  , 5  , 5     ,3     ,3    ,3  ,3  ,3  ,2  ,2  ])
-CNN_STRIDE_X_SIZES       = np.array([1    ,1   ,1    ,1     ,1    ,1   ,1  ,1  ,1  ,1  ,1   ])
-CNN_STRIDE_Y_SIZES        = np.array([5    ,5   ,3    ,3     ,2    ,2   ,2  ,2  ,1  ,1  ,1  ])
-CNN_POOL_X_SIZES       = np.array([1    ,1   ,1    ,1     ,1    ,1   ,1  ,1  ,1  ,1  ,1   ])
-CNN_POOL_Y_SIZES          = np.array([5    ,5   ,3    ,3     ,2    ,2   ,2  ,2  ,1  ,1  ,1   ])
+CNN_KERNEL_COUNTS   = np.array([64 ,64  ,64   ,32    ,32    ,32  ,32 ,32 ,32 ,32 ,32 ])
+CNN_KERNEL_X_SIZES  = np.array([3  ,3   ,3    ,2     ,2    ,1    ,1  ,1  ,1  ,1  ,1  ]) 
+CNN_KERNEL_Y_SIZES  = np.array([3  ,3   ,3    ,3     ,3    ,3    ,2  ,2  ,3  ,2  ,2  ])
+CNN_STRIDE_X_SIZES  = np.array([2  ,2   ,2    ,1     ,1    ,1    ,1  ,1  ,1  ,1  ,1  ])
+CNN_STRIDE_Y_SIZES  = np.array([2  ,2   ,2    ,2     ,2    ,2    ,2  ,2  ,1  ,1  ,1  ])
+CNN_POOL_X_SIZES    = np.array([2  ,2   ,2    ,1     ,1    ,1    ,1  ,1  ,1  ,1  ,1  ])
+CNN_POOL_Y_SIZES    = np.array([2  ,2   ,2    ,2     ,2    ,2    ,2  ,2  ,1  ,1  ,1  ])
 
 ##
 ## TRAINING PARAMETERS
 ##
 #LEARNING_RATE = 0.00001
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.01
 TRAINING_ITERATIONS=2000
 #MINI_BATCH_SIZE=175
 MINI_BATCH_SIZE=2
