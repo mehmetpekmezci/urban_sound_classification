@@ -190,7 +190,11 @@ class NeuralNetworkModel :
 
 
  def prepareData(self,data):
+  t1 = int(round(time.time()))
+#  logger.info("prepare data started = "+str(t1))
+
   x_data_real=data[:,:4*SOUND_RECORD_SAMPLING_RATE]
+  #logger.info("x_data_real.shape = "+str(x_data_real.shape))
   ## convert 1d sound data to 2d shifted data
   ## For Example :
   ##   S1 0  0  0
@@ -203,7 +207,11 @@ class NeuralNetworkModel :
 
   for j in range(NUMBER_OF_MERGED_TRACK) :
      ## slice data
+  #   tx1 = int(round(time.time()))
+  #   logger.info("getting augmented data started = "+str(tx1))
      x_data=augment_random(x_data_real)
+     tx2 = int(round(time.time()))
+  #   logger.info("getting augmented data finished = "+str(tx2))
      #x_data_sliced=np.reshape(x_data,(x_data.shape[0],NUMBER_OF_MERGED_TRACK,int(TRACK_LENGTH/NUMBER_OF_MERGED_TRACK),1))
      x_data_sliced=np.reshape(x_data,(x_data.shape[0],1,TRACK_LENGTH,1))
      # shift data
@@ -216,12 +224,14 @@ class NeuralNetworkModel :
   #self.logger.debug('SLICED DATA:')
   #self.logger.debug(x_data_sliced.shape)
   #self.logger.debug(x_data_sliced)
-  #self.logger.debug('SLICED AND SHIFTED DATA:')
-  #self.logger.debug(x_data_sliced_shifted.shape)
+  #self.logger.info('MERGED AND SHIFTED DATA SHAPE:')
+  #self.logger.info(x_data_sliced_shifted.shape)
   #self.logger.debug(x_data_sliced_shifted)
   # one hot encode
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
+  #t2 = int(round(time.time()))
+#  logger.info("prepare data finished = "+str(t2))
   return x_data_sliced_shifted,y_data_one_hot_encoded
 
  def train(self,data):

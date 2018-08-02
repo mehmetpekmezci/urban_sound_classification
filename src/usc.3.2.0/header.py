@@ -91,9 +91,8 @@ tfSummaryTimeMergedWriter = tf.summary.merge_all()
 # 1 RECORD is 4 seconds = 4 x sampling rate double values = 4 x 22050 = 88200 = (2^3) x ( 3^2) x (5^2) x (7^2)
 SOUND_RECORD_SAMPLING_RATE=22050
 TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
-# EVERY 4 second RECORD WILL BE CUT INTO 20 SLICES ( SO INPUT_SIZE WILL BE 4*22050/20 = 22050/5 = 4410 )
-# 1 TRACK IS LIKE SUCCESIVE 20 SLICES (for LSTM)
-NUMBER_OF_MERGED_TRACK=20
+# 10 RECORDS WILL BE MERGED INTO 1 2D matrix
+NUMBER_OF_MERGED_TRACK=10
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
 
@@ -115,12 +114,12 @@ NUMBER_OF_FULLY_CONNECTED_NEURONS=512
 ##
 ## CNN PARAMETERS
 ##
-CNN_KERNEL_COUNTS   = np.array([64 ,64  ,64   ,32    ,32    ,32  ,32 ,32 ,32 ,32 ,32 ])
-CNN_KERNEL_X_SIZES  = np.array([3  ,3   ,3    ,2     ,2    ,1    ,1  ,1  ,1  ,1  ,1  ]) 
+CNN_KERNEL_COUNTS   = np.array([16 ,16  ,16   ,16    ,16   ,16   ,16 ,16 ,16 ,16 ,16 ])
+CNN_KERNEL_X_SIZES  = np.array([3  ,1   ,1    ,1     ,1    ,1    ,1  ,1  ,1  ,1  ,1  ]) 
 CNN_KERNEL_Y_SIZES  = np.array([3  ,3   ,3    ,3     ,3    ,3    ,2  ,2  ,3  ,2  ,2  ])
-CNN_STRIDE_X_SIZES  = np.array([2  ,2   ,2    ,1     ,1    ,1    ,1  ,1  ,1  ,1  ,1  ])
+CNN_STRIDE_X_SIZES  = np.array([2  ,1   ,1    ,1     ,1    ,1    ,1  ,1  ,1  ,1  ,1  ])
 CNN_STRIDE_Y_SIZES  = np.array([2  ,2   ,2    ,2     ,2    ,2    ,2  ,2  ,1  ,1  ,1  ])
-CNN_POOL_X_SIZES    = np.array([2  ,2   ,2    ,1     ,1    ,1    ,1  ,1  ,1  ,1  ,1  ])
+CNN_POOL_X_SIZES    = np.array([2  ,1   ,1    ,1     ,1    ,1    ,1  ,1  ,1  ,1  ,1  ])
 CNN_POOL_Y_SIZES    = np.array([2  ,2   ,2    ,2     ,2    ,2    ,2  ,2  ,1  ,1  ,1  ])
 
 ##
@@ -130,7 +129,7 @@ CNN_POOL_Y_SIZES    = np.array([2  ,2   ,2    ,2     ,2    ,2    ,2  ,2  ,1  ,1 
 LEARNING_RATE = 0.01
 TRAINING_ITERATIONS=2000
 #MINI_BATCH_SIZE=175
-MINI_BATCH_SIZE=2
+MINI_BATCH_SIZE=5
 
 ##
 ## LSTM PARAMETERS
