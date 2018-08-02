@@ -52,11 +52,12 @@ loggingFileHandler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 loggingFileHandler.setFormatter(formatter)
 logger.addHandler(loggingFileHandler)
-#logger.debug('debug message')
-#logger.info('info message')
-#logger.warn('warn message')
-#logger.error('error message')
-#logger.critical('critical message')
+logger.setLevel(logging.DEBUG)
+logger.debug('debug message')
+logger.info('info message')
+logger.warn('warn message')
+logger.error('error message')
+logger.critical('critical message')
 
 ##
 ## CONFIGURE TF.SUMMARY
