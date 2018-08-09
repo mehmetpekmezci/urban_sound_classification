@@ -84,7 +84,7 @@ SOUND_RECORD_SAMPLING_RATE=22050
 TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
 # EVERY 4 second RECORD WILL BE CUT INTO 20 SLICES ( SO INPUT_SIZE WILL BE 4*22050/20 = 22050/5 = 4410 )
 # 1 TRACK IS LIKE SUCCESIVE 20 SLICES (for LSTM)
-NUMBER_OF_TIME_SLICES=8
+NUMBER_OF_TIME_SLICES=20
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
 
@@ -99,34 +99,34 @@ INPUT_SIZE=TRACK_LENGTH
 ## FULLY CONNECTED LAYER PARAMETERS
 ##
 DROP_OUT=0.5
-NUMBER_OF_FULLY_CONNECTED_NEURONS=512
+KEEP_PROB=DROP_OUT
+NUMBER_OF_FULLY_CONNECTED_NEURONS=64
 
 ##
 ## CNN PARAMETERS
 ##
 ## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
-CNN_KERNEL_COUNTS   = np.array([64   ,64  ,64   ,32    ,32    ,32    ,32 ,24 ,24 ,16 ,16 ,16 ,16 ,16])
-CNN_KERNEL_X_SIZES     =  np.full((len(CNN_KERNEL_COUNTS)), NUMBER_OF_TIME_SLICES)
-#CNN_KERNEL_X_SIZES     = np.array([1     ,1   ,1    ,1     ,1     ,1     ,1  ,1  ,1  ,1  ,1  ,1  ,1  ,1 ])  ## np.full((len(CNN_KERNEL_COUNTS)), NUMBER_OF_TIME_SLICES)
-CNN_KERNEL_Y_SIZES     = np.array([7*5   ,7*3 ,7*2  ,5*3   ,5*2   ,3*2   ,7  ,5  ,4  ,3  ,2  ,3  ,3  ,2 ])
-#CNN_STRIDE_X_SIZES       = np.array([1     ,1   ,1    ,1     ,1     ,1     ,1  ,1  ,1  ,1  ,1  ,1  ,1  ,1 ])
-CNN_STRIDE_X_SIZES       = CNN_KERNEL_X_SIZES
-CNN_STRIDE_Y_SIZES        = np.array([6*5   ,6*3 ,6*2  ,4*3   ,4*2   ,2*2   ,6  ,4  ,3  ,2  ,1  ,2  ,2  ,1 ])
-CNN_POOL_X_SIZES          = np.array([1     ,1   ,1    ,1     ,1     ,1     ,1  ,1  ,1  ,1  ,1  ,1  ,1  ,1 ])
-CNN_POOL_Y_SIZES          = np.array([5*5   ,5*3 ,5*2  ,3*3   ,3*2   ,1*2   ,5  ,3  ,2  ,2  ,1  ,2  ,2  ,1 ])
+CNN_KERNEL_COUNTS       = np.array([64,64,64,32,32,32,32,16,16,16,16,16])
+CNN_KERNEL_X_SIZES      = np.array([1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([7 , 7, 7, 5, 5, 5, 5, 3, 3, 3, 3, 3])
+CNN_STRIDE_X_SIZES      = np.array([1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([5 , 5, 5, 3, 3, 3, 3, 2, 2, 2, 2, 2])
+CNN_POOL_X_SIZES        = np.array([1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([3 , 3, 3, 2, 2, 2, 2, 2, 2, 2, 1, 1])
 
 ##
 ## TRAINING PARAMETERS
 ##
-LEARNING_RATE = 0.00001
-TRAINING_ITERATIONS=2000
+LEARNING_RATE = 0.0001
+TRAINING_ITERATIONS=1000
 MINI_BATCH_SIZE=10
 
 ##
 ## LSTM PARAMETERS
 ##
 NUMBER_OF_LSTM_LAYERS=2
-LSTM_STATE_SIZE=256
+LSTM_STATE_SIZE=64
+LSTM_FORGET_BIAS=0.2
 
 
 ##

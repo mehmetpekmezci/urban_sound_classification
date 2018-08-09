@@ -25,7 +25,7 @@ def main(_):
     testTimes=[ ]
     testAccuracies=[ ]
         
-    for fold in np.random.permutation(fold_dirs):
+    for fold in np.random.permutation(FOLD_DIRS):
        current_fold_data=get_fold_data(fold)
        for current_batch_counter in range(int(current_fold_data.shape[0]/MINI_BATCH_SIZE)) :
          # MP asagidaki for dongusunde +1 olunca hatali tensor uretiyor tensorflow exception atiyor.
