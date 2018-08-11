@@ -11,7 +11,7 @@ class NeuralNetworkModel :
  def __init__(self, session, logger, input_size=INPUT_SIZE, output_size=OUTPUT_SIZE , cnn_kernel_counts=CNN_KERNEL_COUNTS, cnn_kernel_x_sizes=CNN_KERNEL_X_SIZES, 
               cnn_kernel_y_sizes=CNN_KERNEL_Y_SIZES,cnn_stride_x_sizes=CNN_STRIDE_X_SIZES,cnn_stride_y_sizes=CNN_STRIDE_Y_SIZES,cnn_pool_x_sizes=CNN_POOL_X_SIZES,cnn_pool_y_sizes=CNN_POOL_Y_SIZES, 
               learning_rate=LEARNING_RATE, mini_batch_size=MINI_BATCH_SIZE, number_of_time_slices=NUMBER_OF_TIME_SLICES,number_of_lstm_layers=NUMBER_OF_LSTM_LAYERS, lstm_state_size=LSTM_STATE_SIZE,lstm_forget_bias=LSTM_FORGET_BIAS
-              ,epsilon=EPSILON,keep_prob=KEEP_PROB,number_of_fully_connected_layer_neurons=NUMBER_OF_FULLY_CONNECTED_NEURONS):
+              ,epsilon=EPSILON,keep_prob_constant=KEEP_PROB,number_of_fully_connected_layer_neurons=NUMBER_OF_FULLY_CONNECTED_NEURONS):
 
    ##
    ## SET CLASS ATTRIBUTES WITH THE GIVEN INPUTS
@@ -34,16 +34,12 @@ class NeuralNetworkModel :
    self.number_of_lstm_layers = number_of_lstm_layers
    self.lstm_state_size       = lstm_state_size
    self.lstm_forget_bias      = lstm_forget_bias
-   self.keep_prob             = keep_prob
+   self.keep_prob_constant    = keep_prob_constant
    self.epsilon               = epsilon
    self.number_of_fully_connected_layer_neurons=number_of_fully_connected_layer_neurons
 
 
    
-   ##
-   ## INITIALIZE SESSION
-   ##
-   self.session.run(tf.global_variables_initializer())
 
    ##
    ## DEFINE PLACE HOLDER FOR REAL OUTPUT VALUES FOR TRAINING
@@ -131,7 +127,7 @@ class NeuralNetworkModel :
    ## LSTM LAYERS
    with tf.name_scope("lstm"):
     lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.lstm_state_size, forget_bias=self.lstm_forget_bias)
-    lstm_cell_with_dropout=tf.nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob=self.keep_prob)
+    lstm_cell_with_dropout=tf.nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob=self.keep_prob_constant)
     lstm_outputs, lstm_state = tf.nn.static_rnn(lstm_cell_with_dropout, inputs=cnnLayerOutputsForTimeSlices, dtype=tf.float32)
     self.logger.info("lstm_outputs="+str( lstm_outputs))
     self.logger.info("lstm_state="+str( lstm_state))
@@ -164,8 +160,8 @@ class NeuralNetworkModel :
 
    # Dropout - controls the complexity of the model, prevents co-adaptation of features.
    with tf.name_scope('fc1_dropout'):    
-    keep_prob = tf.placeholder(tf.float32)
-    h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+    self.keep_prob = tf.placeholder(tf.float32)
+    h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
     self.logger.info("h_fc1_drop.shape="+str(h_fc1_drop.shape))
 
     # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS(1024) features to OUTPUT_SIZE=NUMBER_OF_CLASSES(10) classes, one for each class
@@ -214,26 +210,30 @@ class NeuralNetworkModel :
     graph_writer.add_graph(tf.get_default_graph())
 
 
+   ##
+   ## INITIALIZE SESSION
+   ##
+   self.session.run(tf.global_variables_initializer())
 
  def prepareData(self,data):
   x_data=augment_random(data[:,:4*SOUND_RECORD_SAMPLING_RATE])
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
-  return x_data,y_data
+  return x_data,y_data_one_hot_encoded
 
  def train(self,data):
   trainingTimeStart = int(round(time.time())) 
   x_data,y_data=self.prepareData(data)
-  self.optimizer.run(feed_dict={tf_X: x_data, tf_Y: y_data, tf_dropout_prob: self.keep_prob})
+  self.optimizer.run(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob:self.keep_prob_constant})
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
-  trainingAccuracy = accuracy.eval(feed_dict={x: x_data, y:y_data_one_hot_encoded, keep_prob: 1.0})
+  trainingAccuracy = self.accuracy.eval(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob: 1.0})
   return trainingTime,trainingAccuracy
      
  def test(self,data):
   testTimeStart = int(round(time.time())) 
   x_data,y_data=self.prepareData(data) 
-  testAccuracy = accuracy.eval(feed_dict={x: test_x_data, y:test_y_data_one_hot_encoded, keep_prob: 1.0})
+  testAccuracy = self.accuracy.eval(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob: 1.0})
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
   return testTime,testAccuracy

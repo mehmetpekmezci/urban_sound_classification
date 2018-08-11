@@ -12,9 +12,9 @@ def main(_):
   # normalize all the data
   normalize_all_data()
   
-  with tf.Session() as sess:
+  with tf.Session() as session:
     
-   neuralNetworkModel=NeuralNetworkModel(sess,logger)
+   neuralNetworkModel=NeuralNetworkModel(session,logger)
     
    for trainingIterationNo in range(TRAINING_ITERATIONS):
         
@@ -65,7 +65,7 @@ def main(_):
     trainingTimeWriter.add_summary(tariningTimeSummary, trainingIterationNo)
     trainingTimeWriter.flush()
 
-    testTimeSummary = session.run(tfSummaryTimeMergedWriter, {tf_summary_time_log_var:np.mean(testTimess)})
+    testTimeSummary = session.run(tfSummaryTimeMergedWriter, {tf_summary_time_log_var:np.mean(testTimes)})
     testTimeWriter.add_summary(testTimeSummary, trainingIterationNo)
     testTimeWriter.flush()
 
