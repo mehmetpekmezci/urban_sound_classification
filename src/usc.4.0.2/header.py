@@ -43,15 +43,23 @@ if not os.path.exists(LOG_DIR_FOR_TF_SUMMARY):
 if not os.path.exists(LOG_DIR_FOR_LOGGER):
     os.makedirs(LOG_DIR_FOR_LOGGER)
     
-    
+   
+
 ## CONFUGRE LOGGING
 logger=logging.getLogger('usc')
-#ch = logging.StreamHandler()
-loggingFileHandler = logging.FileHandler(LOG_DIR_FOR_LOGGER+'/usc-'+str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d_%H:%M:%S'))+'.log')
+logger.setLevel(logging.INFO)
+#logger.setLevel(logging.DEBUG)
+# create file handler and set level to debug
+loggingFileHandler = logging.FileHandler(LOG_DIR_FOR_LOGGER+'/usc-'+str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y.%m.%d_%H.%M.%S'))+'.log')
 loggingFileHandler.setLevel(logging.DEBUG)
+# create console handler and set level to debug
+loggingConsoleHandler = logging.StreamHandler()
+loggingConsoleHandler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 loggingFileHandler.setFormatter(formatter)
+loggingConsoleHandler.setFormatter(formatter)
 logger.addHandler(loggingFileHandler)
+logger.addHandler(loggingConsoleHandler)
 #logger.debug('debug message')
 #logger.info('info message')
 #logger.warn('warn message')
