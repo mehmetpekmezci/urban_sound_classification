@@ -8,9 +8,9 @@ from data import *
 ## CNN LAYERS + LSTM LAYERS + FULLY CONNECTED LAYER + SOFTMAX
 ##
 class NeuralNetworkModel :
- def __init__(self, session, logger, input_size=INPUT_SIZE, output_size=OUTPUT_SIZE , 
+ def __init__(self, session, logger, input_size=INPUT_SIZE, output_size=OUTPUT_SIZE , keep_prob=DROP_OUT_KEEP_PROB
               learning_rate=LEARNING_RATE, mini_batch_size=MINI_BATCH_SIZE, number_of_time_slices=NUMBER_OF_TIME_SLICES,
-              number_of_lstm_layers=NUMBER_OF_LSTM_LAYERS, lstm_state_size=LSTM_STATE_SIZE):
+              number_of_lstm_layers=NUMBER_OF_LSTM_LAYERS, lstm_state_size=LSTM_STATE_SIZE,lstm_forget_bias=LSTM_FORGET_BIAS):
    self.session               = session
    self.logger                = logger
    self.input_size            = input_size
@@ -20,6 +20,8 @@ class NeuralNetworkModel :
    self.number_of_time_slices = number_of_time_slices
    self.number_of_lstm_layers = number_of_lstm_layers
    self.lstm_state_size       = lstm_state_size
+   self.lstm_forget_bias      = lstm_forget_bias
+   self.keep_prob             = keep_prob
    
    
 
@@ -51,13 +53,14 @@ class NeuralNetworkModel :
    ##
    with tf.name_scope("lstm"):
     ####lstm_cell = tf.nn.rnn_cell.LSTMCell(self.lstm_state_size)
-    lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.lstm_state_size, forget_bias=1.0)
+    lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(self.lstm_state_size, forget_bias=self.lstm_forget_bias)
     # create a RNN cell composed sequentially of a number of RNNCells
     ####multi_lstm_cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * self.number_of_lstm_layers)
     # 'outputs' is a tensor of shape [batch_size, max_time, 256]
     # 'state' is a N-tuple where N is the number of LSTMCells containing a tf.contrib.rnn.LSTMStateTuple for each cell : 
     #    tf.nn.rnn_cell.LSTMStateTuple(lstm_cell_state , lstm_hidden_state) 
-    lstm_outputs, lstm_state = tf.nn.static_rnn(lstm_cell, inputs=self.x_input_list, dtype=tf.float32)
+    lstm_cell_with_dropout=tf.rnn.DropoutWrapper(lstm_cell, output_keep_prob=self.keep_prob_)
+    lstm_outputs, lstm_state = tf.nn.static_rnn(lstm_cell_with_dropout, inputs=self.x_input_list, dtype=tf.float32)
     self.logger.info("lstm_outputs="+str( lstm_outputs))
     self.logger.info("lstm_state="+str( lstm_state))
     
@@ -67,7 +70,7 @@ class NeuralNetworkModel :
     weights = {'out': tf.Variable(tf.random_normal([self.lstm_state_size, self.output_size ]))}
     biases = {'out': tf.Variable(tf.random_normal([self.output_size ]))}
     self.y_outputs=tf.matmul(lstm_outputs[-1], weights['out']) + biases['out']
-
+    # get last element of lstm_outputs = lstm_outputs[-1]= output for the last time step = final output = generated (guess) value  .
    
     ## HERE NETWORK DEFINITION IS FINISHED
 
