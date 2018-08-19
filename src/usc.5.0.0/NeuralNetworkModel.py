@@ -8,8 +8,8 @@ from data import *
 ## CNN LAYERS + LSTM LAYERS + FULLY CONNECTED LAYER + SOFTMAX
 ##
 class NeuralNetworkModel :
- def __init__(self, session, logger, input_size=INPUT_SIZE, output_size=OUTPUT_SIZE , keep_prob=DROP_OUT_KEEP_PROB
-              learning_rate=LEARNING_RATE, mini_batch_size=MINI_BATCH_SIZE, number_of_time_slices=NUMBER_OF_TIME_SLICES,
+ def __init__(self, session, logger, input_size=INPUT_SIZE, output_size=OUTPUT_SIZE , keep_prob=DROP_OUT
+             , learning_rate=LEARNING_RATE, mini_batch_size=MINI_BATCH_SIZE, number_of_time_slices=NUMBER_OF_TIME_SLICES,
               number_of_lstm_layers=NUMBER_OF_LSTM_LAYERS, lstm_state_size=LSTM_STATE_SIZE,lstm_forget_bias=LSTM_FORGET_BIAS):
    self.session               = session
    self.logger                = logger
@@ -59,7 +59,8 @@ class NeuralNetworkModel :
     # 'outputs' is a tensor of shape [batch_size, max_time, 256]
     # 'state' is a N-tuple where N is the number of LSTMCells containing a tf.contrib.rnn.LSTMStateTuple for each cell : 
     #    tf.nn.rnn_cell.LSTMStateTuple(lstm_cell_state , lstm_hidden_state) 
-    lstm_cell_with_dropout=tf.rnn.DropoutWrapper(lstm_cell, output_keep_prob=self.keep_prob_)
+    lstm_cell_with_dropout=tf.nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob=self.keep_prob)
+    #lstm_cell_with_dropout=tf.nn.rnn.DropoutWrapper(lstm_cell, output_keep_prob=self.keep_prob_)
     lstm_outputs, lstm_state = tf.nn.static_rnn(lstm_cell_with_dropout, inputs=self.x_input_list, dtype=tf.float32)
     self.logger.info("lstm_outputs="+str( lstm_outputs))
     self.logger.info("lstm_state="+str( lstm_state))
