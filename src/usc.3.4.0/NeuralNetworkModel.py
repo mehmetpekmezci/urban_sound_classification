@@ -99,6 +99,7 @@ class NeuralNetworkModel :
       with tf.name_scope(cnnLayerName+"-residual"):
 #       previous_level_convolution_output=P+previous_level_convolution_output
        previous_level_convolution_output=H+previous_level_convolution_output
+       self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
 
 
 
