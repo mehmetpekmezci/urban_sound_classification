@@ -88,15 +88,10 @@ class NeuralNetworkModel :
        H = tf.nn.relu(C)
        self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
 
-
-     with tf.name_scope(cnnLayerName+"-pool"):
-       P = tf.nn.avg_pool(H, ksize=[1, cnnPoolSizeY,cnnPoolSizeX, 1],strides=[1, cnnPoolSizeY,cnnPoolSizeX , 1], padding='SAME') 
-       previous_level_convolution_output=P
-       self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
-
      if cnnPoolSizeY != 1 :
       with tf.name_scope(cnnLayerName+"-pool"):
        P = tf.nn.avg_pool(H, ksize=[1, cnnPoolSizeY,cnnPoolSizeX, 1],strides=[1, cnnPoolSizeY,cnnPoolSizeX , 1], padding='SAME') 
+       ## put the output of this layer to the next layer's input layer.
        previous_level_convolution_output=P
        self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
      else :
@@ -106,6 +101,7 @@ class NeuralNetworkModel :
          ## put the output of this layer to the next layer's input layer.
          self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
       else :
+         ## put the output of this layer to the next layer's input layer.
          previous_level_convolution_output=H
 
      previous_level_kernel_count=cnnKernelCount
@@ -113,8 +109,7 @@ class NeuralNetworkModel :
     
    ##
    ## FULLY CONNECTED LAYERS
-   ##Linear activation (FC layer on top of the LSTM net)
-   # lstm output is reshaped to be able to feed the fc net.
+   ##Linear activation (FC layer on top of the RESNET )
    with tf.name_scope('cnn_to_fc_reshape'):
     cnn_last_layer_output_flat = tf.reshape( cnn_last_layer_output, [-1, int(cnn_last_layer_output.shape[1]*cnn_last_layer_output.shape[2]*cnn_last_layer_output.shape[3])] )
     self.logger.info("cnn_last_layer_output_flat="+str( cnn_last_layer_output_flat))

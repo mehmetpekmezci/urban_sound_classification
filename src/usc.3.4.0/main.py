@@ -24,7 +24,6 @@ def main(_):
     trainingAccuracies=[ ]
     testTimes=[ ]
     testAccuracies=[ ]
-        
     for fold in np.random.permutation(FOLD_DIRS):
        current_fold_data=get_fold_data(fold)
        for current_batch_counter in range(int(current_fold_data.shape[0]/MINI_BATCH_SIZE)) :
