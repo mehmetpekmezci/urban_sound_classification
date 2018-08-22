@@ -81,29 +81,35 @@ class NeuralNetworkModel :
      with tf.name_scope(cnnLayerName+"-convolution"):
        W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.5))
        B = tf.Variable(tf.constant(0.5, shape=[cnnOutputChannel]))
-       C = tf.nn.conv2d(previous_level_convolution_output,W,strides=[cnnStrideSizeX, cnnStrideSizeY, 1, 1], padding='SAME')+B
+       C = tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,cnnStrideSizeY, cnnStrideSizeX, 1], padding='SAME')+B
 
        self.logger.info(cnnLayerName+"_C.shape="+str(C.shape)+"  W.shape="+str(W.shape)+ "  cnnStrideSizeX="+str(cnnStrideSizeX)+" cnnStrideSizeY="+str(cnnStrideSizeY))
      with tf.name_scope(cnnLayerName+"-relu"):  
        H = tf.nn.relu(C)
        self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
-       previous_level_convolution_output=H
-#     with tf.name_scope(cnnLayerName+"-pool"):
-#       # Max Pooling layer - downsamples by pool_length.
-#       # pooled by 1 x cnnPoolSize
-#       P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY, 1], padding='SAME') 
-#       self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
-#       previous_level_convolution_output=P
-       ## put the output of this layer to the next layer's input layer.
-     if cnnLayerNo>2 :
-      with tf.name_scope(cnnLayerName+"-residual"):
-#       previous_level_convolution_output=P+previous_level_convolution_output
-       previous_level_convolution_output=H+previous_level_convolution_output
-       self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
 
 
+     with tf.name_scope(cnnLayerName+"-pool"):
+       P = tf.nn.avg_pool(H, ksize=[1, cnnPoolSizeY,cnnPoolSizeX, 1],strides=[1, cnnPoolSizeY,cnnPoolSizeX , 1], padding='SAME') 
+       previous_level_convolution_output=P
+       self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
 
-    cnn_last_layer_output=previous_level_convolution_output
+     if cnnPoolSizeY != 1 :
+      with tf.name_scope(cnnLayerName+"-pool"):
+       P = tf.nn.avg_pool(H, ksize=[1, cnnPoolSizeY,cnnPoolSizeX, 1],strides=[1, cnnPoolSizeY,cnnPoolSizeX , 1], padding='SAME') 
+       previous_level_convolution_output=P
+       self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
+     else :
+      if previous_level_kernel_count==cnnKernelCount :
+       with tf.name_scope(cnnLayerName+"-residual"):
+         previous_level_convolution_output=H+previous_level_convolution_output
+         ## put the output of this layer to the next layer's input layer.
+         self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
+      else :
+         previous_level_convolution_output=H
+
+     previous_level_kernel_count=cnnKernelCount
+     cnn_last_layer_output=previous_level_convolution_output
     
    ##
    ## FULLY CONNECTED LAYERS
