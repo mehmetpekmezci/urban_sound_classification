@@ -122,15 +122,19 @@ class NeuralNetworkModel :
     matmul_fc1=tf.matmul(cnn_last_layer_output_flat, W_fc1)+B_fc1
     self.logger.info("matmul_fc1.shape="+str(matmul_fc1.shape))
 
-   with tf.name_scope('fc1_batch_normlalization'):    
-    batch_mean, batch_var = tf.nn.moments(matmul_fc1,[0])
-    scale = tf.Variable(tf.ones(self.number_of_fully_connected_layer_neurons))
-    beta = tf.Variable(tf.zeros(self.number_of_fully_connected_layer_neurons))
-    batch_normalization_fc1 = tf.nn.batch_normalization(matmul_fc1,batch_mean,batch_var,beta,scale,epsilon)
-    self.logger.info("batch_normalization_fc1.shape="+str(batch_normalization_fc1.shape))
+#   with tf.name_scope('fc1_batch_normlalization'):    
+#    batch_mean, batch_var = tf.nn.moments(matmul_fc1,[0])
+#    scale = tf.Variable(tf.ones(self.number_of_fully_connected_layer_neurons))
+#    beta = tf.Variable(tf.zeros(self.number_of_fully_connected_layer_neurons))
+#    batch_normalization_fc1 = tf.nn.batch_normalization(matmul_fc1,batch_mean,batch_var,beta,scale,epsilon)
+#    self.logger.info("batch_normalization_fc1.shape="+str(batch_normalization_fc1.shape))
 
-   with tf.name_scope('fc1_batch_normalized_relu'):    
-    h_fc1 = tf.nn.relu( batch_normalization_fc1 )
+#   with tf.name_scope('fc1_batch_normalized_relu'):    
+#    h_fc1 = tf.nn.relu( batch_normalization_fc1 )
+#    self.logger.info("h_fc1.shape="+str(h_fc1.shape))
+
+   with tf.name_scope('fc1_relu'):    
+    h_fc1 = tf.nn.relu( matmul_fc1 )
     self.logger.info("h_fc1.shape="+str(h_fc1.shape))
 
    # Dropout - controls the complexity of the model, prevents co-adaptation of features.
@@ -149,10 +153,10 @@ class NeuralNetworkModel :
       
     ## HERE NETWORK DEFINITION IS FINISHED
     
-    ##  NOW CALCULATE PREDICTED VALUE
-    with tf.name_scope('calculate_predictions'):
-     output_shape = tf.shape(self.y_outputs)
-     self.predictions = tf.nn.softmax(tf.reshape(self.y_outputs, [-1, self.output_size]))
+    ###  NOW CALCULATE PREDICTED VALUE
+    #with tf.name_scope('calculate_predictions'):
+    # output_shape = tf.shape(self.y_outputs)
+    # self.predictions = tf.nn.softmax(tf.reshape(self.y_outputs, [-1, self.output_size]))
      
    ##
    ## CALCULATE LOSS

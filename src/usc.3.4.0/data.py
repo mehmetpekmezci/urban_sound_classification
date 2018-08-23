@@ -66,8 +66,34 @@ def prepareData():
     if not os.path.exists(CSV_DATA_DIR) :
        os.makedirs(CSV_DATA_DIR)  
        parse_audio_files()
+    if not os.path.exists(NP_DATA_DIR) :
+       os.makedirs(NP_DATA_DIR)  
+       save_as_np()
     logger.info("Data is READY  in CSV format. ")
     
+def save_as_np():
+   logger.info ("save_as_np function started ...")
+   global fold_data_dictionary, MAX_VALUE_FOR_NORMALIZATION ,  MIN_VALUE_FOR_NORMALIZATION
+
+   for fold in FOLD_DIRS:
+     fold_data_dictionary[fold]=np.array(np.loadtxt(open(CSV_DATA_DIR+"/"+fold+".csv", "rb"), delimiter=","))
+     for i in range(fold_data_dictionary[fold].shape[0]) :
+          loadedData=fold_data_dictionary[fold][i]
+          loadedDataX=loadedData[:4*SOUND_RECORD_SAMPLING_RATE]
+          loadedDataY=loadedData[4*SOUND_RECORD_SAMPLING_RATE]
+          maxOfArray=np.amax(loadedDataX)
+          minOfArray=np.amin(loadedDataX)
+          if MAX_VALUE_FOR_NORMALIZATION < maxOfArray :
+              MAX_VALUE_FOR_NORMALIZATION = maxOfArray
+          if MIN_VALUE_FOR_NORMALIZATION > minOfArray :
+              MIN_VALUE_FOR_NORMALIZATION = minOfArray
+          ## Then append Y data to the end of row
+          fold_data_dictionary[fold][i]=np.append(loadedDataX,loadedDataY)
+     np.save(MAIN_DATA_DIR+"/2.np/"+fold+".npy",  fold_data_dictionary[fold]) 
+     
+   np.save(MAIN_DATA_DIR+"/2.np/minmax.npy",[MIN_VALUE_FOR_NORMALIZATION,MAX_VALUE_FOR_NORMALIZATION]) 
+   logger.info ("save_as_np function finished ...")
+
 def normalize(data):
     global MAX_VALUE_FOR_NORMALIZATION , MIN_VALUE_FOR_NORMALIZATION
     data_normalized=(data-MIN_VALUE_FOR_NORMALIZATION)/(MAX_VALUE_FOR_NORMALIZATION-MIN_VALUE_FOR_NORMALIZATION)
@@ -87,24 +113,17 @@ def one_hot_encode(classNumber):
    return one_hot_encoded_class_number
 
 def load_all_csv_data_back_to_memory():
-     logger.info ("load_all_csv_data_back_to_memory function started ...")
-     global fold_data_dictionary, MAX_VALUE_FOR_NORMALIZATION ,  MIN_VALUE_FOR_NORMALIZATION
-     for fold in FOLD_DIRS:
-       fold_data_dictionary[fold]=np.array(np.loadtxt(open(CSV_DATA_DIR+"/"+fold+".csv", "rb"), delimiter=","))
-       for i in range(fold_data_dictionary[fold].shape[0]) :
-          loadedData=fold_data_dictionary[fold][i]
-          loadedDataX=loadedData[:4*SOUND_RECORD_SAMPLING_RATE]
-          loadedDataY=loadedData[4*SOUND_RECORD_SAMPLING_RATE]
-          maxOfArray=np.amax(loadedDataX)
-          minOfArray=np.amin(loadedDataX)
-          if MAX_VALUE_FOR_NORMALIZATION < maxOfArray :
-              MAX_VALUE_FOR_NORMALIZATION = maxOfArray
-          if MIN_VALUE_FOR_NORMALIZATION > minOfArray :
-              MIN_VALUE_FOR_NORMALIZATION = minOfArray
-          ## Then append Y data to the end of row
-          fold_data_dictionary[fold][i]=np.append(loadedDataX,loadedDataY)
-     
-     logger.info ("load_all_csv_data_back_to_memory function finished ...")
+   logger.info ("load_all_csv_data_back_to_memory function started ...")
+   global fold_data_dictionary, MAX_VALUE_FOR_NORMALIZATION ,  MIN_VALUE_FOR_NORMALIZATION
+
+   for fold in FOLD_DIRS:
+       logger.info ("loading from "+MAIN_DATA_DIR+"/2.np/"+fold+".npy  ...")
+       fold_data_dictionary[fold]=np.load(MAIN_DATA_DIR+"/2.np/"+fold+".npy",mmap_mode='r+')
+   minmax=np.load(MAIN_DATA_DIR+"/2.np/minmax.npy",mmap_mode='r+')
+   MIN_VALUE_FOR_NORMALIZATION=minmax[0]
+   MAX_VALUE_FOR_NORMALIZATION=minmax[1]
+   logger.info ("load_all_csv_data_back_to_memory function finished ...")
+
 
 def normalize_all_data():
      logger.info ("normalize_all_data function started ...")
