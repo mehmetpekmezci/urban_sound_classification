@@ -79,7 +79,7 @@ class NeuralNetworkModel :
 
 
      with tf.name_scope(cnnLayerName+"-convolution"):
-       W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.5))
+       W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
        B = tf.Variable(tf.constant(0.5, shape=[cnnOutputChannel]))
        C = tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,cnnStrideSizeY, cnnStrideSizeX, 1], padding='SAME')+B
 
