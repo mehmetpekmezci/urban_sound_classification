@@ -18,6 +18,7 @@ def main(_):
     
    for trainingIterationNo in range(TRAINING_ITERATIONS):
         
+    logger.info("##############################################################")
     logger.info("Training Iteration : "+str(trainingIterationNo))
         
     trainingTimes=[ ]

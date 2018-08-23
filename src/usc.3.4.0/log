@@ -1,0 +1,197 @@
+2018-08-24 00:12:03.079922: I tensorflow/core/platform/cpu_feature_guard.cc:141] Your CPU supports instructions that this TensorFlow binary was not compiled to use: AVX2 FMA
+2018-08-24 00:12:03.435210: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:897] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2018-08-24 00:12:03.435631: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1405] Found device 0 with properties: 
+name: GeForce GTX 1060 major: 6 minor: 1 memoryClockRate(GHz): 1.6705
+pciBusID: 0000:01:00.0
+totalMemory: 2.95GiB freeMemory: 2.88GiB
+2018-08-24 00:12:03.435825: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1484] Adding visible gpu devices: 0
+2018-08-24 00:12:03.708274: I tensorflow/core/common_runtime/gpu/gpu_device.cc:965] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-08-24 00:12:03.708313: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971]      0 
+2018-08-24 00:12:03.708321: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] 0:   N 
+2018-08-24 00:12:03.708459: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1097] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 2582 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1060, pci bus id: 0000:01:00.0, compute capability: 6.1)
+2018-08-24 00:12:03,714 - usc - INFO - Starting to prepare the data ...  
+2018-08-24 00:12:03,714 - usc - INFO - prepareData function ...
+2018-08-24 00:12:03,714 - usc - INFO - save_as_np function started ...
+2018-08-24 00:26:59,160 - usc - INFO - save_as_np function finished ...
+2018-08-24 00:26:59,201 - usc - INFO - Data is READY  in CSV format. 
+2018-08-24 00:26:59,201 - usc - INFO - load_all_csv_data_back_to_memory function started ...
+2018-08-24 00:26:59,201 - usc - INFO - loading from /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/../../data//2.np/fold1.npy  ...
+2018-08-24 00:26:59,269 - usc - INFO - loading from /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/../../data//2.np/fold2.npy  ...
+2018-08-24 00:26:59,292 - usc - INFO - loading from /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/../../data//2.np/fold3.npy  ...
+2018-08-24 00:26:59,323 - usc - INFO - loading from /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/../../data//2.np/fold4.npy  ...
+2018-08-24 00:26:59,347 - usc - INFO - loading from /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/../../data//2.np/fold5.npy  ...
+2018-08-24 00:26:59,369 - usc - INFO - loading from /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/../../data//2.np/fold6.npy  ...
+2018-08-24 00:26:59,388 - usc - INFO - loading from /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/../../data//2.np/fold7.npy  ...
+2018-08-24 00:26:59,408 - usc - INFO - loading from /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/../../data//2.np/fold8.npy  ...
+2018-08-24 00:26:59,429 - usc - INFO - loading from /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/../../data//2.np/fold9.npy  ...
+2018-08-24 00:26:59,449 - usc - INFO - loading from /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/../../data//2.np/fold10.npy  ...
+2018-08-24 00:26:59,470 - usc - INFO - load_all_csv_data_back_to_memory function finished ...
+2018-08-24 00:26:59,470 - usc - INFO - normalize_all_data function started ...
+2018-08-24 00:27:33,176 - usc - INFO - normalize_all_data function finished ...
+2018-08-24 00:27:33.176981: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1484] Adding visible gpu devices: 0
+2018-08-24 00:27:33.177080: I tensorflow/core/common_runtime/gpu/gpu_device.cc:965] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-08-24 00:27:33.177105: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971]      0 
+2018-08-24 00:27:33.177123: I tensorflow/core/common_runtime/gpu/gpu_device.cc:984] 0:   N 
+2018-08-24 00:27:33.177526: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1097] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 2582 MB memory) -> physical GPU (device: 0, name: GeForce GTX 1060, pci bus id: 0000:01:00.0, compute capability: 6.1)
+2018-08-24 00:27:33,183 - usc - INFO - previous_level_convolution_output.shape=(10, 88200, 1, 1)
+2018-08-24 00:27:33,193 - usc - INFO - cnn-0_C.shape=(10, 44100, 1, 32)  W.shape=(1, 5, 1, 32)  cnnStrideSizeX=1 cnnStrideSizeY=2
+2018-08-24 00:27:33,194 - usc - INFO - cnn-0_H.shape=(10, 44100, 1, 32)
+2018-08-24 00:27:33,195 - usc - INFO - cnn-0.H_pooled.shape=(10, 22050, 1, 32)
+2018-08-24 00:27:33,195 - usc - INFO - previous_level_convolution_output.shape=(10, 22050, 1, 32)
+2018-08-24 00:27:33,204 - usc - INFO - cnn-1_C.shape=(10, 11025, 1, 32)  W.shape=(1, 5, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=2
+2018-08-24 00:27:33,205 - usc - INFO - cnn-1_H.shape=(10, 11025, 1, 32)
+2018-08-24 00:27:33,206 - usc - INFO - cnn-1.H_pooled.shape=(10, 5513, 1, 32)
+2018-08-24 00:27:33,206 - usc - INFO - previous_level_convolution_output.shape=(10, 5513, 1, 32)
+2018-08-24 00:27:33,215 - usc - INFO - cnn-2_C.shape=(10, 5513, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,216 - usc - INFO - cnn-2_H.shape=(10, 5513, 1, 32)
+2018-08-24 00:27:33,217 - usc - INFO - cnn-2.H_pooled.shape=(10, 2757, 1, 32)
+2018-08-24 00:27:33,217 - usc - INFO - previous_level_convolution_output.shape=(10, 2757, 1, 32)
+2018-08-24 00:27:33,226 - usc - INFO - cnn-3_C.shape=(10, 2757, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,227 - usc - INFO - cnn-3_H.shape=(10, 2757, 1, 32)
+2018-08-24 00:27:33,228 - usc - INFO - cnn-3.H_pooled.shape=(10, 1379, 1, 32)
+2018-08-24 00:27:33,228 - usc - INFO - previous_level_convolution_output.shape=(10, 1379, 1, 32)
+2018-08-24 00:27:33,237 - usc - INFO - cnn-4_C.shape=(10, 1379, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,238 - usc - INFO - cnn-4_H.shape=(10, 1379, 1, 32)
+2018-08-24 00:27:33,239 - usc - INFO - cnn-4.H_pooled.shape=(10, 690, 1, 32)
+2018-08-24 00:27:33,239 - usc - INFO - previous_level_convolution_output.shape=(10, 690, 1, 32)
+2018-08-24 00:27:33,249 - usc - INFO - cnn-5_C.shape=(10, 690, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,249 - usc - INFO - cnn-5_H.shape=(10, 690, 1, 32)
+2018-08-24 00:27:33,250 - usc - INFO - cnn-5.H_pooled.shape=(10, 345, 1, 32)
+2018-08-24 00:27:33,250 - usc - INFO - previous_level_convolution_output.shape=(10, 345, 1, 32)
+2018-08-24 00:27:33,260 - usc - INFO - cnn-6_C.shape=(10, 345, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,260 - usc - INFO - cnn-6_H.shape=(10, 345, 1, 32)
+2018-08-24 00:27:33,261 - usc - INFO - cnn-6.H_pooled.shape=(10, 173, 1, 32)
+2018-08-24 00:27:33,261 - usc - INFO - previous_level_convolution_output.shape=(10, 173, 1, 32)
+2018-08-24 00:27:33,271 - usc - INFO - cnn-7_C.shape=(10, 173, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,271 - usc - INFO - cnn-7_H.shape=(10, 173, 1, 32)
+2018-08-24 00:27:33,272 - usc - INFO - cnn-7.H_pooled.shape=(10, 87, 1, 32)
+2018-08-24 00:27:33,272 - usc - INFO - previous_level_convolution_output.shape=(10, 87, 1, 32)
+2018-08-24 00:27:33,282 - usc - INFO - cnn-8_C.shape=(10, 87, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,282 - usc - INFO - cnn-8_H.shape=(10, 87, 1, 32)
+2018-08-24 00:27:33,283 - usc - INFO - cnn-8.H_pooled.shape=(10, 44, 1, 32)
+2018-08-24 00:27:33,283 - usc - INFO - previous_level_convolution_output.shape=(10, 44, 1, 32)
+2018-08-24 00:27:33,293 - usc - INFO - cnn-9_C.shape=(10, 44, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,293 - usc - INFO - cnn-9_H.shape=(10, 44, 1, 32)
+2018-08-24 00:27:33,294 - usc - INFO - cnn-9.H_pooled.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,294 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,304 - usc - INFO - cnn-10_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,305 - usc - INFO - cnn-10_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,305 - usc - INFO - cnn-10_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,305 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,315 - usc - INFO - cnn-11_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,316 - usc - INFO - cnn-11_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,316 - usc - INFO - cnn-11_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,316 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,326 - usc - INFO - cnn-12_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,326 - usc - INFO - cnn-12_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,327 - usc - INFO - cnn-12_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,327 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,337 - usc - INFO - cnn-13_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,337 - usc - INFO - cnn-13_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,338 - usc - INFO - cnn-13_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,338 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,348 - usc - INFO - cnn-14_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,348 - usc - INFO - cnn-14_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,349 - usc - INFO - cnn-14_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,349 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,358 - usc - INFO - cnn-15_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,359 - usc - INFO - cnn-15_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,360 - usc - INFO - cnn-15_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,360 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,369 - usc - INFO - cnn-16_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,370 - usc - INFO - cnn-16_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,371 - usc - INFO - cnn-16_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,371 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,380 - usc - INFO - cnn-17_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,381 - usc - INFO - cnn-17_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,381 - usc - INFO - cnn-17_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,382 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,391 - usc - INFO - cnn-18_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,392 - usc - INFO - cnn-18_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,393 - usc - INFO - cnn-18_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,393 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,402 - usc - INFO - cnn-19_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,403 - usc - INFO - cnn-19_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,404 - usc - INFO - cnn-19_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,404 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,413 - usc - INFO - cnn-20_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,414 - usc - INFO - cnn-20_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,415 - usc - INFO - cnn-20_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,415 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,433 - usc - INFO - cnn-21_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,433 - usc - INFO - cnn-21_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,434 - usc - INFO - cnn-21_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,434 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,443 - usc - INFO - cnn-22_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,444 - usc - INFO - cnn-22_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,445 - usc - INFO - cnn-22_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,445 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,454 - usc - INFO - cnn-23_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,455 - usc - INFO - cnn-23_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,456 - usc - INFO - cnn-23_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,456 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,465 - usc - INFO - cnn-24_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,466 - usc - INFO - cnn-24_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,467 - usc - INFO - cnn-24_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,467 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,476 - usc - INFO - cnn-25_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,477 - usc - INFO - cnn-25_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,477 - usc - INFO - cnn-25_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,478 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,487 - usc - INFO - cnn-26_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,488 - usc - INFO - cnn-26_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,488 - usc - INFO - cnn-26_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,488 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,498 - usc - INFO - cnn-27_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,499 - usc - INFO - cnn-27_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,499 - usc - INFO - cnn-27_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,499 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,509 - usc - INFO - cnn-28_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,510 - usc - INFO - cnn-28_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,510 - usc - INFO - cnn-28_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,510 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,520 - usc - INFO - cnn-29_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,520 - usc - INFO - cnn-29_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,521 - usc - INFO - cnn-29_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,521 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,531 - usc - INFO - cnn-30_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,531 - usc - INFO - cnn-30_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,532 - usc - INFO - cnn-30_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,532 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,542 - usc - INFO - cnn-31_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,542 - usc - INFO - cnn-31_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,543 - usc - INFO - cnn-31_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,543 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,553 - usc - INFO - cnn-32_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,553 - usc - INFO - cnn-32_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,554 - usc - INFO - cnn-32_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,554 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,563 - usc - INFO - cnn-33_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,564 - usc - INFO - cnn-33_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,565 - usc - INFO - cnn-33_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,565 - usc - INFO - previous_level_convolution_output.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,574 - usc - INFO - cnn-34_C.shape=(10, 22, 1, 32)  W.shape=(1, 3, 32, 32)  cnnStrideSizeX=1 cnnStrideSizeY=1
+2018-08-24 00:27:33,575 - usc - INFO - cnn-34_H.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,576 - usc - INFO - cnn-34_previous_level_convolution_output_residual.shape=(10, 22, 1, 32)
+2018-08-24 00:27:33,577 - usc - INFO - cnn_last_layer_output_flat=Tensor("cnn_to_fc_reshape/Reshape:0", shape=(10, 704), dtype=float32)
+2018-08-24 00:27:33,582 - usc - INFO - W_fc1.shape=(704, 1024)
+2018-08-24 00:27:33,585 - usc - INFO - B_fc1.shape=(1024,)
+2018-08-24 00:27:33,587 - usc - INFO - matmul_fc1.shape=(10, 1024)
+2018-08-24 00:27:33,587 - usc - INFO - h_fc1.shape=(10, 1024)
+2018-08-24 00:27:33,594 - usc - INFO - h_fc1_drop.shape=(10, 1024)
+2018-08-24 00:27:33,603 - usc - INFO - self.y_outputs.shape=(10, 10)
+WARNING:tensorflow:From /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/NeuralNetworkModel.py:165: softmax_cross_entropy_with_logits (from tensorflow.python.ops.nn_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+
+Future major versions of TensorFlow will allow gradients to flow
+into the labels input on backprop by default.
+
+See @{tf.nn.softmax_cross_entropy_with_logits_v2}.
+
+2018-08-24 00:27:35,160 - usc - INFO - Saving graph to: /home/mpekmezci/workspace-python/urban_sound_classification/src/usc.3.4.0/../../logs/tf-summary
+2018-08-24 00:27:35,621 - usc - INFO - Training Iteration : 0
+2018-08-24 00:32:09,858 - usc - INFO - Training Time : 241
+2018-08-24 00:32:09,858 - usc - INFO - Training Accuracy : 0.0433121
+2018-08-24 00:32:09,858 - usc - INFO - Test Time : 23
+2018-08-24 00:32:09,859 - usc - INFO - Test Accuracy : 0.0385542
+2018-08-24 00:32:09,899 - usc - INFO - Training Iteration : 1
