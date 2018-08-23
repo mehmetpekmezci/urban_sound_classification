@@ -140,7 +140,7 @@ class NeuralNetworkModel :
    ##Linear activation (FC layer on top of the LSTM net)
 
    with tf.name_scope('fc1'):
-    W_fc1 =  tf.Variable( tf.truncated_normal([self.lstm_state_size, self.number_of_fully_connected_layer_neurons], stddev=0.2))
+    W_fc1 =  tf.Variable( tf.truncated_normal([self.lstm_state_size, self.number_of_fully_connected_layer_neurons], stddev=0.1))
     self.logger.info("W_fc1.shape="+str(W_fc1.shape))
     B_fc1 = tf.Variable(tf.constant(0.2, shape=[self.number_of_fully_connected_layer_neurons]))
     self.logger.info("B_fc1.shape="+str(B_fc1.shape))

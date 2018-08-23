@@ -28,8 +28,9 @@ datetime    = importlib.import_module("datetime")
 ##
 ## DATA DIRECTORY NAMES
 ##
-#FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-FOLD_DIRS = ['fold1','fold10']
+#FOLD_DIRS = ['fold1']
+#FOLD_DIRS = ['fold1','fold10']
+FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
 RAW_DATA_DIR = MAIN_DATA_DIR+'/0.raw/UrbanSound8K/audio'
@@ -111,7 +112,7 @@ MINI_BATCH_SIZE=10
 ## LSTM PARAMETERS
 ##
 NUMBER_OF_LSTM_LAYERS=2
-LSTM_STATE_SIZE=128
+LSTM_STATE_SIZE=2048
 LSTM_FORGET_BIAS=1.0
 
 ##

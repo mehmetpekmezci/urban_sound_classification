@@ -28,8 +28,8 @@ datetime    = importlib.import_module("datetime")
 ##
 ## DATA DIRECTORY NAMES
 ##
-#FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-FOLD_DIRS = ['fold1','fold10']
+#FOLD_DIRS = ['fold1']
+FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
 RAW_DATA_DIR = MAIN_DATA_DIR+'/0.raw/UrbanSound8K/audio'
@@ -92,7 +92,7 @@ SOUND_RECORD_SAMPLING_RATE=22050
 TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
 # EVERY 4 second RECORD WILL BE CUT INTO 20 SLICES ( SO INPUT_SIZE WILL BE 4*22050/20 = 22050/5 = 4410 )
 # 1 TRACK IS LIKE SUCCESIVE 20 SLICES (for LSTM)
-NUMBER_OF_TIME_SLICES=20
+NUMBER_OF_TIME_SLICES=8
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
 
@@ -108,19 +108,19 @@ INPUT_SIZE=TRACK_LENGTH
 ##
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
-NUMBER_OF_FULLY_CONNECTED_NEURONS=64
+NUMBER_OF_FULLY_CONNECTED_NEURONS=2048
 
 ##
 ## CNN PARAMETERS
 ##
 ## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
-CNN_KERNEL_COUNTS       = np.array([64,64,64,32,32,32,32,16,16,16,16,16])
+CNN_KERNEL_COUNTS       = np.array([32,32,64,64,64,128,128,256,256,256,512,512])
 CNN_KERNEL_X_SIZES      = np.array([1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_KERNEL_Y_SIZES      = np.array([7 , 7, 7, 5, 5, 5, 5, 3, 3, 3, 3, 3])
 CNN_STRIDE_X_SIZES      = np.array([1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_STRIDE_Y_SIZES      = np.array([5 , 5, 5, 3, 3, 3, 3, 2, 2, 2, 2, 2])
 CNN_POOL_X_SIZES        = np.array([1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([3 , 3, 3, 2, 2, 2, 2, 2, 2, 2, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([3 , 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1])
 
 ##
 ## TRAINING PARAMETERS
@@ -133,7 +133,7 @@ MINI_BATCH_SIZE=10
 ## LSTM PARAMETERS
 ##
 NUMBER_OF_LSTM_LAYERS=2
-LSTM_STATE_SIZE=64
+LSTM_STATE_SIZE=2048
 LSTM_FORGET_BIAS=0.2
 
 

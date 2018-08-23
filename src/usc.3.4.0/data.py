@@ -112,8 +112,8 @@ def one_hot_encode(classNumber):
    one_hot_encoded_class_number[int(classNumber)]=1
    return one_hot_encoded_class_number
 
-def load_all_csv_data_back_to_memory():
-   logger.info ("load_all_csv_data_back_to_memory function started ...")
+def load_all_np_data_back_to_memory():
+   logger.info ("load_all_np_data_back_to_memory function started ...")
    global fold_data_dictionary, MAX_VALUE_FOR_NORMALIZATION ,  MIN_VALUE_FOR_NORMALIZATION
 
    for fold in FOLD_DIRS:
@@ -122,7 +122,7 @@ def load_all_csv_data_back_to_memory():
    minmax=np.load(MAIN_DATA_DIR+"/2.np/minmax.npy",mmap_mode='r+')
    MIN_VALUE_FOR_NORMALIZATION=minmax[0]
    MAX_VALUE_FOR_NORMALIZATION=minmax[1]
-   logger.info ("load_all_csv_data_back_to_memory function finished ...")
+   logger.info ("load_all_np_data_back_to_memory function finished ...")
 
 
 def normalize_all_data():
