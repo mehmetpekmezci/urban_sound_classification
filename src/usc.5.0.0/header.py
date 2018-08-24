@@ -28,8 +28,6 @@ datetime    = importlib.import_module("datetime")
 ##
 ## DATA DIRECTORY NAMES
 ##
-#FOLD_DIRS = ['fold1']
-#FOLD_DIRS = ['fold1','fold10']
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
