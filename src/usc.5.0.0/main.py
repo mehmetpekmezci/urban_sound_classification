@@ -8,7 +8,7 @@ def main(_):
   # if not already done  : Download from internet , convert to  csv files.   
   prepareData()
   # load all data into the memory
-  load_all_csv_data_back_to_memory()
+  load_all_np_data_back_to_memory()
   # normalize all the data
   normalize_all_data()
   
