@@ -57,7 +57,7 @@ class NeuralNetworkModel :
    self.x_input                      = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.input_size), name="input")
    with tf.name_scope('input_reshape'):
     print("self.x_input.shape="+str(self.x_input.shape))
-    self.x_input_reshaped = tf.reshape(self.x_input, [self.mini_batch_size, self.input_size, self.input_size_y, number_of_input_channels])
+    self.x_input_reshaped = tf.reshape(self.x_input, [self.mini_batch_size, self.input_size_y, self.input_size, number_of_input_channels])
     print("self.x_input_reshaped.shape="+str(self.x_input_reshaped.shape))
 
     previous_level_convolution_output = self.x_input_reshaped
@@ -81,7 +81,7 @@ class NeuralNetworkModel :
      with tf.name_scope(cnnLayerName+"-convolution"):
        W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
        B = tf.Variable(tf.constant(0.1, shape=[cnnOutputChannel]))
-       C = tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,cnnStrideSizeY, cnnStrideSizeX, 1], padding='SAME')+B
+       C = tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,cnnStrideSizeX, cnnStrideSizeY, 1], padding='SAME')+B
 
        self.logger.info(cnnLayerName+"_C.shape="+str(C.shape)+"  W.shape="+str(W.shape)+ "  cnnStrideSizeX="+str(cnnStrideSizeX)+" cnnStrideSizeY="+str(cnnStrideSizeY))
      with tf.name_scope(cnnLayerName+"-relu"):  
@@ -90,7 +90,7 @@ class NeuralNetworkModel :
 
      if cnnPoolSizeY != 1 :
       with tf.name_scope(cnnLayerName+"-pool"):
-       P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeY,cnnPoolSizeX, 1],strides=[1, cnnPoolSizeY,cnnPoolSizeX , 1], padding='SAME') 
+       P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
        ## put the output of this layer to the next layer's input layer.
        previous_level_convolution_output=P
        self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
@@ -107,41 +107,6 @@ class NeuralNetworkModel :
      previous_level_kernel_count=cnnKernelCount
      cnn_last_layer_output=previous_level_convolution_output
    
-###################################################################################################
-#     conv_kernel_length_y=convSize
-#     conv_stride=math.ceil(convSize/3)
-#     if conv_stride < 2 :
-##        conv_stride=2
-#
-#     with tf.name_scope(convName):
-#       W_conv = weight_variable([conv_kernel_length_x, conv_kernel_length_y, conv_input_channel, conv_kernel_count])
-#       b_conv = bias_variable([conv_kernel_count])
-#       #Based on conv2d doc:
-#       #    shape of input = [batch, in_height, in_width, in_channels]
-#       #    shape of filter = [filter_height, filter_width, in_channels, out_channels]
-##       #    Last dimension of input and third dimension of filter represents the number of input channels. In your case they are not equal.
-#       h_conv = tf.nn.relu(conv2d(previous_level_conv_output, W_conv,conv_stride) + b_conv)
-#       print(convName+"_h.shape="+str(h_conv.shape))
-#
-#     with tf.name_scope(convName+"_pool"):
-#       # Max Pooling layer - downsamples by pool_length.
-#       pool_length=conv_stride
-#       h_pool = max_pool_1xL(h_conv,pool_length)
-#       print(convName+"_h_pool.shape="+str(h_pool.shape))
-##
-#       ## put the output of this layer to the next depth's input layer.
-#       previous_level_conv_output=h_pool
-#     conv_input_channel=conv_kernel_count
-#
-#   with tf.name_scope("conv_size_"+str(convSize)+"_flatten"):
-#    previous_level_conv_output_flat=tf.contrib.layers.flatten(previous_level_conv_output)
-#                                                                                                                                                                                                         166,23        38%
-#############################################################################################################################################
-
-
-
-
-
    ##
    ## FULLY CONNECTED LAYERS
    ##Linear activation (FC layer on top of the RESNET )
@@ -157,19 +122,15 @@ class NeuralNetworkModel :
     matmul_fc1=tf.matmul(cnn_last_layer_output_flat, W_fc1)+B_fc1
     self.logger.info("matmul_fc1.shape="+str(matmul_fc1.shape))
 
-#   with tf.name_scope('fc1_batch_normlalization'):    
-#    batch_mean, batch_var = tf.nn.moments(matmul_fc1,[0])
-#    scale = tf.Variable(tf.ones(self.number_of_fully_connected_layer_neurons))
-#    beta = tf.Variable(tf.zeros(self.number_of_fully_connected_layer_neurons))
-#    batch_normalization_fc1 = tf.nn.batch_normalization(matmul_fc1,batch_mean,batch_var,beta,scale,epsilon)
-#    self.logger.info("batch_normalization_fc1.shape="+str(batch_normalization_fc1.shape))
+   with tf.name_scope('fc1_batch_normlalization'):    
+    batch_mean, batch_var = tf.nn.moments(matmul_fc1,[0])
+    scale = tf.Variable(tf.ones(self.number_of_fully_connected_layer_neurons))
+    beta = tf.Variable(tf.zeros(self.number_of_fully_connected_layer_neurons))
+    batch_normalization_fc1 = tf.nn.batch_normalization(matmul_fc1,batch_mean,batch_var,beta,scale,epsilon)
+    self.logger.info("batch_normalization_fc1.shape="+str(batch_normalization_fc1.shape))
 
-#   with tf.name_scope('fc1_batch_normalized_relu'):    
-#    h_fc1 = tf.nn.relu( batch_normalization_fc1 )
-#    self.logger.info("h_fc1.shape="+str(h_fc1.shape))
-
-   with tf.name_scope('fc1_relu'):    
-    h_fc1 = tf.nn.relu( matmul_fc1 )
+   with tf.name_scope('fc1_batch_normalized_relu'):    
+    h_fc1 = tf.nn.relu( batch_normalization_fc1 )
     self.logger.info("h_fc1.shape="+str(h_fc1.shape))
 
    # Dropout - controls the complexity of the model, prevents co-adaptation of features.
@@ -178,7 +139,7 @@ class NeuralNetworkModel :
     h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
     self.logger.info("h_fc1_drop.shape="+str(h_fc1_drop.shape))
 
-    # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS(1024) features to OUTPUT_SIZE=NUMBER_OF_CLASSES(10) classes, one for each class
+    # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS features to OUTPUT_SIZE=NUMBER_OF_CLASSES(10) classes, one for each class
    with tf.name_scope('fc2'):
     W_fc2 =  tf.Variable( tf.truncated_normal([self.number_of_fully_connected_layer_neurons, self.output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.output_size]))
