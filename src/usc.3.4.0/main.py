@@ -21,6 +21,7 @@ def main(_):
     logger.info("##############################################################")
     logger.info("Training Iteration : "+str(trainingIterationNo))
         
+    prepareDataTimes=[ ]
     trainingTimes=[ ]
     trainingAccuracies=[ ]
     testTimes=[ ]
@@ -38,17 +39,23 @@ def main(_):
               testTimes.append(testTime)
               testAccuracies.append(testAccuracy)
          else:
-              trainingTime,trainingAccuracy=neuralNetworkModel.train(batch_data)
+              trainingTime,trainingAccuracy,prepareDataTime=neuralNetworkModel.train(batch_data)
               trainingTimes.append(trainingTime)
               trainingAccuracies.append(trainingAccuracy)
+              prepareDataTimes.append(prepareDataTime)
 
 
 
     ## LOGGING            
+    logger.info("Prepare Data Time : "+str(np.sum(prepareDataTimes)))
     logger.info("Training Time : "+str(np.sum(trainingTimes)))
-    logger.info("Training Accuracy : "+str(np.mean(trainingAccuracies)))
+    logger.info("Mean Training Accuracy : "+str(np.mean(trainingAccuracies)))
+    logger.info("Max Training Accuracy : "+str(np.Max(trainingAccuracies)))
+    logger.info("Min Training Accuracy : "+str(np.Min(trainingAccuracies)))
     logger.info("Test Time : "+str(np.sum(testTimes)))
-    logger.info("Test Accuracy : "+str(np.mean(testAccuracies)))
+    logger.info("Mean Test Accuracy : "+str(np.mean(testAccuracies)))
+    logger.info("Max Test Accuracy : "+str(np.Max(testAccuracies)))
+    logger.info("Min Test Accuracy : "+str(np.Min(testAccuracies)))
     
     ## GRAPH (FOR LOGGING)
     tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies)})

@@ -167,30 +167,53 @@ def augment_volume(sound_array,factor):
 def augment_translate(snd_array, n):
     """ Translates the sound wave by n indices, fill the first n elements of the array with zeros """
     new_array=np.zeros(len(snd_array))
-    for i in range(snd_array.shape[0]):
-       if i+n == len(new_array) :
-          break
-       new_array[i+n]=snd_array[i] 
+    new_array[n:]=snd_array[:-n]
     return new_array
 
 
 def augment_random(x_data):
+  global LAST_AUGMENTATION_CHOICE;
+
   augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
   for i in range(x_data.shape[0]) :
+    LAST_AUGMENTATION_CHOICE=(LAST_AUGMENTATION_CHOICE+1)%20
     augmented_data[i]=x_data[i]
-    IS_AUGMENT_DATA=random.randint(0, 9)
     # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
-    if IS_AUGMENT_DATA != 0 :
-      SPEED_FACTOR=random.uniform(0.7,1.3)
-      TRANSLATION_FACTOR=random.randint(2000,10000)
-      #VOLUME_FACTOR=random.uniform(0.5,2)
-      INVERSE_FACTOR=random.randint(0, 1)
+    if LAST_AUGMENTATION_CHOICE%10 != 0 :
+      SPEED_FACTOR=0.8+LAST_AUGMENTATION_CHOICE/50
+      TRANSLATION_FACTOR=int(5000*LAST_AUGMENTATION_CHOICE/10)
+      INVERSE_FACTOR=LAST_AUGMENTATION_CHOICE%4
       if INVERSE_FACTOR == 1 :
        augmented_data[i]=-augmented_data[i]
       augmented_data[i]=augment_speedx(augmented_data[i],SPEED_FACTOR)
       augmented_data[i]=augment_translate(augmented_data[i],TRANSLATION_FACTOR)
       #augmented_data[i]=augment_volume(augmented_data[i],VOLUME_FACTOR)
-
+  
   return augmented_data
- 
+'''
 
+def augment_random(x_data):
+  augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
+  for i in range(x_data.shape[0]) :
+    augmentation_type=random.randint(0, 5)
+    if augmentation_type == 0 :
+       SPEED_FACTOR=1.1
+       augmented_data[i]= augment_speedx(x_data[i],SPEED_FACTOR)
+    elif augmentation_type == 1 :
+       SPEED_FACTOR=0.9
+       augmented_data[i]= augment_speedx(x_data[i],SPEED_FACTOR)
+    elif augmentation_type == 2 :
+       SPEED_FACTOR=1.2
+       augmented_data[i]= augment_speedx(x_data[i],SPEED_FACTOR)
+    elif augmentation_type == 3 :
+       TRANSLATION_FACTOR=8820
+       augmented_data[i]= augment_translate(x_data[i],TRANSLATION_FACTOR)
+    elif augmentation_type == 4 :
+       TRANSLATION_FACTOR=4410
+       augmented_data[i]= augment_translate(x_data[i],TRANSLATION_FACTOR)
+    elif augmentation_type == 5 :
+       augmented_data[i]= -x_data[i]    
+    else :
+       augmented_data[i]=x_data[i] 
+  return augmented_data
+  '''

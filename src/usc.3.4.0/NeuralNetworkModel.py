@@ -171,7 +171,7 @@ class NeuralNetworkModel :
    ## CALCULATE ACCURACY
    ##
    with tf.name_scope('calculate_accuracy'):
-    correct_prediction = tf.equal(tf.argmax(self.real_y_values, 1), tf.argmax(self.y_outputs, 1))
+    correct_prediction = tf.equal(tf.argmax(self.y_outputs, 1),tf.argmax(self.real_y_values, 1))
     correct_prediction = tf.cast(correct_prediction, tf.float32)
     self.accuracy = tf.reduce_mean(correct_prediction)
 
@@ -191,24 +191,31 @@ class NeuralNetworkModel :
    ##
    self.session.run(tf.global_variables_initializer())
 
- def prepareData(self,data):
-  x_data=augment_random(data[:,:4*SOUND_RECORD_SAMPLING_RATE])
+ def prepareData(self,data,augment):
+  x_data=data[:,:4*SOUND_RECORD_SAMPLING_RATE]
+  if augment==True :
+    x_data=augment_random(x_data)
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
   return x_data,y_data_one_hot_encoded
 
  def train(self,data):
+  augment=True
+  prepareDataTimeStart = int(round(time.time())) 
+  x_data,y_data=self.prepareData(data,augment)
+  prepareDataTimeStop = int(round(time.time())) 
+  prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   trainingTimeStart = int(round(time.time())) 
-  x_data,y_data=self.prepareData(data)
   self.optimizer.run(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob:self.keep_prob_constant})
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
   trainingAccuracy = self.accuracy.eval(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob: 1.0})
-  return trainingTime,trainingAccuracy
+  return trainingTime,trainingAccuracy,prepareDataTime
      
  def test(self,data):
   testTimeStart = int(round(time.time())) 
-  x_data,y_data=self.prepareData(data) 
+  augment=False
+  x_data,y_data=self.prepareData(data,augment) 
   testAccuracy = self.accuracy.eval(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob: 1.0})
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
