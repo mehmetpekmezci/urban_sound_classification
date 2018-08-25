@@ -10,6 +10,10 @@ def main(_):
   # load all data into the memory
   load_all_np_data_back_to_memory()
   # normalize all the data
+  logger.info("##############################################################")
+  logger.info("MIN_VALUE_FOR_NORMALIZATION : "+str(MIN_VALUE_FOR_NORMALIZATION))
+  logger.info("MAX_VALUE_FOR_NORMALIZATION : "+str(MAX_VALUE_FOR_NORMALIZATION))
+  logger.info("##############################################################")
   normalize_all_data()
   
   with tf.Session() as session:

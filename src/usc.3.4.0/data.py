@@ -88,7 +88,7 @@ def save_as_np():
           if MIN_VALUE_FOR_NORMALIZATION > minOfArray :
               MIN_VALUE_FOR_NORMALIZATION = minOfArray
           ## Then append Y data to the end of row
-          fold_data_dictionary[fold][i]=np.append(loadedDataX,loadedDataY)
+        
      np.save(MAIN_DATA_DIR+"/2.np/"+fold+".npy",  fold_data_dictionary[fold]) 
      
    np.save(MAIN_DATA_DIR+"/2.np/minmax.npy",[MIN_VALUE_FOR_NORMALIZATION,MAX_VALUE_FOR_NORMALIZATION]) 
