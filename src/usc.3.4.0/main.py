@@ -4,18 +4,43 @@ from data import *
 from NeuralNetworkModel import *
 
 def main(_):
-
+  global fold_data_dictionary,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION
   # if not already done  : Download from internet , convert to  csv files.   
   prepareData()
   # load all data into the memory
-  load_all_np_data_back_to_memory()
+  MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION=load_all_np_data_back_to_memory(fold_data_dictionary)
   # normalize all the data
   logger.info("##############################################################")
   logger.info("MIN_VALUE_FOR_NORMALIZATION : "+str(MIN_VALUE_FOR_NORMALIZATION))
   logger.info("MAX_VALUE_FOR_NORMALIZATION : "+str(MAX_VALUE_FOR_NORMALIZATION))
+  logger.info("fold_data_dictionary['fold1'][0]: "+str(fold_data_dictionary['fold1'][0]))
+  logger.info("fold_data_dictionary['fold2'][0]: "+str(fold_data_dictionary['fold2'][0]))
+  logger.info("fold_data_dictionary['fold3'][0]: "+str(fold_data_dictionary['fold3'][0]))
+  logger.info("fold_data_dictionary['fold4'][0]: "+str(fold_data_dictionary['fold4'][0]))
+  logger.info("fold_data_dictionary['fold5'][0]: "+str(fold_data_dictionary['fold5'][0]))
+  logger.info("fold_data_dictionary['fold6'][0]: "+str(fold_data_dictionary['fold6'][0]))
+  logger.info("fold_data_dictionary['fold7'][0]: "+str(fold_data_dictionary['fold7'][0]))
+  logger.info("fold_data_dictionary['fold8'][0]: "+str(fold_data_dictionary['fold8'][0]))
+  logger.info("fold_data_dictionary['fold9'][0]: "+str(fold_data_dictionary['fold9'][0]))
+  logger.info("fold_data_dictionary['fold10'][0]: "+str(fold_data_dictionary['fold10'][0]))
   logger.info("##############################################################")
-  normalize_all_data()
+  normalize_all_data(fold_data_dictionary,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION)
   
+  logger.info("##############################################################")
+  logger.info("MIN_VALUE_FOR_NORMALIZATION : "+str(MIN_VALUE_FOR_NORMALIZATION))
+  logger.info("MAX_VALUE_FOR_NORMALIZATION : "+str(MAX_VALUE_FOR_NORMALIZATION))
+  logger.info("fold_data_dictionary['fold1'][0]: "+str(fold_data_dictionary['fold1'][0]))
+  logger.info("fold_data_dictionary['fold2'][0]: "+str(fold_data_dictionary['fold2'][0]))
+  logger.info("fold_data_dictionary['fold3'][0]: "+str(fold_data_dictionary['fold3'][0]))
+  logger.info("fold_data_dictionary['fold4'][0]: "+str(fold_data_dictionary['fold4'][0]))
+  logger.info("fold_data_dictionary['fold5'][0]: "+str(fold_data_dictionary['fold5'][0]))
+  logger.info("fold_data_dictionary['fold6'][0]: "+str(fold_data_dictionary['fold6'][0]))
+  logger.info("fold_data_dictionary['fold7'][0]: "+str(fold_data_dictionary['fold7'][0]))
+  logger.info("fold_data_dictionary['fold8'][0]: "+str(fold_data_dictionary['fold8'][0]))
+  logger.info("fold_data_dictionary['fold9'][0]: "+str(fold_data_dictionary['fold9'][0]))
+  logger.info("fold_data_dictionary['fold10'][0]: "+str(fold_data_dictionary['fold10'][0]))
+  logger.info("##############################################################")
+
   with tf.Session() as session:
     
    neuralNetworkModel=NeuralNetworkModel(session,logger)
@@ -54,12 +79,12 @@ def main(_):
     logger.info("Prepare Data Time : "+str(np.sum(prepareDataTimes)))
     logger.info("Training Time : "+str(np.sum(trainingTimes)))
     logger.info("Mean Training Accuracy : "+str(np.mean(trainingAccuracies)))
-    logger.info("Max Training Accuracy : "+str(np.Max(trainingAccuracies)))
-    logger.info("Min Training Accuracy : "+str(np.Min(trainingAccuracies)))
+    logger.info("Max Training Accuracy : "+str(np.max(trainingAccuracies)))
+    logger.info("Min Training Accuracy : "+str(np.min(trainingAccuracies)))
     logger.info("Test Time : "+str(np.sum(testTimes)))
     logger.info("Mean Test Accuracy : "+str(np.mean(testAccuracies)))
-    logger.info("Max Test Accuracy : "+str(np.Max(testAccuracies)))
-    logger.info("Min Test Accuracy : "+str(np.Min(testAccuracies)))
+    logger.info("Max Test Accuracy : "+str(np.max(testAccuracies)))
+    logger.info("Min Test Accuracy : "+str(np.min(testAccuracies)))
     
     ## GRAPH (FOR LOGGING)
     tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies)})

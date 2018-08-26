@@ -118,8 +118,8 @@ def load_all_np_data_back_to_memory():
 
    for fold in FOLD_DIRS:
        logger.info ("loading from "+MAIN_DATA_DIR+"/2.np/"+fold+".npy  ...")
-       fold_data_dictionary[fold]=np.load(MAIN_DATA_DIR+"/2.np/"+fold+".npy",mmap_mode='r+')
-   minmax=np.load(MAIN_DATA_DIR+"/2.np/minmax.npy",mmap_mode='r+')
+       fold_data_dictionary[fold]=np.load(MAIN_DATA_DIR+"/2.np/"+fold+".npy",)
+   minmax=np.load(MAIN_DATA_DIR+"/2.np/minmax.npy",)
    MIN_VALUE_FOR_NORMALIZATION=minmax[0]
    MAX_VALUE_FOR_NORMALIZATION=minmax[1]
    logger.info ("load_all_np_data_back_to_memory function finished ...")
