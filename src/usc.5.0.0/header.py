@@ -124,3 +124,7 @@ fold_data_dictionary=dict()
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
 sess = tf.InteractiveSession(config=config)
+
+LAST_AUGMENTATION_CHOICE=0
+
+
