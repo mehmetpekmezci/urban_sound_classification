@@ -73,7 +73,9 @@ def prepareData():
     
 def save_as_np():
    logger.info ("save_as_np function started ...")
-   global fold_data_dictionary, MAX_VALUE_FOR_NORMALIZATION ,  MIN_VALUE_FOR_NORMALIZATION
+   fold_data_dictionary=dict()
+   MAX_VALUE_FOR_NORMALIZATION=0
+   MIN_VALUE_FOR_NORMALIZATION=0
 
    for fold in FOLD_DIRS:
      fold_data_dictionary[fold]=np.array(np.loadtxt(open(CSV_DATA_DIR+"/"+fold+".csv", "rb"), delimiter=","))
@@ -88,14 +90,13 @@ def save_as_np():
           if MIN_VALUE_FOR_NORMALIZATION > minOfArray :
               MIN_VALUE_FOR_NORMALIZATION = minOfArray
           ## Then append Y data to the end of row
-          fold_data_dictionary[fold][i]=np.append(loadedDataX,loadedDataY)
+        
      np.save(MAIN_DATA_DIR+"/2.np/"+fold+".npy",  fold_data_dictionary[fold]) 
      
    np.save(MAIN_DATA_DIR+"/2.np/minmax.npy",[MIN_VALUE_FOR_NORMALIZATION,MAX_VALUE_FOR_NORMALIZATION]) 
    logger.info ("save_as_np function finished ...")
 
-def normalize(data):
-    global MAX_VALUE_FOR_NORMALIZATION , MIN_VALUE_FOR_NORMALIZATION
+def normalize(data,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION):
     data_normalized=(data-MIN_VALUE_FOR_NORMALIZATION)/(MAX_VALUE_FOR_NORMALIZATION-MIN_VALUE_FOR_NORMALIZATION)
     return data_normalized
 
@@ -112,30 +113,31 @@ def one_hot_encode(classNumber):
    one_hot_encoded_class_number[int(classNumber)]=1
    return one_hot_encoded_class_number
 
-def load_all_np_data_back_to_memory():
+def load_all_np_data_back_to_memory(fold_data_dictionary):
+   
    logger.info ("load_all_np_data_back_to_memory function started ...")
-   global fold_data_dictionary, MAX_VALUE_FOR_NORMALIZATION ,  MIN_VALUE_FOR_NORMALIZATION
-
    for fold in FOLD_DIRS:
        logger.info ("loading from "+MAIN_DATA_DIR+"/2.np/"+fold+".npy  ...")
-       fold_data_dictionary[fold]=np.load(MAIN_DATA_DIR+"/2.np/"+fold+".npy",)
-   minmax=np.load(MAIN_DATA_DIR+"/2.np/minmax.npy",)
+       fold_data_dictionary[fold]=np.load(MAIN_DATA_DIR+"/2.np/"+fold+".npy")
+   minmax=np.load(MAIN_DATA_DIR+"/2.np/minmax.npy")
    MIN_VALUE_FOR_NORMALIZATION=minmax[0]
    MAX_VALUE_FOR_NORMALIZATION=minmax[1]
+
    logger.info ("load_all_np_data_back_to_memory function finished ...")
+   return MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION
+   
 
-
-def normalize_all_data():
+def normalize_all_data(fold_data_dictionary,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION):
      logger.info ("normalize_all_data function started ...")
-     global fold_data_dictionary
      for fold in FOLD_DIRS:
        for i in range(fold_data_dictionary[fold].shape[0]) :
           loadedData=fold_data_dictionary[fold][i]
           loadedDataX=loadedData[:4*SOUND_RECORD_SAMPLING_RATE]
           loadedDataY=loadedData[4*SOUND_RECORD_SAMPLING_RATE]
-          normalizedLoadedDataX=normalize(loadedDataX)
+          normalizedLoadedDataX=normalize(loadedDataX,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION)
           fold_data_dictionary[fold][i]=np.append(normalizedLoadedDataX,loadedDataY)
      logger.info ("normalize_all_data function finished ...")
+     return fold_data_dictionary
 
 def get_fold_data(fold):
      global fold_data_dictionary
@@ -167,30 +169,26 @@ def augment_volume(sound_array,factor):
 def augment_translate(snd_array, n):
     """ Translates the sound wave by n indices, fill the first n elements of the array with zeros """
     new_array=np.zeros(len(snd_array))
-    for i in range(snd_array.shape[0]):
-       if i+n == len(new_array) :
-          break
-       new_array[i+n]=snd_array[i] 
+    new_array[n:]=snd_array[:-n]
     return new_array
 
 
 def augment_random(x_data):
+  global LAST_AUGMENTATION_CHOICE;
+
   augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
   for i in range(x_data.shape[0]) :
+    LAST_AUGMENTATION_CHOICE=(LAST_AUGMENTATION_CHOICE+1)%20
     augmented_data[i]=x_data[i]
-    IS_AUGMENT_DATA=random.randint(0, 9)
     # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
-    if IS_AUGMENT_DATA != 0 :
-      SPEED_FACTOR=random.uniform(0.7,1.3)
-      TRANSLATION_FACTOR=random.randint(2000,10000)
-      #VOLUME_FACTOR=random.uniform(0.5,2)
-      INVERSE_FACTOR=random.randint(0, 1)
+    if LAST_AUGMENTATION_CHOICE%10 != 0 :
+      SPEED_FACTOR=0.8+LAST_AUGMENTATION_CHOICE/50
+      TRANSLATION_FACTOR=int(5000*LAST_AUGMENTATION_CHOICE/10)
+      INVERSE_FACTOR=LAST_AUGMENTATION_CHOICE%4
       if INVERSE_FACTOR == 1 :
        augmented_data[i]=-augmented_data[i]
       augmented_data[i]=augment_speedx(augmented_data[i],SPEED_FACTOR)
       augmented_data[i]=augment_translate(augmented_data[i],TRANSLATION_FACTOR)
       #augmented_data[i]=augment_volume(augmented_data[i],VOLUME_FACTOR)
-
+  
   return augmented_data
- 
-

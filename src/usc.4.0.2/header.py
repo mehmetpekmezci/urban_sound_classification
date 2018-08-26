@@ -29,6 +29,7 @@ datetime    = importlib.import_module("datetime")
 ## DATA DIRECTORY NAMES
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
+FOLD_DIRS = ['fold1']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
 RAW_DATA_DIR = MAIN_DATA_DIR+'/0.raw/UrbanSound8K/audio'
@@ -108,13 +109,13 @@ INPUT_SIZE=TRACK_LENGTH
 ##
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
-NUMBER_OF_FULLY_CONNECTED_NEURONS=2048
+NUMBER_OF_FULLY_CONNECTED_NEURONS=1024
 
 ##
 ## CNN PARAMETERS
 ##
 ## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
-CNN_KERNEL_COUNTS       = np.array([32,32,64,64,64,128,128,256,256,256,512,512])
+CNN_KERNEL_COUNTS       = np.array([32,32,64,64,64,128,128,128,128,128,128,128])
 CNN_KERNEL_X_SIZES      = np.array([1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_KERNEL_Y_SIZES      = np.array([7 , 7, 7, 5, 5, 5, 5, 3, 3, 3, 3, 3])
 CNN_STRIDE_X_SIZES      = np.array([1 , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
@@ -147,3 +148,7 @@ fold_data_dictionary=dict()
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
 sess = tf.InteractiveSession(config=config)
+
+LAST_AUGMENTATION_CHOICE=0
+
+

@@ -129,7 +129,6 @@ def load_all_np_data_back_to_memory(fold_data_dictionary):
 
 def normalize_all_data(fold_data_dictionary,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION):
      logger.info ("normalize_all_data function started ...")
-     fold_data_dictionary
      for fold in FOLD_DIRS:
        for i in range(fold_data_dictionary[fold].shape[0]) :
           loadedData=fold_data_dictionary[fold][i]
