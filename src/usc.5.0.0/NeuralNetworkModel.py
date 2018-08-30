@@ -22,6 +22,7 @@ class NeuralNetworkModel :
    self.lstm_state_size       = lstm_state_size
    self.lstm_forget_bias      = lstm_forget_bias
    self.keep_prob             = keep_prob
+   self.keep_prob_constant    = keep_prob
    
    
 
