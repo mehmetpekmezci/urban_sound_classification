@@ -1,5 +1,6 @@
 homework  -- first work as homework.
 usc.3.4.0 -- track directly fed into CNN-34 with residuals + 2 layer fc
 usc.3.5.0 -- track directly fed into CNN-34 with residuals + N layer fc
+usc.3.6.0 -- track directly fed into CNN-34 with residuals + N layer fc + MODEL SAVER
 usc.4.0.2 -- track split into NUMBER_OF_TIME_SILCES pieces, directly fed into  NUMBER_OF_TIME_SILCES x CNN-11 (each piece fed into its own CNN-11), all the CNN-11 results are fed into LSTM as time frames,  
 usc.5.0.0 -- track split into NUMBER_OF_TIME_SILCES pieces, directly fed into LSTM as time frames
