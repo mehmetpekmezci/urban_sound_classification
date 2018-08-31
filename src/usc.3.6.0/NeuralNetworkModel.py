@@ -203,7 +203,11 @@ class NeuralNetworkModel :
    ##
    ## INITIALIZE SESSION
    ##
-   self.session.run(tf.global_variables_initializer())
+   checkpoint= tf​.​train​.​get_checkpoint_state(os​.​path​.​dirname​(​SAVE_DIR+'/usc_model'))
+   if​ checkpoint and​ checkpoint.​model_checkpoint_path:
+    saver​.​restore​(self.session,checkpoint.​model_checkpoint_path)
+   else : 
+    self.session.run(tf.global_variables_initializer())
 
  def prepareData(self,data,augment):
   x_data=data[:,:4*SOUND_RECORD_SAMPLING_RATE]

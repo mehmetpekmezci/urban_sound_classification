@@ -37,6 +37,7 @@ CSV_DATA_DIR=MAIN_DATA_DIR+"/1.csv"
 NP_DATA_DIR=MAIN_DATA_DIR+"/2.np"
 LOG_DIR_FOR_LOGGER=SCRIPT_DIR+"/../../logs/logger"
 LOG_DIR_FOR_TF_SUMMARY=SCRIPT_DIR+"/../../logs/tf-summary"
+SAVE_DIR=SCRIPT_DIR+"/../../save"
 
 
 if not os.path.exists(LOG_DIR_FOR_TF_SUMMARY):
@@ -106,29 +107,31 @@ INPUT_SIZE=TRACK_LENGTH
 ##
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
-FULLY_CONNECTED_LAYERS=[256,512]
+#FULLY_CONNECTED_LAYERS=[256,256,512]
+FULLY_CONNECTED_LAYERS=[512]
 
 
 ##
 ## CNN PARAMETERS
 ##
 ## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
-CNN_KERNEL_COUNTS       = np.array([256,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32])
-CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
-CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_STRIDE_Y_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_KERNEL_COUNTS       = np.array([256,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32])
+#CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_KERNEL_Y_SIZES      = np.array([ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+#CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_STRIDE_Y_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-#CNN_KERNEL_COUNTS       = np.array([256,256,256,256,256,256,256,256,256,256,256])
-#CNN_KERNEL_X_SIZES      = np.array([  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1])
-#CNN_KERNEL_Y_SIZES      = np.array([  5,  5,  3,  3,  3,  3,  3,  3,  3,  3,  3])
-#CNN_STRIDE_X_SIZES      = np.array([  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1])
-#CNN_STRIDE_Y_SIZES      = np.array([  2,  2,  1,  1,  1,  1,  1,  1,  1,  1,  1])
-#CNN_POOL_X_SIZES        = np.array([  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1])
-#CNN_POOL_Y_SIZES        = np.array([  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  1])
- 
+CNN_KERNEL_COUNTS       = np.array([128,32,32,32,32,32,32,32,32,32,32])
+CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2])
+CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2])
+
+
 ##
 ## TRAINING PARAMETERS
 ##
@@ -148,7 +151,7 @@ MIN_VALUE_FOR_NORMALIZATION=0
 fold_data_dictionary=dict()
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
-sess = tf.InteractiveSession(config=config)
+#sess = tf.InteractiveSession(config=config)
 
 LAST_AUGMENTATION_CHOICE=0
 
