@@ -14,15 +14,15 @@ def main(_):
   logger.info("MIN_VALUE_FOR_NORMALIZATION : "+str(MIN_VALUE_FOR_NORMALIZATION))
   logger.info("MAX_VALUE_FOR_NORMALIZATION : "+str(MAX_VALUE_FOR_NORMALIZATION))
   logger.info("fold_data_dictionary['fold1'][0]: "+str(fold_data_dictionary['fold1'][0]))
-#  logger.info("fold_data_dictionary['fold2'][0]: "+str(fold_data_dictionary['fold2'][0]))
-#  logger.info("fold_data_dictionary['fold3'][0]: "+str(fold_data_dictionary['fold3'][0]))
-#  logger.info("fold_data_dictionary['fold4'][0]: "+str(fold_data_dictionary['fold4'][0]))
-#  logger.info("fold_data_dictionary['fold5'][0]: "+str(fold_data_dictionary['fold5'][0]))
-#  logger.info("fold_data_dictionary['fold6'][0]: "+str(fold_data_dictionary['fold6'][0]))
-#  logger.info("fold_data_dictionary['fold7'][0]: "+str(fold_data_dictionary['fold7'][0]))
-#  logger.info("fold_data_dictionary['fold8'][0]: "+str(fold_data_dictionary['fold8'][0]))
-#  logger.info("fold_data_dictionary['fold9'][0]: "+str(fold_data_dictionary['fold9'][0]))
-#  logger.info("fold_data_dictionary['fold10'][0]: "+str(fold_data_dictionary['fold10'][0]))
+  logger.info("fold_data_dictionary['fold2'][0]: "+str(fold_data_dictionary['fold2'][0]))
+  logger.info("fold_data_dictionary['fold3'][0]: "+str(fold_data_dictionary['fold3'][0]))
+  logger.info("fold_data_dictionary['fold4'][0]: "+str(fold_data_dictionary['fold4'][0]))
+  logger.info("fold_data_dictionary['fold5'][0]: "+str(fold_data_dictionary['fold5'][0]))
+  logger.info("fold_data_dictionary['fold6'][0]: "+str(fold_data_dictionary['fold6'][0]))
+  logger.info("fold_data_dictionary['fold7'][0]: "+str(fold_data_dictionary['fold7'][0]))
+  logger.info("fold_data_dictionary['fold8'][0]: "+str(fold_data_dictionary['fold8'][0]))
+  logger.info("fold_data_dictionary['fold9'][0]: "+str(fold_data_dictionary['fold9'][0]))
+  logger.info("fold_data_dictionary['fold10'][0]: "+str(fold_data_dictionary['fold10'][0]))
   logger.info("##############################################################")
   normalize_all_data(fold_data_dictionary,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION)
   
@@ -30,21 +30,37 @@ def main(_):
   logger.info("MIN_VALUE_FOR_NORMALIZATION : "+str(MIN_VALUE_FOR_NORMALIZATION))
   logger.info("MAX_VALUE_FOR_NORMALIZATION : "+str(MAX_VALUE_FOR_NORMALIZATION))
   logger.info("fold_data_dictionary['fold1'][0]: "+str(fold_data_dictionary['fold1'][0]))
-#  logger.info("fold_data_dictionary['fold2'][0]: "+str(fold_data_dictionary['fold2'][0]))
-#  logger.info("fold_data_dictionary['fold3'][0]: "+str(fold_data_dictionary['fold3'][0]))
-#  logger.info("fold_data_dictionary['fold4'][0]: "+str(fold_data_dictionary['fold4'][0]))
-#  logger.info("fold_data_dictionary['fold5'][0]: "+str(fold_data_dictionary['fold5'][0]))
-#  logger.info("fold_data_dictionary['fold6'][0]: "+str(fold_data_dictionary['fold6'][0]))
-#  logger.info("fold_data_dictionary['fold7'][0]: "+str(fold_data_dictionary['fold7'][0]))
-#  logger.info("fold_data_dictionary['fold8'][0]: "+str(fold_data_dictionary['fold8'][0]))
-#  logger.info("fold_data_dictionary['fold9'][0]: "+str(fold_data_dictionary['fold9'][0]))
-#  logger.info("fold_data_dictionary['fold10'][0]: "+str(fold_data_dictionary['fold10'][0]))
+  logger.info("fold_data_dictionary['fold2'][0]: "+str(fold_data_dictionary['fold2'][0]))
+  logger.info("fold_data_dictionary['fold3'][0]: "+str(fold_data_dictionary['fold3'][0]))
+  logger.info("fold_data_dictionary['fold4'][0]: "+str(fold_data_dictionary['fold4'][0]))
+  logger.info("fold_data_dictionary['fold5'][0]: "+str(fold_data_dictionary['fold5'][0]))
+  logger.info("fold_data_dictionary['fold6'][0]: "+str(fold_data_dictionary['fold6'][0]))
+  logger.info("fold_data_dictionary['fold7'][0]: "+str(fold_data_dictionary['fold7'][0]))
+  logger.info("fold_data_dictionary['fold8'][0]: "+str(fold_data_dictionary['fold8'][0]))
+  logger.info("fold_data_dictionary['fold9'][0]: "+str(fold_data_dictionary['fold9'][0]))
+  logger.info("fold_data_dictionary['fold10'][0]: "+str(fold_data_dictionary['fold10'][0]))
   logger.info("##############################################################")
+  
+
 
   with tf.Session() as session:
     
    neuralNetworkModel=NeuralNetworkModel(session,logger)
+   saver = tf.train.Saver()
+
+
+   ##
+   ## INITIALIZE SESSION
+   ##
+   checkpoint= tf​.​train​.​get_checkpoint_state(os​.​path​.​dirname​(​SAVE_DIR+'/usc_model'))
+   if​ checkpoint and​ checkpoint.​model_checkpoint_path:
+    saver​.​restore​(self.session,checkpoint.​model_checkpoint_path)
+   else : 
+    self.session.run(tf.global_variables_initializer())
+   ##
+   ##
     
+       
    for trainingIterationNo in range(TRAINING_ITERATIONS):
         
     logger.info("##############################################################")
@@ -102,6 +118,9 @@ def main(_):
     testTimeSummary = session.run(tfSummaryTimeMergedWriter, {tf_summary_time_log_var:np.mean(testTimes)})
     testTimeWriter.add_summary(testTimeSummary, trainingIterationNo)
     testTimeWriter.flush()
+
+    if trainingIterationNo>0 && trainingIterationNo%100 == 0 :
+      saver.save(session, SAVE_DIR+'/usc_model',global_step=trainingIterationNo,max_to_keep=4)
 
 
 if __name__ == '__main__':
