@@ -129,7 +129,8 @@ CNN_STRIDE_X_SIZES      = np.array([  1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_STRIDE_Y_SIZES      = np.array([  1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_POOL_X_SIZES        = np.array([  1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_POOL_Y_SIZES        = np.array([  2,  2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1])
- 
+
+
 ##
 ## TRAINING PARAMETERS
 ##
