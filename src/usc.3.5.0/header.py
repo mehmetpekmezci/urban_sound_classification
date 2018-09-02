@@ -107,7 +107,7 @@ INPUT_SIZE=TRACK_LENGTH
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
 #FULLY_CONNECTED_LAYERS=[256,256,256,256,512]
-FULLY_CONNECTED_LAYERS=[256]
+FULLY_CONNECTED_LAYERS=[1024]
 
 
 ##
@@ -122,13 +122,13 @@ FULLY_CONNECTED_LAYERS=[256]
 #CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 #CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-CNN_KERNEL_COUNTS       = np.array([128,128,32,32,32,32,32,32,32,32,32,32])
-CNN_KERNEL_X_SIZES      = np.array([  1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([  3,  3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1])
-CNN_STRIDE_X_SIZES      = np.array([  1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_STRIDE_Y_SIZES      = np.array([  1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_X_SIZES        = np.array([  1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([  2,  2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1])
+CNN_KERNEL_COUNTS       = np.array([256,32,32,32,32,32,32,32,32,32,32,32,32,32,32])
+CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([  2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1])
 
 
 ##
@@ -139,7 +139,7 @@ CNN_POOL_Y_SIZES        = np.array([  2,  2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1])
 LEARNING_RATE = 0.0001
 
 TRAINING_ITERATIONS=9000
-MINI_BATCH_SIZE=5
+MINI_BATCH_SIZE=10
 
 ##
 ## GLOBAL VARIABLES
