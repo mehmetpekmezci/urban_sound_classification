@@ -52,9 +52,9 @@ def main(_):
    ##
    ## INITIALIZE SESSION
    ##
-   checkpoint= tf​.​train​.​get_checkpoint_state(os​.​path​.​dirname​(​SAVE_DIR+'/usc_model'))
-   if​ checkpoint and​ checkpoint.​model_checkpoint_path:
-    saver​.​restore​(self.session,checkpoint.​model_checkpoint_path)
+   checkpoint= tf.train.get_checkpoint_state(os.path.dirname(SAVE_DIR+'/usc_model'))
+   if checkpoint and checkpoint.model_checkpoint_path:
+    saver.restore(self.session,checkpoint.model_checkpoint_path)
    else : 
     self.session.run(tf.global_variables_initializer())
    ##
@@ -119,7 +119,7 @@ def main(_):
     testTimeWriter.add_summary(testTimeSummary, trainingIterationNo)
     testTimeWriter.flush()
 
-    if trainingIterationNo>0 && trainingIterationNo%100 == 0 :
+    if trainingIterationNo>0 and trainingIterationNo%100 == 0 :
       saver.save(session, SAVE_DIR+'/usc_model',global_step=trainingIterationNo,max_to_keep=4)
 
 
