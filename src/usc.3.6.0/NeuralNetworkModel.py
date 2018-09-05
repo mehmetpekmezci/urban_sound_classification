@@ -15,6 +15,8 @@ class NeuralNetworkModel :
               cnn_stride_x_sizes=CNN_STRIDE_X_SIZES,cnn_stride_y_sizes=CNN_STRIDE_Y_SIZES,
               cnn_pool_x_sizes=CNN_POOL_X_SIZES,cnn_pool_y_sizes=CNN_POOL_Y_SIZES, 
               learning_rate=LEARNING_RATE, mini_batch_size=MINI_BATCH_SIZE,
+              learning_rate_beta1=LEARNING_RATE_BETA1, 
+              learning_rate_beta2=LEARNING_RATE_BETA2, 
               epsilon=EPSILON,keep_prob_constant=KEEP_PROB,
               fully_connected_layers=FULLY_CONNECTED_LAYERS):
 
@@ -34,6 +36,8 @@ class NeuralNetworkModel :
    self.cnn_pool_x_sizes      = cnn_pool_x_sizes
    self.cnn_pool_y_sizes      = cnn_pool_y_sizes
    self.learning_rate         = learning_rate 
+   self.learning_rate_beta1   = learning_rate_beta1 
+   self.learning_rate_beta2   = learning_rate_beta2 
    self.mini_batch_size       = mini_batch_size
    self.keep_prob_constant    = keep_prob_constant
    self.epsilon               = epsilon
@@ -179,7 +183,7 @@ class NeuralNetworkModel :
    ## SET OPTIMIZER
    ##
    with tf.name_scope('optimizer'):
-    self.optimizer = tf.train.AdamOptimizer(LEARNING_RATE).minimize(self.loss)
+    self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss)
 
    ##
    ## CALCULATE ACCURACY

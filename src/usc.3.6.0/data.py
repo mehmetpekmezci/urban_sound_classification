@@ -184,7 +184,7 @@ def augment_random(x_data):
     if LAST_AUGMENTATION_CHOICE%10 != 0 :
       SPEED_FACTOR=0.8+LAST_AUGMENTATION_CHOICE/50
       TRANSLATION_FACTOR=int(5000*LAST_AUGMENTATION_CHOICE/10)
-      INVERSE_FACTOR=LAST_AUGMENTATION_CHOICE%4
+      INVERSE_FACTOR=LAST_AUGMENTATION_CHOICE%2
       if INVERSE_FACTOR == 1 :
        augmented_data[i]=-augmented_data[i]
       augmented_data[i]=augment_speedx(augmented_data[i],SPEED_FACTOR)
