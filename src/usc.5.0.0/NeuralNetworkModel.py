@@ -75,7 +75,12 @@ class NeuralNetworkModel :
     # get last element of lstm_outputs = lstm_outputs[-1]= output for the last time step = final output = generated (guess) value  .
    
     ## HERE NETWORK DEFINITION IS FINISHED
-
+    
+    ###  NOW CALCULATE PREDICTED VALUE
+    #with tf.name_scope('calculate_predictions'):
+    # output_shape = tf.shape(self.y_outputs)
+    # self.predictions = tf.nn.softmax(tf.reshape(self.y_outputs, [-1, self.output_size]))
+     
    ##
    ## CALCULATE LOSS
    ##
@@ -87,13 +92,13 @@ class NeuralNetworkModel :
    ## SET OPTIMIZER
    ##
    with tf.name_scope('optimizer'):
-    self.optimizer = tf.train.AdamOptimizer(LEARNING_RATE).minimize(self.loss)
+    self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss)
 
    ##
    ## CALCULATE ACCURACY
    ##
    with tf.name_scope('calculate_accuracy'):
-    correct_prediction = tf.equal(tf.argmax(self.real_y_values, 1), tf.argmax(self.y_outputs, 1))
+    correct_prediction = tf.equal(tf.argmax(self.y_outputs, 1),tf.argmax(self.real_y_values, 1))
     correct_prediction = tf.cast(correct_prediction, tf.float32)
     self.accuracy = tf.reduce_mean(correct_prediction)
 
@@ -105,8 +110,17 @@ class NeuralNetworkModel :
     self.logger.info('Saving graph to: %s' % LOG_DIR_FOR_TF_SUMMARY)
     graph_writer = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY)
     graph_writer.add_graph(tf.get_default_graph())
+   
+   
 
-   self.session.run(tf.global_variables_initializer())
+   ##
+   ## INITIALIZE SESSION
+   ##
+   #checkpoint= tf.train.get_checkpoint_state(os.path.dirname(SAVE_DIR+'/usc_model'))
+   #if checkpoint and checkpoint.model_checkpoint_path:
+  #  saver.restore(self.session,checkpoint.model_checkpoint_path)
+  # else : 
+  #  self.session.run(tf.global_variables_initializer())
 
  def prepareData(self,data,augment):
   x_data=data[:,:4*SOUND_RECORD_SAMPLING_RATE]
@@ -118,27 +132,26 @@ class NeuralNetworkModel :
 
  def train(self,data):
   augment=True
-  prepareDataTimeStart = int(round(time.time()))
+  prepareDataTimeStart = int(round(time.time())) 
   x_data,y_data=self.prepareData(data,augment)
-  prepareDataTimeStop = int(round(time.time()))
+  prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
-  trainingTimeStart = int(round(time.time()))
+  trainingTimeStart = int(round(time.time())) 
   self.optimizer.run(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob:self.keep_prob_constant})
-  trainingTimeStop = int(round(time.time()))
+  trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
   trainingAccuracy = self.accuracy.eval(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob: 1.0})
   return trainingTime,trainingAccuracy,prepareDataTime
-
+     
  def test(self,data):
-  testTimeStart = int(round(time.time()))
+  testTimeStart = int(round(time.time())) 
   augment=False
-  x_data,y_data=self.prepareData(data,augment)
+  x_data,y_data=self.prepareData(data,augment) 
   testAccuracy = self.accuracy.eval(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob: 1.0})
-  testTimeStop = int(round(time.time()))
+  testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
   return testTime,testAccuracy
-
-
+  
 
 
 

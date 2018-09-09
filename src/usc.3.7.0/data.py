@@ -192,3 +192,22 @@ def augment_random(x_data):
       #augmented_data[i]=augment_volume(augmented_data[i],VOLUME_FACTOR)
   
   return augmented_data
+
+
+def augment_dimension_to_2d(x_data,newDimensionSize) :
+  augmented_data= np.zeros([x_data.shape[0],newDimensionSize,x_data.shape[1]],np.float32)
+  for i in range(x_data.shape[0]) :
+   for i in range(x_data.shape[1]) :
+    augmented_data[i]=x_data[i]
+    # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
+    if LAST_AUGMENTATION_CHOICE%10 != 0 :
+      SPEED_FACTOR=0.8+LAST_AUGMENTATION_CHOICE/50
+      TRANSLATION_FACTOR=int(5000*LAST_AUGMENTATION_CHOICE/10)
+      INVERSE_FACTOR=LAST_AUGMENTATION_CHOICE%2
+      if INVERSE_FACTOR == 1 :
+       augmented_data[i]=-augmented_data[i]
+      augmented_data[i]=augment_speedx(augmented_data[i],SPEED_FACTOR)
+      augmented_data[i]=augment_translate(augmented_data[i],TRANSLATION_FACTOR)
+      #augmented_data[i]=augment_volume(augmented_data[i],VOLUME_FACTOR)
+  
+  return augmented_data

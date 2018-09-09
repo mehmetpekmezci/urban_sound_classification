@@ -29,6 +29,7 @@ datetime    = importlib.import_module("datetime")
 ## DATA DIRECTORY NAMES
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
+#FOLD_DIRS = ['fold1']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
 RAW_DATA_DIR = MAIN_DATA_DIR+'/0.raw/UrbanSound8K/audio'
@@ -44,12 +45,16 @@ if not os.path.exists(LOG_DIR_FOR_TF_SUMMARY):
 if not os.path.exists(LOG_DIR_FOR_LOGGER):
     os.makedirs(LOG_DIR_FOR_LOGGER)
     
-    
+   
+
 ## CONFUGRE LOGGING
 logger=logging.getLogger('usc')
 logger.setLevel(logging.INFO)
+#logger.setLevel(logging.DEBUG)
+# create file handler and set level to debug
 loggingFileHandler = logging.FileHandler(LOG_DIR_FOR_LOGGER+'/usc-'+str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y.%m.%d_%H.%M.%S'))+'.log')
 loggingFileHandler.setLevel(logging.DEBUG)
+# create console handler and set level to debug
 loggingConsoleHandler = logging.StreamHandler()
 loggingConsoleHandler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -57,7 +62,11 @@ loggingFileHandler.setFormatter(formatter)
 loggingConsoleHandler.setFormatter(formatter)
 logger.addHandler(loggingFileHandler)
 logger.addHandler(loggingConsoleHandler)
-
+#logger.debug('debug message')
+#logger.info('info message')
+#logger.warn('warn message')
+#logger.error('error message')
+#logger.critical('critical message')
 
 ##
 ## CONFIGURE TF.SUMMARY
@@ -83,9 +92,6 @@ tfSummaryTimeMergedWriter = tf.summary.merge_all()
 # 1 RECORD is 4 seconds = 4 x sampling rate double values = 4 x 22050 = 88200 = (2^3) x ( 3^2) x (5^2) x (7^2)
 SOUND_RECORD_SAMPLING_RATE=22050
 TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
-# EVERY 4 second RECORD WILL BE CUT INTO 20 SLICES ( SO INPUT_SIZE WILL BE 4*22050/20 = 22050/5 = 4410 )
-# 1 TRACK IS LIKE SUCCESIVE 20 SLICES (for LSTM)
-NUMBER_OF_TIME_SLICES=20
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
 
@@ -97,23 +103,46 @@ OUTPUT_SIZE=NUMBER_OF_CLASSES
 INPUT_SIZE=TRACK_LENGTH
 
 ##
-## DROPOUT PARAMETERS
+## FULLY CONNECTED LAYER PARAMETERS
 ##
 DROP_OUT=0.5
+KEEP_PROB=DROP_OUT
+#FULLY_CONNECTED_LAYERS=[256,256,512]
+FULLY_CONNECTED_LAYERS=[512]
+
+
+##
+## CNN PARAMETERS
+##
+## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
+#CNN_KERNEL_COUNTS       = np.array([256,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32])
+#CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_KERNEL_Y_SIZES      = np.array([ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+#CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_STRIDE_Y_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+
+CNN_KERNEL_COUNTS       = np.array([128,64,64,64,64,64,64,64,64,64,64,64,64,64,64])
+CNN_KERNEL_X_SIZES      = np.array([  3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_X_SIZES      = np.array([  2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([  2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1])
+
 
 ##
 ## TRAINING PARAMETERS
 ##
+#LEARNING_RATE = 0.00001
+#LEARNING_RATE = 0.000001
 LEARNING_RATE = 0.0001
-TRAINING_ITERATIONS=9000
-MINI_BATCH_SIZE=5
+LEARNING_RATE_BETA1 = 0.9
+LEARNING_RATE_BETA2 = 0.999
 
-##
-## LSTM PARAMETERS
-##
-NUMBER_OF_LSTM_LAYERS=2
-LSTM_STATE_SIZE=512
-LSTM_FORGET_BIAS=0.5
+TRAINING_ITERATIONS=9000
+MINI_BATCH_SIZE=10
 
 ##
 ## GLOBAL VARIABLES
@@ -124,9 +153,7 @@ MIN_VALUE_FOR_NORMALIZATION=0
 fold_data_dictionary=dict()
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
-
-
+#sess = tf.InteractiveSession(config=config)
 
 LAST_AUGMENTATION_CHOICE=0
-
 
