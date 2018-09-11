@@ -9,7 +9,7 @@ from data import *
 ##
 class NeuralNetworkModel :
  def __init__(self, session, logger, 
-              input_size_y=INPUT_SIZE, output_size=OUTPUT_SIZE , 
+              input_size_x=INPUT_SIZE_X,input_size_y=INPUT_SIZE_Y, output_size=OUTPUT_SIZE , 
               cnn_kernel_counts=CNN_KERNEL_COUNTS, 
               cnn_kernel_x_sizes=CNN_KERNEL_X_SIZES,cnn_kernel_y_sizes=CNN_KERNEL_Y_SIZES,
               cnn_stride_x_sizes=CNN_STRIDE_X_SIZES,cnn_stride_y_sizes=CNN_STRIDE_Y_SIZES,
@@ -26,7 +26,7 @@ class NeuralNetworkModel :
    self.session               = session
    self.logger                = logger
    self.input_size_y          = input_size_y
-   self.input_size_x          = 20
+   self.input_size_x          = input_size_x
    self.output_size           = output_size
    self.cnn_kernel_counts     = cnn_kernel_counts
    self.cnn_kernel_x_sizes    = cnn_kernel_x_sizes
@@ -217,7 +217,7 @@ class NeuralNetworkModel :
   x_data=data[:,:4*SOUND_RECORD_SAMPLING_RATE]
   if augment==True :
     x_data=augment_random(x_data)
-  x_data=augment_dimension_to_2d(x_data,self.input_size_x)
+  x_data=augment_dimension_to_2d(x_data,self.input_size_y)
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
   return x_data,y_data_one_hot_encoded

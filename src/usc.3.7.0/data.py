@@ -69,8 +69,25 @@ def prepareData():
     if not os.path.exists(NP_DATA_DIR) :
        os.makedirs(NP_DATA_DIR)  
        save_as_np()
+    if not os.path.exists(NP20_DATA_DIR) :
+       os.makedirs(NP20_DATA_DIR)  
+       save_as_np()
     logger.info("Data is READY  in CSV format. ")
     
+def save_as_np20():
+   logger.info ("save_as_np20 function started ...")
+   fold_data_dictionary=dict()
+   MAX_VALUE_FOR_NORMALIZATION=0
+   MIN_VALUE_FOR_NORMALIZATION=0
+
+   for fold in FOLD_DIRS:
+     fold_data_dictionary[fold]=np.array(np.loadtxt(open(CSV_DATA_DIR+"/"+fold+".csv", "rb"), delimiter=","))
+        
+     np.save(MAIN_DATA_DIR+"/2.np20/"+fold+".npy",  fold_data_dictionary[fold]) 
+     
+   np.save(MAIN_DATA_DIR+"/2.np20/minmax.npy",[MIN_VALUE_FOR_NORMALIZATION,MAX_VALUE_FOR_NORMALIZATION]) 
+   logger.info ("save_as_np20 function finished ...")
+
 def save_as_np():
    logger.info ("save_as_np function started ...")
    fold_data_dictionary=dict()
@@ -114,7 +131,7 @@ def one_hot_encode(classNumber):
    return one_hot_encoded_class_number
 
 def load_all_np_data_back_to_memory(fold_data_dictionary):
-   
+   global  MAX_VALUE_FOR_NORMALIZATION, MIN_VALUE_FOR_NORMALIZATION  
    logger.info ("load_all_np_data_back_to_memory function started ...")
    for fold in FOLD_DIRS:
        logger.info ("loading from "+MAIN_DATA_DIR+"/2.np/"+fold+".npy  ...")
@@ -195,19 +212,22 @@ def augment_random(x_data):
 
 
 def augment_dimension_to_2d(x_data,newDimensionSize) :
-  augmented_data= np.zeros([x_data.shape[0],newDimensionSize,x_data.shape[1]],np.float32)
+  global MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION
+  RANGE=MAX_VALUE_FOR_NORMALIZATION-MIN_VALUE_FOR_NORMALIZATION #  2 - (-3) = 5
+
+  if newDimensionSize == 1 :
+      return np.reshape(x_data,[x_data.shape[0],x_data.shape[1],1])
+  # x_data : x_data.shape[0] = batch, x_data.shape[1] = input_size_x
+  augmented_data= np.zeros([x_data.shape[0],x_data.shape[1],newDimensionSize],np.float32)
   for i in range(x_data.shape[0]) :
-   for i in range(x_data.shape[1]) :
-    augmented_data[i]=x_data[i]
-    # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
-    if LAST_AUGMENTATION_CHOICE%10 != 0 :
-      SPEED_FACTOR=0.8+LAST_AUGMENTATION_CHOICE/50
-      TRANSLATION_FACTOR=int(5000*LAST_AUGMENTATION_CHOICE/10)
-      INVERSE_FACTOR=LAST_AUGMENTATION_CHOICE%2
-      if INVERSE_FACTOR == 1 :
-       augmented_data[i]=-augmented_data[i]
-      augmented_data[i]=augment_speedx(augmented_data[i],SPEED_FACTOR)
-      augmented_data[i]=augment_translate(augmented_data[i],TRANSLATION_FACTOR)
-      #augmented_data[i]=augment_volume(augmented_data[i],VOLUME_FACTOR)
-  
+   for j in range(x_data.shape[1]) :
+    a=np.zeros([newDimensionSize])
+    b=np.ones([int(newDimensionSize*(x_data[i,j]-MIN_VALUE_FOR_NORMALIZATION)/(MAX_VALUE_FOR_NORMALIZATION-MIN_VALUE_FOR_NORMALIZATION))])
+    a[:len(b)]+=b
+    augmented_data[i,j]=a
+
+  #print(int(newDimensionSize*(x_data[i,j]-MIN_VALUE_FOR_NORMALIZATION)/(MAX_VALUE_FOR_NORMALIZATION-MIN_VALUE_FOR_NORMALIZATION)))
+  #print(x_data[0,15000]-MIN_VALUE_FOR_NORMALIZATION) #  2 - (-3) = 5,  -3 - (-3) = 0
+  #print(augmented_data[0,15000])
+  print(augmented_data) 
   return augmented_data

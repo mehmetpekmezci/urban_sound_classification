@@ -29,12 +29,13 @@ datetime    = importlib.import_module("datetime")
 ## DATA DIRECTORY NAMES
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-#FOLD_DIRS = ['fold1']
+FOLD_DIRS = ['fold1']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
 RAW_DATA_DIR = MAIN_DATA_DIR+'/0.raw/UrbanSound8K/audio'
 CSV_DATA_DIR=MAIN_DATA_DIR+"/1.csv"
 NP_DATA_DIR=MAIN_DATA_DIR+"/2.np"
+NP20_DATA_DIR=MAIN_DATA_DIR+"/3.np20"
 LOG_DIR_FOR_LOGGER=SCRIPT_DIR+"/../../logs/logger"
 LOG_DIR_FOR_TF_SUMMARY=SCRIPT_DIR+"/../../logs/tf-summary"
 SAVE_DIR=SCRIPT_DIR+"/../../save"
@@ -100,7 +101,8 @@ NUMBER_OF_CLASSES=10
 ## GENERAL CONSTANTS
 ##
 OUTPUT_SIZE=NUMBER_OF_CLASSES
-INPUT_SIZE=TRACK_LENGTH
+INPUT_SIZE_X=TRACK_LENGTH
+INPUT_SIZE_Y=20
 
 ##
 ## FULLY CONNECTED LAYER PARAMETERS
@@ -108,28 +110,20 @@ INPUT_SIZE=TRACK_LENGTH
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
 #FULLY_CONNECTED_LAYERS=[256,256,512]
-FULLY_CONNECTED_LAYERS=[512]
+FULLY_CONNECTED_LAYERS=[512,512]
 
 
 ##
 ## CNN PARAMETERS
 ##
-## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
-#CNN_KERNEL_COUNTS       = np.array([256,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32])
-#CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-#CNN_KERNEL_Y_SIZES      = np.array([ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
-#CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-#CNN_STRIDE_Y_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-#CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-#CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-CNN_KERNEL_COUNTS       = np.array([128,64,64,64,64,64,64,64,64,64,64,64,64,64,64])
-CNN_KERNEL_X_SIZES      = np.array([  3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_COUNTS       = np.array([128,32,32,32,32,32,32,32,32,32,32,32,32,32,32])
+CNN_KERNEL_X_SIZES      = np.array([  3, 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1])
 CNN_STRIDE_X_SIZES      = np.array([  2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_STRIDE_Y_SIZES      = np.array([  2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([  2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
 
 ##
@@ -142,7 +136,7 @@ LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
 TRAINING_ITERATIONS=9000
-MINI_BATCH_SIZE=10
+MINI_BATCH_SIZE=1
 
 ##
 ## GLOBAL VARIABLES
