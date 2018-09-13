@@ -19,6 +19,7 @@ pandas      = importlib.import_module("pandas")
 time        = importlib.import_module("time")
 random      = importlib.import_module("random")
 datetime    = importlib.import_module("datetime")
+numba       = importlib.import_module("numba")
 
 
 ##
@@ -35,7 +36,6 @@ MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
 RAW_DATA_DIR = MAIN_DATA_DIR+'/0.raw/UrbanSound8K/audio'
 CSV_DATA_DIR=MAIN_DATA_DIR+"/1.csv"
 NP_DATA_DIR=MAIN_DATA_DIR+"/2.np"
-NP20_DATA_DIR=MAIN_DATA_DIR+"/3.np20"
 LOG_DIR_FOR_LOGGER=SCRIPT_DIR+"/../../logs/logger"
 LOG_DIR_FOR_TF_SUMMARY=SCRIPT_DIR+"/../../logs/tf-summary"
 SAVE_DIR=SCRIPT_DIR+"/../../save"

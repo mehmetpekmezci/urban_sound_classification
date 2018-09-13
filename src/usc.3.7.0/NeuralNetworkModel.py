@@ -214,10 +214,12 @@ class NeuralNetworkModel :
   #  self.session.run(tf.global_variables_initializer())
 
  def prepareData(self,data,augment):
+  global MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION
   x_data=data[:,:4*SOUND_RECORD_SAMPLING_RATE]
   if augment==True :
     x_data=augment_random(x_data)
-  x_data=augment_dimension_to_2d(x_data,self.input_size_y)
+  x_data=np.array(x_data)
+  x_data=np.array(augment_dimension_to_2d(x_data,x_data.shape[0],x_data.shape[1],self.input_size_y,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION))
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
   return x_data,y_data_one_hot_encoded

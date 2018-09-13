@@ -88,6 +88,7 @@ def main(_):
               trainingTimes.append(trainingTime)
               trainingAccuracies.append(trainingAccuracy)
               prepareDataTimes.append(prepareDataTime)
+              logger.info("Prepare Mini Batch of Data Time ="+str(prepareDataTime))
 
 
 
