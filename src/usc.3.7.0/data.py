@@ -190,11 +190,11 @@ def augment_random(x_data):
       augmented_data[i]=augment_translate(augmented_data[i],TRANSLATION_FACTOR)
   return augmented_data
 
-@numba.njit(nopython=True,parallel = True)
+@numba.njit(parallel = True)
 def augment_dimension_to_2d(x_data,x_data_shape_0,x_data_shape_1,newDimensionSize,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION) :
   RANGE=MAX_VALUE_FOR_NORMALIZATION-MIN_VALUE_FOR_NORMALIZATION #  2 - (-3) = 5
-  if newDimensionSize == 1 :
-      return np.reshape(x_data,(x_data_shape_0,x_data_shape_1,1))
+  #if newDimensionSize == 1 :
+  #    return np.reshape(x_data,(x_data_shape_0,x_data_shape_1,1))
   # x_data : x_data.shape[0] = batch, x_data.shape[1] = input_size_x
   augmented_data= np.zeros((x_data_shape_0,x_data_shape_1,newDimensionSize),np.float32)
   for i in numba.prange(x_data_shape_0) :
