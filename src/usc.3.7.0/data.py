@@ -190,7 +190,7 @@ def augment_random(x_data):
       augmented_data[i]=augment_translate(augmented_data[i],TRANSLATION_FACTOR)
   return augmented_data
 
-@numba.njit(parallel = True)
+@numba.njit(nopython=True,parallel = True)
 def augment_dimension_to_2d(x_data,x_data_shape_0,x_data_shape_1,newDimensionSize,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION) :
   RANGE=MAX_VALUE_FOR_NORMALIZATION-MIN_VALUE_FOR_NORMALIZATION #  2 - (-3) = 5
   if newDimensionSize == 1 :
