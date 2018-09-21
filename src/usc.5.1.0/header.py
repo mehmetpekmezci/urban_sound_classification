@@ -39,14 +39,17 @@ CSV_DATA_DIR=MAIN_DATA_DIR+"/1.csv"
 NP_DATA_DIR=MAIN_DATA_DIR+"/2.np"
 LOG_DIR_FOR_LOGGER=SCRIPT_DIR+"/../../logs/logger"
 LOG_DIR_FOR_TF_SUMMARY=SCRIPT_DIR+"/../../logs/tf-summary"
-SAVE_DIR=SCRIPT_DIR+"/../../save"
+SAVE_DIR=SCRIPT_DIR+"/../../saved_models/"+os.path.basename(sys.path[0])
 
 
 if not os.path.exists(LOG_DIR_FOR_TF_SUMMARY):
     os.makedirs(LOG_DIR_FOR_TF_SUMMARY)
 if not os.path.exists(LOG_DIR_FOR_LOGGER):
     os.makedirs(LOG_DIR_FOR_LOGGER)
-    
+if not os.path.exists(SAVE_DIR):
+    os.makedirs(SAVE_DIR)
+
+
     
 ## CONFUGRE LOGGING
 logger=logging.getLogger('usc')
@@ -117,6 +120,14 @@ MINI_BATCH_SIZE=5
 NUMBER_OF_LSTM_LAYERS=2
 LSTM_STATE_SIZE=512
 LSTM_FORGET_BIAS=0.5
+
+##
+## GAMMATONE PARAMETERS
+##
+GAMMATONE_NUMBER_OF_FILTERS=128
+GAMMATONE_WINDOW_TIME=0.01
+GAMMATONE_HOP_TIME=GAMMATONE_WINDOW_TIME/2
+
 
 ##
 ## GLOBAL VARIABLES

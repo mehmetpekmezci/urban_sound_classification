@@ -10,6 +10,7 @@ from data import *
 class NeuralNetworkModel :
  def __init__(self, session, logger, input_size=INPUT_SIZE, output_size=OUTPUT_SIZE , keep_prob=DROP_OUT
              , learning_rate=LEARNING_RATE, mini_batch_size=MINI_BATCH_SIZE, number_of_time_slices=NUMBER_OF_TIME_SLICES,
+               gammatone_number_of_filters=GAMMATONE_NUMBER_OF_FILTERS,
               number_of_lstm_layers=NUMBER_OF_LSTM_LAYERS, lstm_state_size=LSTM_STATE_SIZE,lstm_forget_bias=LSTM_FORGET_BIAS):
    self.session               = session
    self.logger                = logger
@@ -23,6 +24,7 @@ class NeuralNetworkModel :
    self.lstm_forget_bias      = lstm_forget_bias
    self.keep_prob             = keep_prob
    self.keep_prob_constant    = keep_prob
+   self.gammatone_number_of_filters    = gammatone_number_of_filters
    
    
 
@@ -40,16 +42,13 @@ class NeuralNetworkModel :
    ## INPUT  LAYER
    ##
    #self.x_input = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.input_size), name="input")
-   self.x_input = tf.placeholder(tf.float32, shape=(self.mini_batch_size,  self.number_of_time_slices, int(self.input_size/self.number_of_time_slices)), name="input")
+   #self.x_input = tf.placeholder(tf.float32, shape=(self.mini_batch_size,  self.number_of_time_slices, int(self.input_size/self.number_of_time_slices)), name="input")
+   self.x_input = tf.placeholder(tf.float32, shape=(self.mini_batch_size,  self.number_of_time_slices, self.gammatone_number_of_filters ), name="input")
    with tf.name_scope('input_reshape'):
-    print("self.x_input.shape="+str(self.x_input.shape))
     #self.x_input_reshaped = tf.reshape(self.x_input, [self.mini_batch_size, self.number_of_time_slices, int(self.input_size/self.number_of_time_slices)])
     # Unstack to get a list of 'number_of_time_slices' tensors of shape (batch_size, input_size/number_of_time_slices,number_of_input_channels)
     #self.x_input_list = tf.unstack(self.x_input_reshaped, self.number_of_time_slices, 1)
     self.x_input_list = tf.unstack(self.x_input, self.number_of_time_slices, 1)
-    print("self.x_input="+str(self.x_input_list))
-    print("len(self.x_input)="+str(len(self.x_input_list)))
-    print("self.x_input[0].shape"+str(self.x_input_list[0].shape))
     
    ##
    ## LSTM LAYERS
@@ -65,8 +64,8 @@ class NeuralNetworkModel :
     lstm_cell_with_dropout=tf.nn.rnn_cell.DropoutWrapper(lstm_cell, output_keep_prob=self.keep_prob)
     #lstm_cell_with_dropout=tf.nn.rnn.DropoutWrapper(lstm_cell, output_keep_prob=self.keep_prob_)
     lstm_outputs, lstm_state = tf.nn.static_rnn(lstm_cell_with_dropout, inputs=self.x_input_list, dtype=tf.float32)
-    self.logger.info("lstm_outputs="+str( lstm_outputs))
-    self.logger.info("lstm_state="+str( lstm_state))
+    #self.logger.info("lstm_outputs="+str( lstm_outputs))
+    #self.logger.info("lstm_state="+str( lstm_state))
     
     
     # Linear activation, using rnn inner loop last output
@@ -125,20 +124,21 @@ class NeuralNetworkModel :
   #  self.session.run(tf.global_variables_initializer())
 
  def prepareData(self,data,augment):
+  global SOUND_RECORD_SAMPLING_RATE,GAMMATONE_NUMBER_OF_FILTERS
   x_data=data[:,:4*SOUND_RECORD_SAMPLING_RATE]
   if augment==True :
     x_data=augment_random(x_data)
   ## generate gammatone filterbank from x_data
-  x_data_reshaped = tf.reshape(x_data, [self.mini_batch_size, self.number_of_time_slices, int(self.input_size/self.number_of_time_slices)])
+  x_data_reshaped = np.reshape(x_data, [self.mini_batch_size, self.number_of_time_slices, int(self.input_size/self.number_of_time_slices)])
+  x_data_gammatone= np.zeros((self.mini_batch_size,self.number_of_time_slices,GAMMATONE_NUMBER_OF_FILTERS),np.float32)
+
   for miniBatch in range(self.mini_batch_size):
    for timeSlice in range(self.number_of_time_slices):
-       gammatone_specgram=get_gammatone_specgram(x_data_reshaped[miniBatch,timeSlice])
-       print(gammatone_specgram);
-       x_data_gammatone[miniBatch,timeSlice]=get_gammatone_specgram(x_data_reshaped[miniBatch,timeSlice])    
+       x_data_gammatone[miniBatch,timeSlice]=get_gammatone_specgram(x_data_reshaped[miniBatch,timeSlice])
 
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
-  return x_datai_gammatone,y_data_one_hot_encoded
+  return x_data_gammatone,y_data_one_hot_encoded
 
  def train(self,data):
   augment=True

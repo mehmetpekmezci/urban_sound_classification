@@ -194,14 +194,19 @@ def augment_random(x_data):
   return augmented_data
 
 def get_gammatone_specgram(wave):
-    global SOUND_RECORD_SAMPLING_RATE
-    NUMBER_OF_FILTERS=128
+    global SOUND_RECORD_SAMPLING_RATE,GAMMATONE_NUMBER_OF_FILTERS,GAMMATONE_WINDOW_TIME,GAMMATONE_HOP_TIME
+    wave=np.reshape(wave,[wave.shape[0]])
     fs=SOUND_RECORD_SAMPLING_RATE
-    window_time=0.01
-    hop_time=0.0025
-    channels=NUMBER_OF_FILTERS
+    window_time=GAMMATONE_WINDOW_TIME
+    hop_time=GAMMATONE_HOP_TIME
+    channels=GAMMATONE_NUMBER_OF_FILTERS
     f_min=128
-    return gammatone_fftweight.fft_gtgram(wave, fs, window_time, hop_time, channels, f_min)
+    #returnvalue = [0]
+    returnvalue = gammatone_fftweight.fft_gtgram(wave, fs, window_time, hop_time, channels, f_min)
+    returnvalue=np.reshape(returnvalue,[returnvalue.shape[0]*returnvalue.shape[1]])
+    logger.debug(type(returnvalue))
+    logger.debug("gammatone.shape:"+str(returnvalue.shape))
+    return returnvalue
     # gammatone/fftweight.py 121. satirdan once
     # maxlen=int(maxlen)
     ## 58. satirdan once
