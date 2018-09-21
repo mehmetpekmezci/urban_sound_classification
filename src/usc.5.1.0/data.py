@@ -215,6 +215,10 @@ def get_gammatone_specgram(wave):
     ##h=int(h)
     ## 57. satirdan once
     ## ncols=int(ncols)
-
+    ## 57. satirda int(1+n/2)
+    ## 62. satirda int(1+n/2)
+    ## 29. satirdan once
+    ## halff=int(halff)
+    ## acthalflen=int(acthalflen)
 
 
