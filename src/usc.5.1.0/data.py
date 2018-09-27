@@ -221,4 +221,6 @@ def get_gammatone_specgram(wave):
     ## halff=int(halff)
     ## acthalflen=int(acthalflen)
 
+def calculateAndSetGammatone(x_data_gammatone,x_data_reshaped,miniBatch,timeSlice):
+   x_data_gammatone[miniBatch,timeSlice]=get_gammatone_specgram(x_data_reshaped[miniBatch,timeSlice])
 

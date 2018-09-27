@@ -132,9 +132,16 @@ class NeuralNetworkModel :
   x_data_reshaped = np.reshape(x_data, [self.mini_batch_size, self.number_of_time_slices, int(self.input_size/self.number_of_time_slices)])
   x_data_gammatone= np.zeros((self.mini_batch_size,self.number_of_time_slices,GAMMATONE_NUMBER_OF_FILTERS),np.float32)
 
+  threadList=[]
+
   for miniBatch in range(self.mini_batch_size):
    for timeSlice in range(self.number_of_time_slices):
-       x_data_gammatone[miniBatch,timeSlice]=get_gammatone_specgram(x_data_reshaped[miniBatch,timeSlice])
+       t=threading.Thread(target=calculateAndSetGammatone,args=(x_data_gammatone,x_data_reshaped,miniBatch,timeSlice))
+       threadList.append(t)
+       t.start()
+
+  for t in threadList:
+      t.join()
 
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)

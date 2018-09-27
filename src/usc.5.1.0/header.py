@@ -21,6 +21,7 @@ random      = importlib.import_module("random")
 datetime    = importlib.import_module("datetime")
 gtgram   = importlib.import_module("gammatone.gtgram")
 gammatone_fftweight   = importlib.import_module("gammatone.fftweight")
+threading          = importlib.import_module("threading")
 
 
 ##
@@ -31,7 +32,7 @@ gammatone_fftweight   = importlib.import_module("gammatone.fftweight")
 ## DATA DIRECTORY NAMES
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-#FOLD_DIRS = ['fold1']
+FOLD_DIRS = ['fold1']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
 RAW_DATA_DIR = MAIN_DATA_DIR+'/0.raw/UrbanSound8K/audio'
