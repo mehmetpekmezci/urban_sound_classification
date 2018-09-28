@@ -195,17 +195,22 @@ def augment_random(x_data):
 
 @numba.njit(parallel = True)
 def slice_and_convert_to_gammatone(x_data,mini_batch_size,number_of_time_slices,input_size,SOUND_RECORD_SAMPLING_RATE,GAMMATONE_NUMBER_OF_FILTERS,GAMMATONE_WINDOW_TIME,GAMMATONE_HOP_TIME):
+
+  low_freq = DEFAULT_LOW_FREQ = 100
+  high_freq = DEFAULT_HIGH_FREQ = 44100/4
+
+  fs=SOUND_RECORD_SAMPLING_RATE
+  window_time=GAMMATONE_WINDOW_TIME
+  hop_time=GAMMATONE_HOP_TIME
+  nfilts=channels=GAMMATONE_NUMBER_OF_FILTERS
+  f_min=128
+
   x_data_reshaped = x_data.reshape((mini_batch_size, number_of_time_slices, int(input_size/number_of_time_slices)))
   x_data_gammatone= np.zeros((mini_batch_size,number_of_time_slices,GAMMATONE_NUMBER_OF_FILTERS),np.float32)
   for miniBatch in numba.prange(mini_batch_size):
    for timeSlice in numba.prange(number_of_time_slices):
     wave=x_data_reshaped[miniBatch,timeSlice]
     wave=wave.reshape(wave.shape[0])
-    fs=SOUND_RECORD_SAMPLING_RATE
-    window_time=GAMMATONE_WINDOW_TIME
-    hop_time=GAMMATONE_HOP_TIME
-    channels=GAMMATONE_NUMBER_OF_FILTERS
-    f_min=128
     #returnvalue = fftweight.fft_gtgram(wave, fs, window_time, hop_time, channels, f_min)
     #### copied all the fft_gtgram 
 
@@ -216,13 +221,13 @@ def slice_and_convert_to_gammatone(x_data,mini_batch_size,number_of_time_slices,
     nhop        = int(np.sign(window_time * fs) * np.floor(np.abs(hop_time * fs) + 0.5))
     ## columns     = (1 + int( np.floor( (filterbank_cols - nwin) / hop_samples)))
 
-
-
     ###
     ###
     ## gt_weights, _ = fftweight.fft_weights( nfft, fs, channels, width, f_min, fs/2, nfft/2 + 1)
     fmax = fs/2 
     maxlen = nfft/2 + 1
+
+    ### def fft_weights( nfft, fs, nfilts, width, fmin, fmax, maxlen):
 
     ucirc = np.exp(1j * 2 * np.pi * np.arange(0, nfft/2 + 1)/nfft)[None, ...]
 
@@ -233,29 +238,65 @@ def slice_and_convert_to_gammatone(x_data,mini_batch_size,number_of_time_slices,
     ear_q = 9.26449 # Glasberg and Moore Parameters
     min_bw = 24.7
     order = 1
-    cf_array = ( -ear_q*min_bw + np.exp( fraction * ( -np.log(high_freq + ear_q*min_bw) + np.log(low_freq + ear_q*min_bw))) * (high_freq + ear_q*min_bw))
+    centre_freqs=cf_array = ( -ear_q*min_bw + np.exp( fraction * ( -np.log(high_freq + ear_q*min_bw) + np.log(low_freq + ear_q*min_bw))) * (high_freq + ear_q*min_bw))
 
-    _, A11, A12, A13, A14, _, _, _, B2, gain = (
-        filters.make_erb_filters(fs, cf_array, width).T
-    )
+    #_, A11, A12, A13, A14, _, _, _, B2, gain = (
+    #    filters.make_erb_filters(fs, cf_array, width).T
+    #)
+
+    ##
+    ##
+    #def make_erb_filters(fs, centre_freqs, width=1.0):
+    ##
+    ##
+
+    T = 1/fs
+    erb = width*((centre_freqs/ear_q)**order + min_bw**order)**(1/order)
+    B = 1.019*2*np.pi*erb
+    arg = 2*centre_freqs*np.pi*T
+    vec = np.exp(2j*arg)
+    A0 = T
+    A2 = 0
+    B0 = 1
+    B1 = -2*np.cos(arg)/np.exp(B*T)
+    B2 = np.exp(-2*B*T)
+    rt_pos = np.sqrt(3 + 2**1.5)
+    rt_neg = np.sqrt(3 - 2**1.5)
+    common = -T * np.exp(-(B * T))
+
+    # TODO: This could be simplified to a matrix calculation involving the
+    # constant first term and the alternating rt_pos/rt_neg and +/-1 second
+    # terms
+    k11 = np.cos(arg) + rt_pos * np.sin(arg)
+    k12 = np.cos(arg) - rt_pos * np.sin(arg)
+    k13 = np.cos(arg) + rt_neg * np.sin(arg)
+    k14 = np.cos(arg) - rt_neg * np.sin(arg)
+
+    A11 = common * k11
+    A12 = common * k12
+    A13 = common * k13
+    A14 = common * k14
+
+    gain_arg = np.exp(1j * arg - B * T)
+    
+    gain = np.abs( (vec - gain_arg * k11) * (vec - gain_arg * k12) * (vec - gain_arg * k13) * (vec - gain_arg * k14) * (  T * np.exp(B*T) / (-1 / np.exp(B*T) + 1 + vec * (1 - np.exp(B*T))))**4)
+
+    ########
+    #######
+    #######
 
     A11, A12, A13, A14 = A11[..., None], A12[..., None], A13[..., None], A14[..., None]
-
     r = np.sqrt(B2)
     theta = 2 * np.pi * cf_array / fs
     pole = (r * np.exp(1j * theta))[..., None]
-
     GTord = 4
-
     weights = np.zeros((nfilts, nfft))
-
     weights[:, 0:ucirc.shape[1]] = (
           np.abs(ucirc + A11 * fs) * np.abs(ucirc + A12 * fs)
         * np.abs(ucirc + A13 * fs) * np.abs(ucirc + A14 * fs)
         * np.abs(fs * (pole - ucirc) * (pole.conj() - ucirc)) ** (-GTord)
         / gain[..., None]
     )
-
     maxlen=int(maxlen)
     weights = weights[:, 0:maxlen]
 
