@@ -9,6 +9,7 @@ usc.3.4.0 -- data augmented (multiple) and  fed into CNN-34 with residuals + 2 l
 usc.3.5.0 -- data augmented (multiple) and  fed into CNN-34 with residuals + N layer fc
 usc.3.6.0 -- data augmented (multiple) and  fed into CNN-34 with residuals + N layer fc + MODEL SAVER
 usc.3.7.0 -- 1d data converted to 2d data, Au lieu d'un valeur, on met 1 list de 0 et 1 comme equalizer.
-usc.4.0.2 -- data is augmented(multiple) , split into NUMBER_OF_TIME_SILCES pieces, fed into  NUMBER_OF_TIME_SILCES x CNN-11 (each piece fed into its own CNN-11), all the CNN-11 results are fed into LSTM as time frames,  
+usc.4.0.2 -- data is augmented(multiple) , split into NUMBER_OF_TIME_SILCES pieces, fed into  NUMBER_OF_TIME_SILCES x CNN-11 (each piece fed into its own CNN-11), all the CNN-11 results are fed into LSTM as time frames
 usc.5.0.0 -- data is augmented(multiple) ,split into NUMBER_OF_TIME_SILCES pieces,  fed into LSTM as time frames
 usc.5.1.0 -- data is augmented(multiple) ,split into NUMBER_OF_TIME_SILCES pieces,  each time slice converted to gammatone params (128), fed into LSTM as time frames
+usc.5.1.1 -- data is augmented(multiple) ,split into NUMBER_OF_TIME_SILCES pieces,  each time slice converted PARALLELY to gammatone params (128), fed into LSTM as time frames

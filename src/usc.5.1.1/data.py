@@ -209,47 +209,24 @@ def slice_and_convert_to_gammatone(x_data,mini_batch_size,number_of_time_slices,
   x_data_gammatone= np.zeros((mini_batch_size,number_of_time_slices,GAMMATONE_NUMBER_OF_FILTERS),np.float32)
   for miniBatch in numba.prange(mini_batch_size):
    for timeSlice in numba.prange(number_of_time_slices):
-    wave=x_data_reshaped[miniBatch,timeSlice]
-    wave=wave.reshape(wave.shape[0])
+    wave   = x_data_reshaped[miniBatch,timeSlice]
+    wave   = wave.reshape(wave.shape[0])
     #returnvalue = fftweight.fft_gtgram(wave, fs, window_time, hop_time, channels, f_min)
-    #### copied all the fft_gtgram 
+    width  = 1 # Was a parameter in the MATLAB code
+    nfft   = int(2**(np.ceil(np.log2(2 * window_time * fs))))
+    nwin   = int(np.sign(window_time * fs) * np.floor(np.abs(window_time * fs) + 0.5))
+    nhop   = int(np.sign(window_time * fs) * np.floor(np.abs(hop_time    * fs) + 0.5))
+    fmax   = fs/2 
+    maxlen = nfft/2 + 1 # nyquist.
+    #ucirc = np.exp(1j * 2 * np.pi * np.arange(0, nfft/2 + 1)/nfft)[None, ...]
+    ucirc = [np.exp(1j * 2 * np.pi * np.arange(0, nfft/2 + 1)/nfft)]
 
-    width = 1 # Was a parameter in the MATLAB code
-    nfft = int(2**(np.ceil(np.log2(2 * window_time * fs))))
-    #nwin, nhop, _ = gtgram.gtgram_strides(fs, window_time, hop_time, 0);
-    nwin        = int(np.sign(window_time * fs) * np.floor(np.abs(window_time * fs) + 0.5))
-    nhop        = int(np.sign(window_time * fs) * np.floor(np.abs(hop_time * fs) + 0.5))
-    ## columns     = (1 + int( np.floor( (filterbank_cols - nwin) / hop_samples)))
-
-    ###
-    ###
-    ## gt_weights, _ = fftweight.fft_weights( nfft, fs, channels, width, f_min, fs/2, nfft/2 + 1)
-    fmax = fs/2 
-    maxlen = nfft/2 + 1
-
-    ### def fft_weights( nfft, fs, nfilts, width, fmin, fmax, maxlen):
-
-    ucirc = np.exp(1j * 2 * np.pi * np.arange(0, nfft/2 + 1)/nfft)[None, ...]
-
-    # Common ERB filter code factored out
-    #cf_array = filters.erb_space(fmin, fmax, nfilts)[::-1]
-
+    ## ERB_SPACE :
     fraction= np.arange(1, nfilts+1)/nfilts
     ear_q = 9.26449 # Glasberg and Moore Parameters
     min_bw = 24.7
     order = 1
     centre_freqs=cf_array = ( -ear_q*min_bw + np.exp( fraction * ( -np.log(high_freq + ear_q*min_bw) + np.log(low_freq + ear_q*min_bw))) * (high_freq + ear_q*min_bw))
-
-    #_, A11, A12, A13, A14, _, _, _, B2, gain = (
-    #    filters.make_erb_filters(fs, cf_array, width).T
-    #)
-
-    ##
-    ##
-    #def make_erb_filters(fs, centre_freqs, width=1.0):
-    ##
-    ##
-
     T = 1/fs
     erb = width*((centre_freqs/ear_q)**order + min_bw**order)**(1/order)
     B = 1.019*2*np.pi*erb
@@ -307,14 +284,57 @@ def slice_and_convert_to_gammatone(x_data,mini_batch_size,number_of_time_slices,
     ###
 
 
+##############################################################################################################################################
+    """ Substitute for Matlab's specgram, calculates a simple spectrogram.
+    :param wave: The signal to analyse
+    :param nfft: The FFT length
+    :param fs: The sampling rate
+    :param nwin: The window length (see :func:`specgram_window`)
+    :param nhop: The hop size (must be greater than zero)
+    """
+    # Based on Dan Ellis' myspecgram.m,v 1.1 2002/08/04
+    assert nhop > 0, "Must have a hop size greater than 0"
+    s = wave.shape[0]
 
-    sgram = fftweight.specgram(wave, nfft, fs, nwin, nhop)
-    returnvalue = gt_weights.dot(np.abs(sgram)) / nfft
+##############################################################################################################################################
+
+    """
+    Window calculation used in specgram replacement function. Hann window of
+    width `nwin` centred in an array of width `nfft`.
+    """
+    halflen = nwin/2
+    halff = nfft/2 # midpoint of win
+    acthalflen = np.floor(min(halff, halflen))
+    halfwin = 0.5 * ( 1 + np.cos(np.pi * np.arange(0, halflen+1)/halflen))
+    win = np.zeros((nfft,))
+    halff=int(halff)
+    acthalflen=int(acthalflen)
+    win[halff:halff+acthalflen] = halfwin[0:acthalflen];
+    win[halff:halff-acthalflen:-1] = halfwin[0:acthalflen];
+##############################################################################################################################################
+   
+    c = 0
+    ncols = 1 + np.floor((s-nfft)/nhop)
+    ncols=int(ncols)
+    d = np.zeros(((1 + int(nfft/2)), ncols), np.dtype(complex))
+    for b in range(0, s-nfft, nhop):
+      u = win * wave[b:b+nfft]
+      t = np.fft.fft(u)
+      d[:,c] = t[0:(1+int(nfft/2))].T
+      c = c + 1
+
+#    sgram = fftweight.specgram(wave, nfft, fs, nwin, nhop)
+    sgram=d
+##############################################################################################################################################
+
+
+
+    sgram = gt_weights.dot(np.abs(sgram)) / nfft
 
     ####
 
-    returnvalue = returnvalue.reshape((returnvalue.shape[0]*returnvalue.shape[1]))
-    x_data_gammatone[miniBatch,timeSlice]=returnvalue
+    sgram = sgram.reshape((sgram.shape[0]*sgram.shape[1]))
+    x_data_gammatone[miniBatch,timeSlice]=sgram
   return x_data_gammatone
 
     # gammatone/fftweight.py 121. satirdan once
