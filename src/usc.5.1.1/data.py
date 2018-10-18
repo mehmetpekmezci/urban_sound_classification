@@ -195,7 +195,7 @@ def augment_random(x_data):
 
 @numba.njit(parallel = True)
 def slice_and_convert_to_gammatone(x_data,mini_batch_size,number_of_time_slices,input_size,SOUND_RECORD_SAMPLING_RATE,GAMMATONE_NUMBER_OF_FILTERS,GAMMATONE_WINDOW_TIME,GAMMATONE_HOP_TIME):
-
+  print(" slice_and_convert_to_gammatone started ")
   low_freq = DEFAULT_LOW_FREQ = 100
   high_freq = DEFAULT_HIGH_FREQ = 44100/4
 
@@ -218,9 +218,12 @@ def slice_and_convert_to_gammatone(x_data,mini_batch_size,number_of_time_slices,
     nhop   = int(np.sign(window_time * fs) * np.floor(np.abs(hop_time    * fs) + 0.5))
     fmax   = fs/2 
     maxlen = nfft/2 + 1 # nyquist.
-    #ucirc = np.exp(1j * 2 * np.pi * np.arange(0, nfft/2 + 1)/nfft)[None, ...]
-    ucirc = [np.exp(1j * 2 * np.pi * np.arange(0, nfft/2 + 1)/nfft)]
-
+    ucirc = np.exp(1j * 2 * np.pi * np.arange(0, nfft/2 + 1)/nfft)
+##!!!!! !!!!! !!!!! !!!!!    
+    ## MEHMET PEKMEZCI : commented out the below line , if we make a new variable, we cannot use the old name whlie using NUMBA !!!!, so i changed it as ucirc_reshaped .
+    ## ucirc = ucirc.reshape((1,ucirc.shape[0]))
+    ucirc_reshaped = ucirc.reshape((1,ucirc.shape[0]))
+##!!!!! !!!!! !!!!! !!!!!    
     ## ERB_SPACE :
     fraction= np.arange(1, nfilts+1)/nfilts
     ear_q = 9.26449 # Glasberg and Moore Parameters
@@ -249,10 +252,10 @@ def slice_and_convert_to_gammatone(x_data,mini_batch_size,number_of_time_slices,
     k13 = np.cos(arg) + rt_neg * np.sin(arg)
     k14 = np.cos(arg) - rt_neg * np.sin(arg)
 
-    A11 = common * k11
-    A12 = common * k12
-    A13 = common * k13
-    A14 = common * k14
+    A11 = np.array(common * k11)
+    A12 = np.array(common * k12)
+    A13 = np.array(common * k13)
+    A14 = np.array(common * k14)
 
     gain_arg = np.exp(1j * arg - B * T)
     
@@ -262,17 +265,21 @@ def slice_and_convert_to_gammatone(x_data,mini_batch_size,number_of_time_slices,
     #######
     #######
 
-    A11, A12, A13, A14 = A11[..., None], A12[..., None], A13[..., None], A14[..., None]
+    #A11, A12, A13, A14 = A11[..., None], A12[..., None], A13[..., None], A14[..., None]
+    A11_reshaped, A12_reshaped, A13_reshaped, A14_reshaped, gain_reshaped = np.array(A11).reshape((A11.shape[0],1)), np.array(A12).reshape((A12.shape[0],1)), np.array(A13).reshape((A13.shape[0],1)), np.array(A14).reshape((A14.shape[0],1)), np.array(gain).reshape((gain.shape[0],1))
+
     r = np.sqrt(B2)
     theta = 2 * np.pi * cf_array / fs
     pole = (r * np.exp(1j * theta))[..., None]
     GTord = 4
     weights = np.zeros((nfilts, nfft))
-    weights[:, 0:ucirc.shape[1]] = (
-          np.abs(ucirc + A11 * fs) * np.abs(ucirc + A12 * fs)
-        * np.abs(ucirc + A13 * fs) * np.abs(ucirc + A14 * fs)
-        * np.abs(fs * (pole - ucirc) * (pole.conj() - ucirc)) ** (-GTord)
-        / gain[..., None]
+
+
+    weights[:, 0:ucirc_reshaped.shape[1]] = (
+          np.abs(ucirc_reshaped + A11 * fs) * np.abs(ucirc_reshaped + A12 * fs)
+        * np.abs(ucirc_reshaped + A13 * fs) * np.abs(ucirc_reshaped + A14 * fs)
+        * np.abs(fs * (pole - ucirc_reshaped) * (pole.conj() - ucirc_reshaped)) ** (-GTord)
+        / gain_reshaped
     )
     maxlen=int(maxlen)
     weights = weights[:, 0:maxlen]
@@ -335,6 +342,7 @@ def slice_and_convert_to_gammatone(x_data,mini_batch_size,number_of_time_slices,
 
     sgram = sgram.reshape((sgram.shape[0]*sgram.shape[1]))
     x_data_gammatone[miniBatch,timeSlice]=sgram
+  print(" slice_and_convert_to_gammatone ended ")
   return x_data_gammatone
 
     # gammatone/fftweight.py 121. satirdan once
