@@ -121,7 +121,8 @@ class NeuralNetworkModel :
    ## LSTM LAYERS
    with tf.name_scope("cnn_reshape_to_lstm"):
     for cnnTimeSliceIndex in range(self.number_of_time_slices) :
-      cnnLayerOutputsForTimeSlices[cnnTimeSliceIndex] = tf.reshape(cnnLayerOutputsForTimeSlices[cnnTimeSliceIndex], [cnnLayerOutputsForTimeSlices[cnnTimeSliceIndex].shape[0],cnnLayerOutputsForTimeSlices[cnnTimeSliceIndex].shape[3]])
+      print(cnnLayerOutputsForTimeSlices[cnnTimeSliceIndex])
+      cnnLayerOutputsForTimeSlices[cnnTimeSliceIndex] = tf.reshape(cnnLayerOutputsForTimeSlices[cnnTimeSliceIndex], [cnnLayerOutputsForTimeSlices[cnnTimeSliceIndex].shape[1],cnnLayerOutputsForTimeSlices[cnnTimeSliceIndex].shape[3]])
 
 
    ## LSTM LAYERS

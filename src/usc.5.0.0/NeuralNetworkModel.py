@@ -92,7 +92,7 @@ class NeuralNetworkModel :
    ## SET OPTIMIZER
    ##
    with tf.name_scope('optimizer'):
-    self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss)
+    self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=0.9,beta2=0.99).minimize(self.loss)
 
    ##
    ## CALCULATE ACCURACY

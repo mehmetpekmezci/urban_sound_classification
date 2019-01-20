@@ -104,7 +104,7 @@ NUMBER_OF_CLASSES=10
 ##
 OUTPUT_SIZE=NUMBER_OF_CLASSES
 INPUT_SIZE_X=TRACK_LENGTH
-INPUT_SIZE_Y=20
+INPUT_SIZE_Y=40
 
 ##
 ## FULLY CONNECTED LAYER PARAMETERS
@@ -120,12 +120,12 @@ FULLY_CONNECTED_LAYERS=[512,512]
 ##
 
 CNN_KERNEL_COUNTS       = np.array([128,32,32,32,32,32,32,32,32,32,32,32,32,32,32])
-CNN_KERNEL_X_SIZES      = np.array([  3, 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1])
-CNN_STRIDE_X_SIZES      = np.array([  2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_STRIDE_Y_SIZES      = np.array([  2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_X_SIZES        = np.array([  2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_X_SIZES      = np.array([  4, 4, 3, 3, 3, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([  3, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_X_SIZES      = np.array([  3, 3, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([  2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([  2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
 
 ##
@@ -138,7 +138,7 @@ LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
 TRAINING_ITERATIONS=9000
-MINI_BATCH_SIZE=1
+MINI_BATCH_SIZE=2
 
 ##
 ## GLOBAL VARIABLES

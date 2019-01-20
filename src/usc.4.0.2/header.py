@@ -115,26 +115,26 @@ NUMBER_OF_FULLY_CONNECTED_NEURONS=512
 ## CNN PARAMETERS
 ##
 ## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
-CNN_KERNEL_COUNTS       = np.array([128,32,32,32,32])
-CNN_KERNEL_X_SIZES      = np.array([1 , 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([7 , 7, 7, 5, 5])
-CNN_STRIDE_X_SIZES      = np.array([1 , 1, 1, 1, 1])
-CNN_STRIDE_Y_SIZES      = np.array([5 , 5, 5, 3, 3])
-CNN_POOL_X_SIZES        = np.array([1 , 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([3 , 3, 3, 2, 2])
+CNN_KERNEL_COUNTS       = np.array([128,32,32,32,32,32,32,32,32,32,32])
+CNN_KERNEL_X_SIZES      = np.array([1  , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([3  , 3, 3, 3, 3, 2, 2, 2, 1, 1, 1])
+CNN_STRIDE_X_SIZES      = np.array([1  , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([2  , 2, 2, 2, 2, 1, 1, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([1  , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([2  , 2, 2, 2, 2, 2, 2, 2, 1, 1, 1])
 
 ##
 ## TRAINING PARAMETERS
 ##
 LEARNING_RATE = 0.0001
-TRAINING_ITERATIONS=2000
-MINI_BATCH_SIZE=5
+TRAINING_ITERATIONS=9000
+MINI_BATCH_SIZE=1
 
 ##
 ## LSTM PARAMETERS
 ##
 NUMBER_OF_LSTM_LAYERS=1
-LSTM_STATE_SIZE=1024
+LSTM_STATE_SIZE=512
 LSTM_FORGET_BIAS=1.0
 
 
