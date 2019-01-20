@@ -133,13 +133,11 @@ class NeuralNetworkModel :
   x_data_gammatone= np.zeros((self.mini_batch_size,self.number_of_time_slices,GAMMATONE_NUMBER_OF_FILTERS),np.float32)
 
   threadList=[]
-
   for miniBatch in range(self.mini_batch_size):
    for timeSlice in range(self.number_of_time_slices):
        t=threading.Thread(target=calculateAndSetGammatone,args=(x_data_gammatone,x_data_reshaped,miniBatch,timeSlice))
        threadList.append(t)
        t.start()
-
   for t in threadList:
       t.join()
 

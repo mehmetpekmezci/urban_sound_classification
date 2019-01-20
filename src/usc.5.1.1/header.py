@@ -19,9 +19,8 @@ pandas      = importlib.import_module("pandas")
 time        = importlib.import_module("time")
 random      = importlib.import_module("random")
 datetime    = importlib.import_module("datetime")
-gtgram      = importlib.import_module("gammatone.gtgram")
-fftweight   = importlib.import_module("gammatone.fftweight")
 numba       = importlib.import_module("numba")
+#fftweight   = importlib.import_module("gammatone.fftweight")
 
 
 
