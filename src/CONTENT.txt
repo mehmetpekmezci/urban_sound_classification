@@ -1,15 +1,19 @@
-homework  -- first work as homework.
-usc.3.0.0 -- data directly fed into cnn+fc (no residuals)
-usc.3.0.1 -- data augmented (single) and fed into cnn+fc (no residuals)
-usc.3.0.2 -- data augmented (multiple) and  fed into cnn+fc (no residuals)
-usc.3.1.0 -- data augmented (multiple) and  convert 1d sound data to 2d shifted data and fed into cnn+fc (no residuals)
-usc.3.2.0 -- data augmented (multiple) and  convert 1d sound data to 2d shifted data and fed into cnn+fc (no residuals) (PARAMETER CORRECTION)
-usc.3.3.0 -- data augmented (multiple) and  convert 1d sound data to 2d shifted data and fed into cnn+fc (no residuals) (PARAMETER CORRECTION)
-usc.3.4.0 -- data augmented (multiple) and  fed into CNN-34 with residuals + 2 layer fc
-usc.3.5.0 -- data augmented (multiple) and  fed into CNN-34 with residuals + N layer fc
-usc.3.6.0 -- data augmented (multiple) and  fed into CNN-34 with residuals + N layer fc + MODEL SAVER
-usc.3.7.0 -- 1d data converted to 2d data, Au lieu d'un valeur, on met 1 list de 0 et 1 comme equalizer.
-usc.4.0.2 -- data is augmented(multiple) , split into NUMBER_OF_TIME_SILCES pieces, fed into  NUMBER_OF_TIME_SILCES x CNN-11 (each piece fed into its own CNN-11), all the CNN-11 results are fed into LSTM as time frames
-usc.5.0.0 -- data is augmented(multiple) ,split into NUMBER_OF_TIME_SILCES pieces,  fed into LSTM as time frames
-usc.5.1.0 -- data is augmented(multiple) ,split into NUMBER_OF_TIME_SILCES pieces,  each time slice converted to gammatone params (128), fed into LSTM as time frames
-usc.5.1.1 -- data is augmented(multiple) ,split into NUMBER_OF_TIME_SILCES pieces,  each time slice converted PARALLELY to gammatone params (128), fed into LSTM as time frames
+0.0.0.cnn-34    -- data augmented (multiple) and  fed into CNN-34 with residuals + N layer fc + MODEL SAVER
+0.0.1.lstm      -- data is augmented(multiple) ,split into NUMBER_OF_TIME_SILCES pieces,  fed into LSTM as time frames
+0.0.2.cnn-lstm  -- data is augmented(multiple) , split into NUMBER_OF_TIME_SILCES pieces, fed into  NUMBER_OF_TIME_SILCES x CNN-11 (each piece fed into its own CNN-11), all the CNN-11 results are fed into LSTM as time frames
+
+## Tum ilk layerlar cok hucleri e.g. 512, digerleri 64 veya 32
+
+1.0.0  -- CNN-11       + FC-2
+1.0.1  -- CNN-34       + FC-2
+1.0.2  -- FourierFC-3  + CNN-34 + FC-2
+1.0.3  -- FourierCNN-3 + CNN-34 + FC-2
+2.0.0  -- LSTM-2       + FC-2
+2.0.1  -- CNN-8        + LSTM-2 + FC-2
+2.0.2  -- FourierFC-3  + LSTM-2 + FC-2 (LSTM'e frame leri verirken 30% overlap olmasina dikkat ediniz.)
+2.0.3  -- FourierCNN-3 + LSTM-2 + FC-2 (LSTM'e frame leri verirken 30% overlap olmasina dikkat ediniz.)
+3.0.0  -- FC-20
+3.0.1  -- FourierFC-3  + FC-20 
+3.0.2  -- FourierCNN-3 + FC-20
+
+
