@@ -6,8 +6,9 @@
 
 1.0.0  -- CNN-11       + FC-2
 1.0.1  -- CNN-34       + FC-2
-1.0.2  -- FourierFC-3  + CNN-34 + FC-2
-1.0.3  -- FourierCNN-3 + CNN-34 + FC-2
+1.0.2  -- FourierFC-3  + FC-2
+1.0.3  -- FourierFC-3  + CNN-34 + FC-2
+1.0.4  -- FourierCNN-3 + CNN-34 + FC-2
 2.0.0  -- LSTM-2       + FC-2
 2.0.1  -- CNN-8        + LSTM-2 + FC-2
 2.0.2  -- FourierFC-3  + LSTM-2 + FC-2 (LSTM'e frame leri verirken 30% overlap olmasina dikkat ediniz.)
