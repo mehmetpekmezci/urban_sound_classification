@@ -25,13 +25,6 @@ class NeuralNetworkModel :
    self.input_size            = input_size
    self.input_size_y          = 1
    self.output_size           = output_size
-   self.cnn_kernel_counts     = cnn_kernel_counts
-   self.cnn_kernel_x_sizes    = cnn_kernel_x_sizes
-   self.cnn_kernel_y_sizes    = cnn_kernel_y_sizes
-   self.cnn_stride_x_sizes    = cnn_stride_x_sizes
-   self.cnn_stride_y_sizes    = cnn_stride_y_sizes
-   self.cnn_pool_x_sizes      = cnn_pool_x_sizes
-   self.cnn_pool_y_sizes      = cnn_pool_y_sizes
    self.learning_rate         = learning_rate 
    self.learning_rate_beta1   = learning_rate_beta1 
    self.learning_rate_beta2   = learning_rate_beta2 
@@ -61,13 +54,11 @@ class NeuralNetworkModel :
    ##
    number_of_input_channels=1
    self.x_input                      = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.input_size), name="input")
-   with tf.name_scope('input_reshape'):
-    print("self.x_input.shape="+str(self.x_input.shape))
-    self.x_input_reshaped = tf.reshape(self.x_input, [self.mini_batch_size, self.input_size_y, self.input_size, number_of_input_channels])
-    print("self.x_input_reshaped.shape="+str(self.x_input_reshaped.shape))
-    previous_level_convolution_output = self.x_input_reshaped
-    last_layer_output=previous_level_convolution_output
+   last_layer_output=self.x_input
 
+   ##
+   ## FOURIER  LAYERS
+   ##
    for fourierFcLayerNo in range(len(self.fourier_fully_connected_layers)) :
        
     number_of_fourier_fully_connected_layer_neurons=self.fourier_fully_connected_layers[fourierFcLayerNo]
@@ -81,7 +72,7 @@ class NeuralNetworkModel :
      self.logger.info("fourier-matmul_fc-"+str(fourierFcLayerNo)+".shape="+str(matmul_fc1.shape))
 
     # Dropout - controls the complexity of the model, prevents co-adaptation of features.
-    with tf.name_scope('fc-'+str(fcLayerNo)+'_dropout'):    
+    with tf.name_scope('fc-'+str(fourierFcLayerNo)+'_dropout'):    
      h_fc1_drop = tf.nn.dropout(matmul_fc1, self.keep_prob)
      self.logger.info("h_fc-"+str(fourierFcLayerNo)+"_drop.shape="+str(h_fc1_drop.shape))
      last_layer_output=h_fc1_drop
