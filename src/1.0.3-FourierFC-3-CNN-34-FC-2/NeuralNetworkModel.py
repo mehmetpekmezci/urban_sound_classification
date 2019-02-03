@@ -93,10 +93,9 @@ class NeuralNetworkModel :
 
 
 
-   with tf.name_scope('input_reshape'):
-    print("self.x_input.shape="+str(self.x_input.shape))
-    self.x_input_reshaped = tf.reshape(last_layer_output, [self.mini_batch_size, self.input_size_y, last_layer_output.shape[1], number_of_input_channels])
-    print("self.x_input_reshaped.shape="+str(self.x_input_reshaped.shape))
+    with tf.name_scope('input_reshape'):
+     self.x_input_reshaped = tf.reshape(last_layer_output, [self.mini_batch_size, self.input_size_y, last_layer_output.shape[1], number_of_input_channels])
+     self.logger.info("self.x_input_reshaped.shape="+str(self.x_input_reshaped.shape))
 
     previous_level_convolution_output = self.x_input_reshaped
     for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
