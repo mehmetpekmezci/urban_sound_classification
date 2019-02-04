@@ -176,8 +176,10 @@ class NeuralNetworkModel :
    ## CALCULATE LOSS
    ##
     with tf.name_scope('calculate_loss'):
+     self.logger.info("self.real_y_values.shape="+str(self.real_y_values.shape))
      cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=self.real_y_values,logits=self.y_outputs)
      self.loss = tf.reduce_mean(cross_entropy)
+     self.logger.info("self.real_y_values.shape="+str(self.real_y_values.shape))
 
    ##
    ## SET OPTIMIZER
