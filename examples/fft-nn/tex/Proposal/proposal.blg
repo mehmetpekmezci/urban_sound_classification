@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2015)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: proposal.aux
+The style file: alpha.bst
+Database file #1: template.bib
+Warning--empty publisher in RSA:15
+You've used 4 entries,
+            2543 wiz_defined-function locations,
+            587 strings with 4968 characters,
+and the built_in function-call counts, 1862 in all, are:
+= -- 186
+> -- 72
+< -- 4
++ -- 26
+- -- 25
+* -- 119
+:= -- 288
+add.period$ -- 13
+call.type$ -- 4
+change.case$ -- 25
+chr.to.int$ -- 4
+cite$ -- 5
+duplicate$ -- 89
+empty$ -- 145
+format.name$ -- 31
+if$ -- 401
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 6
+newline$ -- 23
+num.names$ -- 12
+pop$ -- 35
+preamble$ -- 1
+purify$ -- 29
+quote$ -- 0
+skip$ -- 74
+stack$ -- 0
+substring$ -- 109
+swap$ -- 27
+text.length$ -- 4
+text.prefix$ -- 2
+top$ -- 0
+type$ -- 24
+warning$ -- 1
+while$ -- 16
+width$ -- 6
+write$ -- 55
+(There was 1 warning)

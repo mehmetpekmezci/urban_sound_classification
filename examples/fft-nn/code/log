@@ -1,0 +1,104 @@
+/usr/lib/python3/dist-packages/matplotlib/font_manager.py:1320: UserWarning: findfont: Font family ['sans-serif'] not found. Falling back to DejaVu Sans
+  (prop.get_family(), self.defaultFamily[fontext]))
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.6/tkinter/__init__.py", line 1702, in __call__
+    return self.func(*args)
+  File "/usr/lib/python3.6/tkinter/__init__.py", line 746, in callit
+    func(*args)
+  File "/usr/lib/python3/dist-packages/matplotlib/backends/backend_tkagg.py", line 323, in idle_draw
+    self.draw()
+  File "/usr/lib/python3/dist-packages/matplotlib/backends/backend_tkagg.py", line 304, in draw
+    FigureCanvasAgg.draw(self)
+  File "/usr/lib/python3/dist-packages/matplotlib/backends/backend_agg.py", line 430, in draw
+    self.figure.draw(self.renderer)
+  File "/usr/lib/python3/dist-packages/matplotlib/artist.py", line 55, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/matplotlib/figure.py", line 1299, in draw
+    renderer, self, artists, self.suppressComposite)
+  File "/usr/lib/python3/dist-packages/matplotlib/image.py", line 138, in _draw_list_compositing_images
+    a.draw(renderer)
+  File "/usr/lib/python3/dist-packages/matplotlib/artist.py", line 55, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/matplotlib/axes/_base.py", line 2437, in draw
+    mimage._draw_list_compositing_images(renderer, self, artists)
+  File "/usr/lib/python3/dist-packages/matplotlib/image.py", line 138, in _draw_list_compositing_images
+    a.draw(renderer)
+  File "/usr/lib/python3/dist-packages/matplotlib/artist.py", line 55, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/matplotlib/axis.py", line 1138, in draw
+    tick.draw(renderer)
+  File "/usr/lib/python3/dist-packages/matplotlib/artist.py", line 55, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/matplotlib/axis.py", line 282, in draw
+    self.label1.draw(renderer)
+  File "/usr/lib/python3/dist-packages/matplotlib/artist.py", line 55, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/matplotlib/text.py", line 762, in draw
+    mtext=mtext)
+  File "/usr/lib/python3/dist-packages/matplotlib/backends/backend_agg.py", line 250, in draw_tex
+    Z = texmanager.get_grey(s, size, self.dpi)
+  File "/usr/lib/python3/dist-packages/matplotlib/texmanager.py", line 545, in get_grey
+    pngfile = self.make_png(tex, fontsize, dpi)
+  File "/usr/lib/python3/dist-packages/matplotlib/texmanager.py", line 486, in make_png
+    stderr=subprocess.STDOUT)
+  File "/usr/lib/python3.6/subprocess.py", line 336, in check_output
+    **kwargs).stdout
+  File "/usr/lib/python3.6/subprocess.py", line 403, in run
+    with Popen(*popenargs, **kwargs) as process:
+  File "/usr/lib/python3.6/subprocess.py", line 709, in __init__
+    restore_signals, start_new_session)
+  File "/usr/lib/python3.6/subprocess.py", line 1344, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'dvipng': 'dvipng'
+/usr/lib/python3/dist-packages/matplotlib/font_manager.py:1320: UserWarning: findfont: Font family ['sans-serif'] not found. Falling back to DejaVu Sans
+  (prop.get_family(), self.defaultFamily[fontext]))
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "/usr/lib/python3.6/tkinter/__init__.py", line 1702, in __call__
+    return self.func(*args)
+  File "/usr/lib/python3/dist-packages/matplotlib/backends/backend_tkagg.py", line 233, in resize
+    self.show()
+  File "/usr/lib/python3/dist-packages/matplotlib/backends/backend_tkagg.py", line 304, in draw
+    FigureCanvasAgg.draw(self)
+  File "/usr/lib/python3/dist-packages/matplotlib/backends/backend_agg.py", line 430, in draw
+    self.figure.draw(self.renderer)
+  File "/usr/lib/python3/dist-packages/matplotlib/artist.py", line 55, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/matplotlib/figure.py", line 1299, in draw
+    renderer, self, artists, self.suppressComposite)
+  File "/usr/lib/python3/dist-packages/matplotlib/image.py", line 138, in _draw_list_compositing_images
+    a.draw(renderer)
+  File "/usr/lib/python3/dist-packages/matplotlib/artist.py", line 55, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/matplotlib/axes/_base.py", line 2437, in draw
+    mimage._draw_list_compositing_images(renderer, self, artists)
+  File "/usr/lib/python3/dist-packages/matplotlib/image.py", line 138, in _draw_list_compositing_images
+    a.draw(renderer)
+  File "/usr/lib/python3/dist-packages/matplotlib/artist.py", line 55, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/matplotlib/axis.py", line 1138, in draw
+    tick.draw(renderer)
+  File "/usr/lib/python3/dist-packages/matplotlib/artist.py", line 55, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/matplotlib/axis.py", line 282, in draw
+    self.label1.draw(renderer)
+  File "/usr/lib/python3/dist-packages/matplotlib/artist.py", line 55, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/usr/lib/python3/dist-packages/matplotlib/text.py", line 762, in draw
+    mtext=mtext)
+  File "/usr/lib/python3/dist-packages/matplotlib/backends/backend_agg.py", line 250, in draw_tex
+    Z = texmanager.get_grey(s, size, self.dpi)
+  File "/usr/lib/python3/dist-packages/matplotlib/texmanager.py", line 545, in get_grey
+    pngfile = self.make_png(tex, fontsize, dpi)
+  File "/usr/lib/python3/dist-packages/matplotlib/texmanager.py", line 486, in make_png
+    stderr=subprocess.STDOUT)
+  File "/usr/lib/python3.6/subprocess.py", line 336, in check_output
+    **kwargs).stdout
+  File "/usr/lib/python3.6/subprocess.py", line 403, in run
+    with Popen(*popenargs, **kwargs) as process:
+  File "/usr/lib/python3.6/subprocess.py", line 709, in __init__
+    restore_signals, start_new_session)
+  File "/usr/lib/python3.6/subprocess.py", line 1344, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: 'dvipng': 'dvipng'

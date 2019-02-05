@@ -1,0 +1,92 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{AAB{\etalchar{+}}15}
+
+\bibitem[AAB{\etalchar{+}}15]{TENSORFLOW}
+Mart\'{\i}n Abadi, Ashish Agarwal, Paul Barham, Eugene Brevdo, Zhifeng Chen,
+  Craig Citro, Greg~S. Corrado, Andy Davis, Jeffrey Dean, Matthieu Devin,
+  Sanjay Ghemawat, Ian Goodfellow, Andrew Harp, Geoffrey Irving, Michael Isard,
+  Yangqing Jia, Rafal Jozefowicz, Lukasz Kaiser, Manjunath Kudlur, Josh
+  Levenberg, Dandelion Man\'{e}, Rajat Monga, Sherry Moore, Derek Murray, Chris
+  Olah, Mike Schuster, Jonathon Shlens, Benoit Steiner, Ilya Sutskever, Kunal
+  Talwar, Paul Tucker, Vincent Vanhoucke, Vijay Vasudevan, Fernanda Vi\'{e}gas,
+  Oriol Vinyals, Pete Warden, Martin Wattenberg, Martin Wicke, Yuan Yu, and
+  Xiaoqiang Zheng.
+\newblock {TensorFlow}: Large-scale machine learning on heterogeneous systems,
+  2015.
+\newblock Software available from tensorflow.org.
+
+\bibitem[ANR74]{ANR:74}
+N.~Ahmed, T.~Natarajan, and K.~R. Rao.
+\newblock Discrete cosine transform.
+\newblock {\em IEEE Transactions on Computers}, C-23(1):90--93, Jan 1974.
+
+\bibitem[Bra78]{B:78}
+R.N. Bracewell.
+\newblock {\em The {F}ourier Transform and its Applications}.
+\newblock McGraw-Hill, Tokyo, second edition, 1978.
+
+\bibitem[CT65]{CT:65}
+J.~Cooley and J.~Tukey.
+\newblock An algorithm for the machine calculation of complex fourier series.
+\newblock {\em Mathematics of Computation}, 19(90):297--301, 1965.
+
+\bibitem[Dea07]{D:07}
+S.~R. Deans.
+\newblock {\em The Radon Transform and Some of Its Applications}.
+\newblock Dover Publications, Mineola, N.Y, 2007.
+
+\bibitem[Don06]{D:06}
+D.~L. Donoho.
+\newblock Compressed sensing.
+\newblock {\em IEEE Transactions on Information Theory}, 52:1289--1306, 2006.
+
+\bibitem[GD10]{DG:10}
+R.~Gray and L.~Davisson.
+\newblock {\em An Introduction to Statistical Signal Processing}.
+\newblock Cambridge University Press, New York, NY, USA, 1st edition, 2010.
+
+\bibitem[Goo96]{G:96}
+J.W. Goodman.
+\newblock {\em Introduction to Fourier Optics}.
+\newblock McGraw-Hill Series in Electrical and Computer Engineering:
+  Communications and Signal Processing. McGraw-Hill, 1996.
+
+\bibitem[JOP{\etalchar{+}}  ]{SCIPY}
+Eric Jones, Travis Oliphant, Pearu Peterson, et~al.
+\newblock {SciPy}: Open source scientific tools for {Python}, 2001--.
+\newblock [Online; \url{https://www.scipy.org}].
+
+\bibitem[Mal08]{M:08}
+S.~Mallat.
+\newblock {\em A Wavelet Tour of Signal Processing, Third Edition: The Sparse
+  Way}.
+\newblock Academic Press, 3rd edition, 2008.
+
+\bibitem[Oli  ]{NUMPY}
+T.~Oliphant.
+\newblock {NumPy}: Open source scientific computing for {Python}, 2006--.
+\newblock [Online. \url{www.numpy.org}].
+
+\bibitem[OSB99]{OS:99}
+A.~V. Oppenheim, R.~W. Schafer, and J.~R. Buck.
+\newblock {\em Discrete-time Signal Processing}.
+\newblock Prentice-Hall, Inc., Upper Saddle River, NJ, USA, 1999.
+
+\bibitem[Osg17]{O:17}
+B.~Osgood.
+\newblock {\em Lectures on the {F}ourier Transform and its Applications}.
+\newblock McGraw Hill, first edition, 2017.
+
+\bibitem[Ste00]{S:00}
+S.~Stergiopoulos.
+\newblock {\em Advanced Signal Processing Handbook: Theory and Implementation
+  for Radar, Sonar, and Medical Imaging Real-Time Systems}.
+\newblock CRC Press, Inc., Boca Raton, FL, USA, 1st edition, 2000.
+
+\bibitem[YL95]{YL:95}
+B.~Yeo and B.~Liu.
+\newblock Volume rendering of {DCT}-based compressed 3d scalar data.
+\newblock {\em IEEE Transactions on Visualization and Computer Graphics},
+  1(1):29--43, Mar 1995.
+
+\end{thebibliography}

@@ -1,0 +1,11 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{The Discrete Fourier Transform}{}% 2
+\BOOKMARK [1][-]{section.3}{Approach}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Neural network architecture}{section.3}% 4
+\BOOKMARK [1][-]{section.4}{Data}{}% 5
+\BOOKMARK [2][-]{subsection.4.1}{Training and test data}{section.4}% 6
+\BOOKMARK [1][-]{section.5}{Results}{}% 7
+\BOOKMARK [2][-]{subsection.5.1}{Accuracy}{section.5}% 8
+\BOOKMARK [2][-]{subsection.5.2}{Timing}{section.5}% 9
+\BOOKMARK [1][-]{section.6}{Future work}{}% 10
+\BOOKMARK [1][-]{section.7}{Contributions and acknowledgements}{}% 11

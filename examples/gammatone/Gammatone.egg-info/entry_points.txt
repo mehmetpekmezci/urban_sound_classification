@@ -1,0 +1,3 @@
+[console_scripts]
+gammatone = gammatone.plot:main
+

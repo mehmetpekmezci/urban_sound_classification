@@ -1,0 +1,29 @@
+\begin{thebibliography}{LBBH98}
+
+\bibitem[Bra78]{B:78}
+R.N. Bracewell.
+\newblock {\em The {F}ourier Transform and its Applications}.
+\newblock McGraw-Hill, Tokyo, second edition, 1978.
+
+\bibitem[GD10]{DG:10}
+R.~Gray and L.~Davisson.
+\newblock {\em An Introduction to Statistical Signal Processing}.
+\newblock Cambridge University Press, New York, NY, USA, 1st edition, 2010.
+
+\bibitem[LBBH98]{LBBH:98}
+Y.~Lecun, L.~Bottou, Y.~Bengio, and P.~Haffner.
+\newblock Gradient-based learning applied to document recognition.
+\newblock In {\em Proceedings of the IEEE}, pages 2278--2324, 1998.
+
+\bibitem[Osg17]{O:17}
+B.~Osgood.
+\newblock {\em Lectures on the {F}ourier Transform and its Applications}.
+\newblock McGraw Hill, first edition, 2017.
+
+\bibitem[RSA15]{RSA:15}
+O.~Rippel, J.~Snoek, and R.~P. Adams.
+\newblock Spectral representations for convolutional neural networks.
+\newblock In {\em Advances in Neural Information Processing Systems 28}, pages
+  2449--2457. MIT Press, 2015.
+
+\end{thebibliography}
