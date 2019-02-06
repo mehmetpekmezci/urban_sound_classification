@@ -90,7 +90,8 @@ def main(_):
               prepareDataTimes.append(prepareDataTime)
 
 
-
+    logger.info("neuralNetworkModel.x_input_list : "+str(session.run(neuralNetworkModel.x_input_list)))
+    
     ## LOGGING            
     logger.info("Prepare Data Time : "+str(np.sum(prepareDataTimes)))
     logger.info("Training Time : "+str(np.sum(trainingTimes)))
