@@ -9,17 +9,18 @@
 1.0.2  -- FourierFC-3  + FC-2
 1.0.3  -- FourierFC-3  + CNN-34 + FC-2
 1.0.4  -- FourierCNN-3 + CNN-34 + FC-2
-2.0.0  -- LSTM-2       + FC-2 (LSTM'e frame leri verirken 30% overlap olmasina dikkat ediniz.)
-2.0.1  -- CNN-11       + LSTM-2 + FC-2 (LSTM'e frame leri verirken 30% overlap olmasina dikkat ediniz.)
-2.0.2  -- FourierFC-3  + LSTM-2 + FC-2 (LSTM'e frame leri verirken 30% overlap olmasina dikkat ediniz.)
-2.0.3  -- FourierCNN-3 + LSTM-2 + FC-2 (LSTM'e frame leri verirken 30% overlap olmasina dikkat ediniz.)
-2.0.4  -- FourierFC-3  + CNN-11  + LSTM-2 + FC-2 (LSTM'e frame leri verirken 30% overlap olmasina dikkat ediniz.)
-2.0.5  -- FourierCNN-3 + CNN-11  + LSTM-2 + FC-2 (LSTM'e frame leri verirken 30% overlap olmasina dikkat ediniz.)
+2.0.0  -- LSTM-2       + FC-2 ( 66% overlap between time slices)
+2.0.1  -- CNN-11       + LSTM-2 + FC-2 
+2.0.2  -- OVERLAP + CNN-11 + LSTM-2 + FC-2 ( 66% overlap between time slices)
+2.0.3  -- FourierFC-3  + OVERLAP + LSTM-2 + FC-2 ( 66% overlap between time slices)
+2.0.4  -- FourierCNN-3 + OVERLAP + LSTM-2 + FC-2 ( 66% overlap between time slices)
+2.0.5  -- FourierFC-3  + OVERLAP + CNN-11  + LSTM-2 + FC-2 ( 66% overlap between time slices)
+2.0.6  -- FourierCNN-3 + OVERLAP + CNN-11  + LSTM-2 + FC-2 ( 66% overlap between time slices)
 3.0.0  -- FourierFC-3-As-Tranfer_Learning  + FC-2
 3.0.1  -- FourierFC-3-As-Tranfer_Learning  + FC-20 
-3.0.2  -- FourierCNN-3-As-Tranfer_Learning + FC-20
-4.0.0  -- FourierFC-3-As-Tranfer_Learning  + LSTM-2 + FC-2
-4.0.1  -- FourierCNN-3-As-Tranfer_Learning  + LSTM-2 + FC-2
-4.0.2  -- FourierFC-3-As-Tranfer_Learning  + CNN-11 + LSTM-2 + FC-2
-4.0.3  -- FourierCNN-3-As-Tranfer_Learning + CNN-11 + LSTM-2 + FC-2
+3.0.2  -- FourierCNN-3-As-Tranfer_Learning + CNN-34 + FC-2
+4.0.0  -- FourierFC-3-As-Tranfer_Learning  + OVERLAP + LSTM-2 + FC-2
+4.0.1  -- FourierCNN-3-As-Tranfer_Learning + OVERLAP + LSTM-2 + FC-2
+4.0.2  -- FourierFC-3-As-Tranfer_Learning  + OVERLAP + CNN-11 + LSTM-2 + FC-2
+4.0.3  -- FourierCNN-3-As-Tranfer_Learning + OVERLAP + CNN-11 + LSTM-2 + FC-2
 
