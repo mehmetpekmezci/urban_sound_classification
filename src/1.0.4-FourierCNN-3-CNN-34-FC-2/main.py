@@ -98,9 +98,10 @@ def main(_):
     logger.info("Max Training Accuracy : "+str(np.max(trainingAccuracies)))
     logger.info("Min Training Accuracy : "+str(np.min(trainingAccuracies)))
     logger.info("Test Time : "+str(np.sum(testTimes)))
-    logger.info("Mean Test Accuracy : "+str(np.mean(testAccuracies)))
-    logger.info("Max Test Accuracy : "+str(np.max(testAccuracies)))
-    logger.info("Min Test Accuracy : "+str(np.min(testAccuracies)))
+    if len(testAccuracies) > 0 :
+      logger.info("Mean Test Accuracy : "+str(np.mean(testAccuracies)))
+      logger.info("Max Test Accuracy : "+str(np.max(testAccuracies)))
+      logger.info("Min Test Accuracy : "+str(np.min(testAccuracies)))
     
     ## GRAPH (FOR LOGGING)
     tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies)})

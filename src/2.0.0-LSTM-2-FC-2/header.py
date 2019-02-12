@@ -29,15 +29,17 @@ datetime    = importlib.import_module("datetime")
 ## DATA DIRECTORY NAMES
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-FOLD_DIRS=['fold1']
+#FOLD_DIRS=['fold1']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
+SCRIPT_NAME=os.path.basename(SCRIPT_DIR)
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
 RAW_DATA_DIR = MAIN_DATA_DIR+'/0.raw/UrbanSound8K/audio'
 CSV_DATA_DIR=MAIN_DATA_DIR+"/1.csv"
 NP_DATA_DIR=MAIN_DATA_DIR+"/2.np"
-LOG_DIR_FOR_LOGGER=SCRIPT_DIR+"/../../logs/logger"
-LOG_DIR_FOR_TF_SUMMARY=SCRIPT_DIR+"/../../logs/tf-summary"
-SAVE_DIR=SCRIPT_DIR+"/../../save"
+LOG_DIR_FOR_LOGGER=SCRIPT_DIR+"/../../logs/logger/"+SCRIPT_NAME
+LOG_DIR_FOR_TF_SUMMARY=SCRIPT_DIR+"/../../logs/tf-summary/"+SCRIPT_NAME+"/"+str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y.%m.%d_%H.%M.%S'))
+SAVE_DIR=SCRIPT_DIR+"/../../save/"+SCRIPT_NAME
+
 
 
 if not os.path.exists(LOG_DIR_FOR_TF_SUMMARY):
@@ -87,10 +89,11 @@ TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
 # EVERY 4 second RECORD WILL BE CUT INTO 20 SLICES ( SO INPUT_SIZE WILL BE 4*22050/20 = 22050/5 = 4410 )
 # 1 TRACK IS LIKE SUCCESIVE 20 SLICES (for LSTM)
 #NUMBER_OF_TIME_SLICES=150 # 10ms
-TIME_SLICE_LENGTH=4410 # input_size
+#TIME_SLICE_LENGTH=8820 # input_size
+TIME_SLICE_LENGTH=8820 # input_size
 ## OVERLAP_RATIO= PERCENT --> 60% for example. which is equal to 3/5
-TIME_SLICE_OVERLAP_LENGTH=2940 # more than half of the time slice is overlapping with the nex time slice. 
-
+#TIME_SLICE_OVERLAP_LENGTH=5880 # more than half of the time slice is overlapping with the nex time slice. 
+TIME_SLICE_OVERLAP_LENGTH=5880 # more than half of the time slice is overlapping with the nex time slice. 
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
 
@@ -111,13 +114,13 @@ DROP_OUT=0.5
 ##
 LEARNING_RATE = 0.001
 TRAINING_ITERATIONS=9000
-MINI_BATCH_SIZE=5
+MINI_BATCH_SIZE=10
 
 ##
 ## LSTM PARAMETERS
 ##
-NUMBER_OF_LSTM_LAYERS=2
-LSTM_STATE_SIZE=1024
+NUMBER_OF_LSTM_LAYERS=1
+LSTM_STATE_SIZE=128
 LSTM_FORGET_BIAS=0.5
 
 ##

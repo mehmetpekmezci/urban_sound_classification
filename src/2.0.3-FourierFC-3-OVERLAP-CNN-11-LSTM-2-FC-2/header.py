@@ -31,12 +31,14 @@ datetime    = importlib.import_module("datetime")
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
 FOLD_DIRS = ['fold1']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
+SCRIPT_NAME=os.path.basename(SCRIPT_DIR)
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
 RAW_DATA_DIR = MAIN_DATA_DIR+'/0.raw/UrbanSound8K/audio'
 CSV_DATA_DIR=MAIN_DATA_DIR+"/1.csv"
 NP_DATA_DIR=MAIN_DATA_DIR+"/2.np"
-LOG_DIR_FOR_LOGGER=SCRIPT_DIR+"/../../logs/logger"
-LOG_DIR_FOR_TF_SUMMARY=SCRIPT_DIR+"/../../logs/tf-summary"
+LOG_DIR_FOR_LOGGER=SCRIPT_DIR+"/../../logs/logger/"+SCRIPT_NAME
+LOG_DIR_FOR_TF_SUMMARY=SCRIPT_DIR+"/../../logs/tf-summary/"+SCRIPT_NAME+"/"+str(datetime.datetime.fromtimestamp(time.time()).strftime('%Y.%m.%d_%H.%M.%S'))
+SAVE_DIR=SCRIPT_DIR+"/../../save/"+SCRIPT_NAME
 
 
 if not os.path.exists(LOG_DIR_FOR_TF_SUMMARY):

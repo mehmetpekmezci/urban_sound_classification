@@ -76,10 +76,7 @@ class NeuralNetworkModel :
     logger.info("self.number_of_time_slices="+str(self.number_of_time_slices))
     self.x_input_list = tf.unstack(self.x_input_reshaped, self.number_of_time_slices, 1)
     logger.info("self.x_input[0].shape"+str(self.x_input_list[0].shape))
-    
-    
-    
-    
+   
    ##
    ## LSTM LAYERS
    ##
@@ -168,7 +165,12 @@ class NeuralNetworkModel :
   prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   trainingTimeStart = int(round(time.time())) 
+  #self.logger.info('self.session.run(self.x_input_list[0][0][self.time_slice_length-self.time_slice_overlap_length],feed_dict={self.x_input: x_data})=')
+  #self.logger.info(self.session.run(self.x_input_list[0][0][self.time_slice_length-self.time_slice_overlap_length],feed_dict={self.x_input: x_data}))
+  #self.logger.info('self.session.run(self.x_input_list[1][0][0],feed_dict={self.x_input: x_data})=')
+  #self.logger.info(self.session.run(self.x_input_list[1][0][0],feed_dict={self.x_input: x_data}))
   self.optimizer.run(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob:self.keep_prob_constant})
+
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
   trainingAccuracy = self.accuracy.eval(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob: 1.0})
