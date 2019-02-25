@@ -25,10 +25,10 @@ SavingDataToFile = False
 if SavingDataToFile:
 	print('Making dataset.')
 	data = generate_signals(num_examples, max_bandwidth, max_num_sinusoids)
-	data_filename = '/Users/jonathantuck/School/GRADUATE/CS 230/Data/DFT_data_m_%s_BW_%s_maxSinusoids_%s'  % (num_examples, max_bandwidth, max_num_sinusoids)
+	data_filename = '/tmp/DFT_data_m_%s_BW_%s_maxSinusoids_%s'  % (num_examples, max_bandwidth, max_num_sinusoids)
 	np.save(data_filename, data)
 else:
-	data = np.load('/Users/jonathantuck/School/GRADUATE/CS 230/Data/DFT_data_m_30000_BW_10_maxSinusoids_10.npy').item()
+	data = np.load('/tmp/DFT_data_m_30000_BW_10_maxSinusoids_10.npy').item()
 (X_train, Y_train, X_test, Y_test, t, percent_training) = load_dataset(data)
 
 learning_rate = 0.001

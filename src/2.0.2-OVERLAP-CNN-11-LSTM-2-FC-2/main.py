@@ -13,7 +13,7 @@ def main(_):
   logger.info("##############################################################")
   logger.info("MIN_VALUE_FOR_NORMALIZATION : "+str(MIN_VALUE_FOR_NORMALIZATION))
   logger.info("MAX_VALUE_FOR_NORMALIZATION : "+str(MAX_VALUE_FOR_NORMALIZATION))
-  logger.info("fold_data_dictionary['fold1'][0]: "+str(fold_data_dictionary['fold1'][0]))
+#  logger.info("fold_data_dictionary['fold1'][0]: "+str(fold_data_dictionary['fold1'][0]))
 #  logger.info("fold_data_dictionary['fold2'][0]: "+str(fold_data_dictionary['fold2'][0]))
 #  logger.info("fold_data_dictionary['fold3'][0]: "+str(fold_data_dictionary['fold3'][0]))
 #  logger.info("fold_data_dictionary['fold4'][0]: "+str(fold_data_dictionary['fold4'][0]))
@@ -29,7 +29,7 @@ def main(_):
   logger.info("##############################################################")
   logger.info("MIN_VALUE_FOR_NORMALIZATION : "+str(MIN_VALUE_FOR_NORMALIZATION))
   logger.info("MAX_VALUE_FOR_NORMALIZATION : "+str(MAX_VALUE_FOR_NORMALIZATION))
-  logger.info("fold_data_dictionary['fold1'][0]: "+str(fold_data_dictionary['fold1'][0]))
+#  logger.info("fold_data_dictionary['fold1'][0]: "+str(fold_data_dictionary['fold1'][0]))
 #  logger.info("fold_data_dictionary['fold2'][0]: "+str(fold_data_dictionary['fold2'][0]))
 #  logger.info("fold_data_dictionary['fold3'][0]: "+str(fold_data_dictionary['fold3'][0]))
 #  logger.info("fold_data_dictionary['fold4'][0]: "+str(fold_data_dictionary['fold4'][0]))
@@ -40,11 +40,27 @@ def main(_):
 #  logger.info("fold_data_dictionary['fold9'][0]: "+str(fold_data_dictionary['fold9'][0]))
 #  logger.info("fold_data_dictionary['fold10'][0]: "+str(fold_data_dictionary['fold10'][0]))
   logger.info("##############################################################")
+  
+
 
   with tf.Session() as session:
     
    neuralNetworkModel=NeuralNetworkModel(session,logger)
+   saver = tf.train.Saver()
+
+
+   ##
+   ## INITIALIZE SESSION
+   ##
+   checkpoint= tf.train.get_checkpoint_state(os.path.dirname(SAVE_DIR+'/usc_model'))
+   if checkpoint and checkpoint.model_checkpoint_path:
+    saver.restore(session,checkpoint.model_checkpoint_path)
+   else : 
+    session.run(tf.global_variables_initializer())
+   ##
+   ##
     
+       
    for trainingIterationNo in range(TRAINING_ITERATIONS):
         
     logger.info("##############################################################")
@@ -56,6 +72,7 @@ def main(_):
     testTimes=[ ]
     testAccuracies=[ ]
     for fold in np.random.permutation(FOLD_DIRS):
+       logger.info("  Fold : "+str(fold))
        current_fold_data=get_fold_data(fold)
        for current_batch_counter in range(int(current_fold_data.shape[0]/MINI_BATCH_SIZE)) :
          if (current_batch_counter+1)*MINI_BATCH_SIZE <= current_fold_data.shape[0] :
@@ -64,27 +81,28 @@ def main(_):
            batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:,:]
          if fold == "fold10":
              ## FOLD10 is reserved for testing
+              logger.info("  Testing Batch Counter : "+str(current_batch_counter))
               testTime,testAccuracy=neuralNetworkModel.test(batch_data)
               testTimes.append(testTime)
               testAccuracies.append(testAccuracy)
          else:
+              logger.info("  Training Batch Counter : "+str(current_batch_counter))
               trainingTime,trainingAccuracy,prepareDataTime=neuralNetworkModel.train(batch_data)
               trainingTimes.append(trainingTime)
               trainingAccuracies.append(trainingAccuracy)
               prepareDataTimes.append(prepareDataTime)
 
 
-
     ## LOGGING            
     logger.info("Prepare Data Time : "+str(np.sum(prepareDataTimes)))
     logger.info("Training Time : "+str(np.sum(trainingTimes)))
     logger.info("Mean Training Accuracy : "+str(np.mean(trainingAccuracies)))
-#   logger.info("Max Training Accuracy : "+str(np.max(trainingAccuracies)))
-#   logger.info("Min Training Accuracy : "+str(np.min(trainingAccuracies)))
+    logger.info("Max Training Accuracy : "+str(np.max(trainingAccuracies)))
+    logger.info("Min Training Accuracy : "+str(np.min(trainingAccuracies)))
     logger.info("Test Time : "+str(np.sum(testTimes)))
     logger.info("Mean Test Accuracy : "+str(np.mean(testAccuracies)))
-#   logger.info("Max Test Accuracy : "+str(np.max(testAccuracies)))
-#   logger.info("Min Test Accuracy : "+str(np.min(testAccuracies)))
+    logger.info("Max Test Accuracy : "+str(np.max(testAccuracies)))
+    logger.info("Min Test Accuracy : "+str(np.min(testAccuracies)))
     
     ## GRAPH (FOR LOGGING)
     tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies)})
@@ -102,6 +120,9 @@ def main(_):
     testTimeSummary = session.run(tfSummaryTimeMergedWriter, {tf_summary_time_log_var:np.mean(testTimes)})
     testTimeWriter.add_summary(testTimeSummary, trainingIterationNo)
     testTimeWriter.flush()
+
+    if trainingIterationNo>0 and trainingIterationNo%10 == 0 :
+      saver.save(session, SAVE_DIR+'/usc_model',global_step=trainingIterationNo)
 
 
 if __name__ == '__main__':
