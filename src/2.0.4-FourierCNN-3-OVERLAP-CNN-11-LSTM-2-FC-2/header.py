@@ -29,7 +29,7 @@ datetime    = importlib.import_module("datetime")
 ## DATA DIRECTORY NAMES
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-FOLD_DIRS = ['fold1']
+#FOLD_DIRS = ['fold1']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 SCRIPT_NAME=os.path.basename(SCRIPT_DIR)
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
@@ -96,9 +96,9 @@ TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
 # EVERY 4 second RECORD WILL BE CUT INTO 20 SLICES ( SO INPUT_SIZE WILL BE 4*22050/20 = 22050/5 = 4410 )
 # 1 TRACK IS LIKE SUCCESIVE 20 SLICES (for LSTM)
 #NUMBER_OF_FREQUENCY_SLICES=150
-FREQUENCY_SLICE_LENGTH=300 # input_size
+FREQUENCY_SLICE_LENGTH=8000 # input_size
 ## OVERLAP_RATIO= PERCENT --> 60% for example. which is equal to 3/5
-FREQUENCY_SLICE_OVERLAP_LENGTH=180 # more than half of the time slice is overlapping with the nex time slice. 
+FREQUENCY_SLICE_OVERLAP_LENGTH=4800 # more than half of the time slice is overlapping with the nex time slice. 
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
 
@@ -147,7 +147,7 @@ MINI_BATCH_SIZE=2
 ## LSTM PARAMETERS
 ##
 NUMBER_OF_LSTM_LAYERS=2
-LSTM_STATE_SIZE=256
+LSTM_STATE_SIZE=128
 LSTM_FORGET_BIAS=1.0
 
 

@@ -301,7 +301,8 @@ class NeuralNetworkModel :
   #self.logger.info(self.session.run(self.x_input_list[0][0][self.time_slice_length-self.time_slice_overlap_length],feed_dict={self.x_input: x_data}))
   #self.logger.info('self.session.run(self.x_input_list[1][0][0],feed_dict={self.x_input: x_data})=')
   #self.logger.info(self.session.run(self.x_input_list[1][0][0],feed_dict={self.x_input: x_data}))
-  previous_loss=self.loss.eval(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob:self.keep_prob_constant})
+  self.previous_loss=(self.previous_loss+self.loss.eval(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob:self.keep_prob_constant}))/2
+
   self.optimizer.run(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob:self.keep_prob_constant,self.previous_loss:previous_loss})
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
