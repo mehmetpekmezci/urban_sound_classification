@@ -29,7 +29,7 @@ datetime    = importlib.import_module("datetime")
 ## DATA DIRECTORY NAMES
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-FOLD_DIRS = ['fold1']
+#FOLD_DIRS = ['fold1']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 SCRIPT_NAME=os.path.basename(SCRIPT_DIR)
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
@@ -120,7 +120,7 @@ NUMBER_OF_FULLY_CONNECTED_NEURONS=512
 ## CNN PARAMETERS
 ##
 ## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
-CNN_KERNEL_COUNTS           = np.array([128,32,32,32,32,32,32,32,32,32,32])
+CNN_KERNEL_COUNTS           = np.array([64,32,32,32,32,32,32,32,32,32,32])
 CNN_KERNEL_TIMESLICE_SIZES  = np.array([1  , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_KERNEL_X_SIZES          = np.array([1  , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_KERNEL_Y_SIZES          = np.array([3  , 3, 3, 3, 3, 2, 2, 2, 1, 1, 1])
@@ -141,8 +141,8 @@ MINI_BATCH_SIZE=2
 ##
 ## LSTM PARAMETERS
 ##
-NUMBER_OF_LSTM_LAYERS=1
-LSTM_STATE_SIZE=512
+NUMBER_OF_LSTM_LAYERS=2
+LSTM_STATE_SIZE=64
 LSTM_FORGET_BIAS=1.0
 
 

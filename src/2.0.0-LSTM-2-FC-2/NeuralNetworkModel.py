@@ -10,6 +10,10 @@ from data import *
 class NeuralNetworkModel :
  def __init__(self, session, logger, input_size=INPUT_SIZE, output_size=OUTPUT_SIZE , keep_prob=DROP_OUT
              , learning_rate=LEARNING_RATE, mini_batch_size=MINI_BATCH_SIZE, time_slice_length=TIME_SLICE_LENGTH,time_slice_overlap_length=TIME_SLICE_OVERLAP_LENGTH, 
+               fully_connected_layers=FULLY_CONNECTED_LAYERS,
+               learning_rate_beta1=LEARNING_RATE_BETA1, 
+               learning_rate_beta2=LEARNING_RATE_BETA2, 
+               epsilon=EPSILON,keep_prob_constant=KEEP_PROB,
                number_of_lstm_layers=NUMBER_OF_LSTM_LAYERS, lstm_state_size=LSTM_STATE_SIZE,lstm_forget_bias=LSTM_FORGET_BIAS):
    self.session               = session
    self.logger                = logger
@@ -22,8 +26,12 @@ class NeuralNetworkModel :
    self.number_of_lstm_layers = number_of_lstm_layers
    self.lstm_state_size       = lstm_state_size
    self.lstm_forget_bias      = lstm_forget_bias
+   self.fully_connected_layers= fully_connected_layers
    self.keep_prob             = keep_prob
    self.keep_prob_constant    = keep_prob
+   self.learning_rate_beta1   = learning_rate_beta1
+   self.learning_rate_beta2   = learning_rate_beta2
+   self.epsilon               = epsilon
 
    
    
@@ -94,14 +102,57 @@ class NeuralNetworkModel :
     self.logger.info("lstm_outputs="+str( lstm_outputs))
     self.logger.info("lstm_state="+str( lstm_state))
     
+    last_layer_output=lstm_outputs[-1]
     
     # Linear activation, using rnn inner loop last output
     
-    weights = {'out': tf.Variable(tf.random_normal([self.lstm_state_size, self.output_size ]))}
-    biases = {'out': tf.Variable(tf.random_normal([self.output_size ]))}
-    self.y_outputs=tf.matmul(lstm_outputs[-1], weights['out']) + biases['out']
-    # get last element of lstm_outputs = lstm_outputs[-1]= output for the last time step = final output = generated (guess) value  .
+    #weights = {'out': tf.Variable(tf.random_normal([self.lstm_state_size, self.output_size ]))}
+    #biases = {'out': tf.Variable(tf.random_normal([self.output_size ]))}
+    #self.y_outputs=tf.matmul(lstm_outputs[-1], weights['out']) + biases['out']
+    ## get last element of lstm_outputs = lstm_outputs[-1]= output for the last time step = final output = generated (guess) value  .
    
+
+
+
+   for fcLayerNo in range(len(self.fully_connected_layers)) :
+       
+    number_of_fully_connected_layer_neurons=self.fully_connected_layers[fcLayerNo]
+
+    with tf.name_scope('fc-'+str(fcLayerNo)):
+     W_fc1 =  tf.Variable( tf.truncated_normal([int(last_layer_output.shape[1]), number_of_fully_connected_layer_neurons], stddev=0.1))
+     self.logger.info("W_fc-"+str(fcLayerNo)+".shape="+str(W_fc1.shape))
+     B_fc1 = tf.Variable(tf.constant(0.1, shape=[number_of_fully_connected_layer_neurons]))
+     self.logger.info("B_fc-"+str(fcLayerNo)+".shape="+str(B_fc1.shape))
+     matmul_fc1=tf.matmul(last_layer_output, W_fc1)+B_fc1
+     self.logger.info("matmul_fc-"+str(fcLayerNo)+".shape="+str(matmul_fc1.shape))
+
+    with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normlalization'):    
+     batch_mean, batch_var = tf.nn.moments(matmul_fc1,[0])
+     scale = tf.Variable(tf.ones(number_of_fully_connected_layer_neurons))
+     beta = tf.Variable(tf.zeros(number_of_fully_connected_layer_neurons))
+     batch_normalization_fc1 = tf.nn.batch_normalization(matmul_fc1,batch_mean,batch_var,beta,scale,epsilon)
+     self.logger.info("batch_normalization_fc-"+str(fcLayerNo)+".shape="+str(batch_normalization_fc1.shape))
+
+    with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normalized_relu'):    
+     h_fc1 = tf.nn.relu( batch_normalization_fc1 )
+     self.logger.info("h_fc-"+str(fcLayerNo)+".shape="+str(h_fc1.shape))
+
+    # Dropout - controls the complexity of the model, prevents co-adaptation of features.
+    with tf.name_scope('fc-'+str(fcLayerNo)+'_dropout'):    
+     h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
+     self.logger.info("h_fc-"+str(fcLayerNo)+"_drop.shape="+str(h_fc1_drop.shape))
+     last_layer_output=h_fc1_drop
+
+
+   # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS features to OUTPUT_SIZE=NUMBER_OF_CLASSES(10) classes, one for each class
+   with tf.name_scope('last_fc'):
+    W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons, self.output_size], stddev=0.1))
+    b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.output_size]))
+    #h_fc2 =tf.nn.relu( tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
+    self.y_outputs =tf.matmul(last_layer_output, W_fc2) + b_fc2
+    self.logger.info("self.y_outputs.shape="+str(self.y_outputs.shape))
+
+
     ## HERE NETWORK DEFINITION IS FINISHED
     
     ###  NOW CALCULATE PREDICTED VALUE

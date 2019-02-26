@@ -90,13 +90,14 @@ TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
 # 1 TRACK IS LIKE SUCCESIVE 20 SLICES (for LSTM)
 #NUMBER_OF_TIME_SLICES=150 # 10ms
 #TIME_SLICE_LENGTH=8820 # input_size
-TIME_SLICE_LENGTH=8820 # input_size
+TIME_SLICE_LENGTH=13230 # input_size
 ## OVERLAP_RATIO= PERCENT --> 60% for example. which is equal to 3/5
 #TIME_SLICE_OVERLAP_LENGTH=5880 # more than half of the time slice is overlapping with the nex time slice. 
-TIME_SLICE_OVERLAP_LENGTH=5880 # more than half of the time slice is overlapping with the nex time slice. 
+TIME_SLICE_OVERLAP_LENGTH=8820 # more than half of the time slice is overlapping with the nex time slice. 
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
 
+FULLY_CONNECTED_LAYERS=[2048,1024]
 
 ##
 ## GENERAL CONSTANTS
@@ -108,18 +109,20 @@ INPUT_SIZE=TRACK_LENGTH
 ## DROPOUT PARAMETERS
 ##
 DROP_OUT=0.5
-
+KEEP_PROB=DROP_OUT
 ##
 ## TRAINING PARAMETERS
 ##
 LEARNING_RATE = 0.001
+LEARNING_RATE_BETA1 = 0.9
+LEARNING_RATE_BETA2 = 0.999
 TRAINING_ITERATIONS=9000
-MINI_BATCH_SIZE=10
+MINI_BATCH_SIZE=50
 
 ##
 ## LSTM PARAMETERS
 ##
-NUMBER_OF_LSTM_LAYERS=1
+NUMBER_OF_LSTM_LAYERS=2
 LSTM_STATE_SIZE=128
 LSTM_FORGET_BIAS=1.0
 
@@ -136,5 +139,7 @@ config.gpu_options.allow_growth=True
 
 
 LAST_AUGMENTATION_CHOICE=0
+
+
 
 
