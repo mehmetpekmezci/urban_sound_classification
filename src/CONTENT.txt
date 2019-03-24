@@ -15,11 +15,7 @@
 2.0.2  -- OVERLAP      + CNN-11  + LSTM-2  + FC-2 ( 66% overlap between time slices)
 2.0.3  -- FourierFC-3  + OVERLAP + LSTM-2  + FC-2 ( 66% overlap between time slices)
 2.0.4  -- FourierCNN-3 + OVERLAP + LSTM-2  + FC-2 ( 66% overlap between time slices)
-3.0.0  -- FourierFC-3-As-Tranfer_Learning  + FC-2
-3.0.1  -- FourierFC-3-As-Tranfer_Learning  + FC-20 
-3.0.2  -- FourierFC-3-As-Tranfer_Learning  + CNN-34 + FC-2
-3.0.3  -- FourierCNN-3-As-Tranfer_Learning + CNN-34 + FC-2
-4.0.0  -- 1D + SLICED + 2D + FourierCNN-With-Columnar-Kernel-3 + CNN-34  + FC-2 + LossHistory
+3.0.0  -- SyntheticData+ AutoEncoder + CNN34 + FC-2
 
 ### NOTE:  3500 Inner Hair Cell, each connected to ~10 neurons, they connect to auditory nucleus, then signals are transferred to the auditory cortex1 then to cortex2
 ###        Humans can hear 20Hz to 20 000Hz
