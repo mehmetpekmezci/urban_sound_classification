@@ -1,0 +1,26 @@
+0.0.0.cnn-34    -- data augmented (multiple) and  fed into CNN-34 with residuals + N layer fc + MODEL SAVER
+0.0.1.lstm      -- data is augmented(multiple) ,split into NUMBER_OF_TIME_SILCES pieces,  fed into LSTM as time frames
+0.0.2.cnn-lstm  -- data is augmented(multiple) , split into NUMBER_OF_TIME_SILCES pieces, fed into  NUMBER_OF_TIME_SILCES x CNN-11 (each piece fed into its own CNN-11), all the CNN-11 results are fed into LSTM as time frames
+
+## Tum ilk layerlar cok hucleri e.g. 512, digerleri 64 veya 32
+
+1.0.0  -- CNN-11       + FC-2
+1.0.1  -- CNN-34       + FC-2
+1.0.2  -- FourierFC-3  + FC-2
+1.0.3  -- FourierFC-3  + CNN-34  + FC-2
+1.0.4  -- FourierCNN-3 + CNN-34  + FC-2  (NOT: Fourier yerine , ilk 3 layer poolingsiz CNN kullandim, test accuracy cok kotu oldu. Ayrica baska bir deneyde en sondaki loss bir onceki ile topladim, daha training accuracy 60% iken, test accuracy 40% cikiyordu.)
+1.0.5  -- FourierCNN-3 + CNN-34  + FC-1 + (FC-1-label+softmax+FC-1+uniform-softmax)
+2.0.0  -- LSTM-2       + FC-2 ( 66% overlap between time slices)
+2.0.1  -- CNN-11       + LSTM-2  + FC-2 
+2.0.2  -- OVERLAP      + CNN-11  + LSTM-2  + FC-2 ( 66% overlap between time slices)
+2.0.3  -- FourierFC-3  + OVERLAP + LSTM-2  + FC-2 ( 66% overlap between time slices)
+2.0.4  -- FourierCNN-3 + OVERLAP + LSTM-2  + FC-2 ( 66% overlap between time slices)
+3.0.0  -- SyntheticData+ AutoEncoder + CNN34 + FC-2
+
+### NOTE:  3500 Inner Hair Cell, each connected to ~10 neurons, they connect to auditory nucleus, then signals are transferred to the auditory cortex1 then to cortex2
+###        Humans can hear 20Hz to 20 000Hz,  at minimum we may analyse SamplingRate/20 length data. (in our case 22050/150=147,  (2) x ( 3^2) x (5^2) x (7^2)/150,  input matrix will be 150x588 )
+###        Human  voice frq : 100 to 10000 Hz
+###        Human  talk voice frq : 100 to 8000 Hz
+###        Softmax'de history tut. Weighted Correction by history. Eg. onehot 3'te 0.2 var ama 0 olması lazım, duzeltme olarak 0.2 degil de son K tane errorun ortalamasini verelim. (K=10 ?) 
+
+
