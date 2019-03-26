@@ -218,7 +218,8 @@ class NeuralNetworkModel :
  def prepareData(self,data,augment):
   x_data=data[:,:4*SOUND_RECORD_SAMPLING_RATE]
   if augment==True :
-    x_data=autoEncoder.encode(augment_random(x_data))
+    x_data=augment_random(x_data)
+  x_data=self.autoEncoder.encode(x_data)
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
   return x_data,y_data_one_hot_encoded
