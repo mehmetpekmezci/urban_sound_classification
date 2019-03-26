@@ -8,7 +8,7 @@ from data import *
 ## CNN LAYERS + LSTM LAYERS + FULLY CONNECTED LAYER + SOFTMAX
 ##
 class AutoEncoder :
- def __init__(self,session,logger,input_size=INPUT_SIZE,learning_rate=LEARNING_RATE,mini_batch_size=MINI_BATCH_SIZE,encoder_layers=ENCODER_LAYERS):
+ def __init__(self,session,logger,input_size=INPUT_SIZE,learning_rate=LEARNING_RATE,mini_batch_size=int(MINI_BATCH_SIZE+MINI_BATCH_SIZE_FOR_GENERATED_DATA),encoder_layers=ENCODER_LAYERS,keep_prob_constant=KEEP_PROB,epsilon=EPSILON):
 
    ##
    ## SET CLASS ATTRIBUTES WITH THE GIVEN INPUTS
@@ -20,8 +20,9 @@ class AutoEncoder :
    self.mini_batch_size       = mini_batch_size
    self.encoder_layers        = encoder_layers
    self.keep_prob_constant    = keep_prob_constant
-   self.keep_prob             = keep_prob_constant
-
+   self.epsilon               = epsilon  
+  
+   self.keep_prob = tf.placeholder(tf.float32)
 
    ##
    ## BUILD THE NETWORK
@@ -95,14 +96,14 @@ class AutoEncoder :
      W_fc2 =  tf.Variable( tf.truncated_normal([int(last_layer_output.shape[1]), self.input_size], stddev=0.1))
      b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.input_size]))
      self.y_output =tf.matmul(last_layer_output, W_fc2) + b_fc2
-     self.logger.info("self.y_outputs.shape="+str(self.y_outputs.shape))
+     self.logger.info("self.y_output.shape="+str(self.y_output.shape))
       
     ## HERE NETWORK DEFINITION IS FINISHED
      
    ##
    ## CALCULATE LOSS
    ##
-    with tf.name_scope('calculate_loss'):
+   with tf.name_scope('calculate_loss'):
      self.loss=tf.losses.mean_squared_error(self.x_input,self.y_output)
 
    ##
@@ -121,16 +122,17 @@ class AutoEncoder :
 
  def prepareData(self,data,generated_data):
   x_data=augment_random(data[:,:4*SOUND_RECORD_SAMPLING_RATE])
-  x_data=np.random.permutation(np.concatenate(x_data,generated_data))
+  concat_data=np.concatenate((x_data,generated_data),axis=0)
+  x_data=np.random.permutation(concat_data)
   return x_data
 
  def train(self,data,generated_data):
   prepareDataTimeStart = int(round(time.time())) 
-  x_data=self.prepareData(data,augment,generated_data)
+  x_data=self.prepareData(data,generated_data)
   prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   trainingTimeStart = int(round(time.time())) 
-  self.optimizer.run(feed_dict={self.x_input: x_data})
+  self.optimizer.run(feed_dict={self.x_input: x_data,self.keep_prob: self.keep_prob_constant})
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
   trainingLoss = self.loss.eval(feed_dict={self.x_input: x_data,self.keep_prob: 1.0})

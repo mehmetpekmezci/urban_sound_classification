@@ -2,6 +2,7 @@
 from header import *
 from data import *
 from NeuralNetworkModel import *
+from AutoEncoder import *
 
 def main(_):
   global fold_data_dictionary,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION
@@ -47,11 +48,10 @@ def main(_):
        for current_batch_counter in range(int(current_fold_data.shape[0]/MINI_BATCH_SIZE)) :
          if (current_batch_counter+1)*MINI_BATCH_SIZE <= current_fold_data.shape[0] :
            batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:(current_batch_counter+1)*MINI_BATCH_SIZE,:]
-           batch_generated_data=generated_data[current_batch_counter*MINI_BATCH_SIZE_FOR_GENERATED_DATA:(current_batch_counter+1)*MINI_BATCH_SIZE_FOR_GENERATED_DATA,:]
+           batch_generated_data=generated_data[int(current_batch_counter*MINI_BATCH_SIZE_FOR_GENERATED_DATA):int((current_batch_counter+1)*MINI_BATCH_SIZE_FOR_GENERATED_DATA),:]
          else:
            batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:,:]
            batch_generated_data=generated_data[current_batch_counter*MINI_BATCH_SIZE_FOR_GENERATED_DATA:,:]
-         
          trainingTime,trainingLoss,prepareDataTime=autoEncoder.train(batch_data,batch_generated_data)
          trainingTimes.append(trainingTime)
          trainingLosses.append(trainingLoss)
@@ -63,8 +63,8 @@ def main(_):
     logger.info("AutoEncoder Max Training Loss : "+str(np.max(trainingLosses)))
     logger.info("AutoEncoder Min Training Loss : "+str(np.min(trainingLosses)))
     
-    if trainingIterationNo>0 and trainingIterationNo%10 == 0 :
-      saver.save(session, SAVE_DIR+'/usc_model-autoencoder',global_step=trainingIterationNo)
+    if iterationNo>0 and iterationNo%10 == 0 :
+      saver.save(session, SAVE_DIR+'/usc_model-autoencoder',global_step=iterationNo)
 
        
    for trainingIterationNo in range(TRAINING_ITERATIONS):

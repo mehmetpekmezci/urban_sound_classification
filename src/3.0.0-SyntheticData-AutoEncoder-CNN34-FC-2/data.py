@@ -228,7 +228,7 @@ def generate_single_synthetic_sample(MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPL
 
 
 def generate_normalized_synthetic_samples(fold):
-    if GENERATED_DATA[fold] is None :
+    if fold not in GENERATED_DATA :
       if os.path.exists(MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy"):
         logger.info("Loading Already Generated Synthetic Sound Sample Data from "+MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy")
         GENERATED_DATA[fold]=np.load(MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy") 

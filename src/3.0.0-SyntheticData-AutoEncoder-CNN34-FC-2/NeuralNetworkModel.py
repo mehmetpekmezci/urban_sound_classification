@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from header import *
 from data import *
+from AutoEncoder import *
 
 
 ##
@@ -9,7 +10,7 @@ from data import *
 ##
 class NeuralNetworkModel :
  def __init__(self, session, logger, autoEncoder,
-              input_size=INPUT_SIZE, output_size=OUTPUT_SIZE , 
+              input_size=ENCODER_LAYERS[-1], output_size=OUTPUT_SIZE , 
               cnn_kernel_counts=CNN_KERNEL_COUNTS, 
               cnn_kernel_x_sizes=CNN_KERNEL_X_SIZES,cnn_kernel_y_sizes=CNN_KERNEL_Y_SIZES,
               cnn_stride_x_sizes=CNN_STRIDE_X_SIZES,cnn_stride_y_sizes=CNN_STRIDE_Y_SIZES,
