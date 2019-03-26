@@ -15,7 +15,7 @@ class NeuralNetworkModel :
               cnn_kernel_x_sizes=CNN_KERNEL_X_SIZES,cnn_kernel_y_sizes=CNN_KERNEL_Y_SIZES,
               cnn_stride_x_sizes=CNN_STRIDE_X_SIZES,cnn_stride_y_sizes=CNN_STRIDE_Y_SIZES,
               cnn_pool_x_sizes=CNN_POOL_X_SIZES,cnn_pool_y_sizes=CNN_POOL_Y_SIZES, 
-              learning_rate=LEARNING_RATE, mini_batch_size=MINI_BATCH_SIZE,
+              learning_rate=LEARNING_RATE, mini_batch_size=int(MINI_BATCH_SIZE+MINI_BATCH_SIZE_FOR_GENERATED_DATA),
               learning_rate_beta1=LEARNING_RATE_BETA1, 
               learning_rate_beta2=LEARNING_RATE_BETA2, 
               epsilon=EPSILON,keep_prob_constant=KEEP_PROB,
@@ -219,7 +219,7 @@ class NeuralNetworkModel :
   x_data=data[:,:4*SOUND_RECORD_SAMPLING_RATE]
   if augment==True :
     x_data=augment_random(x_data)
-  x_data=self.autoEncoder.encode(x_data)
+  x_data,encodeTime=self.autoEncoder.encode(x_data)
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
   return x_data,y_data_one_hot_encoded

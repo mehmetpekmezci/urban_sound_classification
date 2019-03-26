@@ -77,13 +77,14 @@ def main(_):
     trainingAccuracies=[ ]
     testTimes=[ ]
     testAccuracies=[ ]
+    UNIFIED_MINI_BATCH_SIZE=int(MINI_BATCH_SIZE+MINI_BATCH_SIZE_FOR_GENERATED_DATA)
     for fold in np.random.permutation(FOLD_DIRS):
        current_fold_data=get_fold_data(fold)
-       for current_batch_counter in range(int(current_fold_data.shape[0]/MINI_BATCH_SIZE)) :
-         if (current_batch_counter+1)*MINI_BATCH_SIZE <= current_fold_data.shape[0] :
-           batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:(current_batch_counter+1)*MINI_BATCH_SIZE,:]
+       for current_batch_counter in range(int(current_fold_data.shape[0]/UNIFIED_MINI_BATCH_SIZE)) :
+         if (current_batch_counter+1)*UNIFIED_MINI_BATCH_SIZE <= current_fold_data.shape[0] :
+           batch_data=current_fold_data[current_batch_counter*UNIFIED_MINI_BATCH_SIZE:(current_batch_counter+1)*UNIFIED_MINI_BATCH_SIZE,:]
          else:
-           batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:,:]
+           batch_data=current_fold_data[current_batch_counter*UNIFIED_MINI_BATCH_SIZE:,:]
          if fold == "fold10":
              ## FOLD10 is reserved for testing
               testTime,testAccuracy=neuralNetworkModel.test(batch_data)
