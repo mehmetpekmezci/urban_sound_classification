@@ -19,7 +19,7 @@ class NeuralNetworkModel :
               learning_rate_beta2=LEARNING_RATE_BETA2, 
               epsilon=EPSILON,keep_prob_constant=KEEP_PROB,
               fully_connected_layers=FULLY_CONNECTED_LAYERS,
-              fourier_cnn_layers=FOURIER_CNN_LAYERS,number_of_ensembles=NUMBER_OF_ENSEMBLES):
+              number_of_ensembles=NUMBER_OF_ENSEMBLES):
 
    ##
    ## SET CLASS ATTRIBUTES WITH THE GIVEN INPUTS
@@ -43,8 +43,7 @@ class NeuralNetworkModel :
    self.keep_prob_constant    = keep_prob_constant
    self.epsilon               = epsilon
    self.fully_connected_layers=fully_connected_layers
-   self.fourier_cnn_layers=fourier_cnn_layers
-   self.number_of_ensembles=number_of_ensembles
+   self.number_of_ensembles   =number_of_ensembles
 
    cnn_intermediate_levels_for_ensemble=[] ## of length self.number_of_ensembles
    cnn_ensemble_layer_period=int(len(self.cnn_kernel_counts)/self.number_of_ensembles)
@@ -127,8 +126,9 @@ class NeuralNetworkModel :
 
      previous_level_kernel_count=cnnKernelCount
      cnn_last_layer_output=previous_level_convolution_output
-     if cnnLayerNo % cnn_ensemble_layer_period = 0 :
-         cnn_intermediate_levels_for_ensemble.append(cnn_last_layer_output)
+     if cnnLayerNo % cnn_ensemble_layer_period == 0 :
+         cnn_intermediate_layer_output_flat = tf.reshape( cnn_last_layer_output, [-1, int(cnn_last_layer_output.shape[1]*cnn_last_layer_output.shape[2]*cnn_last_layer_output.shape[3])] )
+         cnn_intermediate_levels_for_ensemble.append(cnn_intermediate_layer_output_flat)
 
    ##
    ## FULLY CONNECTED LAYERS
@@ -137,40 +137,41 @@ class NeuralNetworkModel :
 
    with tf.name_scope('cnn_to_fc_reshape'):
     cnn_last_layer_output_flat = tf.reshape( cnn_last_layer_output, [-1, int(cnn_last_layer_output.shape[1]*cnn_last_layer_output.shape[2]*cnn_last_layer_output.shape[3])] )
+    cnn_intermediate_levels_for_ensemble.append(cnn_last_layer_output_flat)
     self.logger.info("cnn_last_layer_output_flat="+str( cnn_last_layer_output_flat))
 
-   last_layer_output=cnn_last_layer_output_flat
-   number_of_fully_connected_layer_neurons=self.fully_connected_layers[0]
-
    fcEnsembleOutputLayers=[]
-   for ensembleNo in range(self.number_of_ensembles) :
+   for ensembleNo in range(len(cnn_intermediate_levels_for_ensemble)) :
+
+    last_layer_output=cnn_intermediate_levels_for_ensemble[ensembleNo]
+
     for fcLayerNo in range(len(self.fully_connected_layers)) :
-       
+
      number_of_fully_connected_layer_neurons=self.fully_connected_layers[fcLayerNo]
 
-     with tf.name_scope('fc-'+str(fcLayerNo)):
+     with tf.name_scope('fc-'+str(ensembleNo)+'.'+str(fcLayerNo)):
       W_fc1 =  tf.Variable( tf.truncated_normal([int(last_layer_output.shape[1]), number_of_fully_connected_layer_neurons], stddev=0.1))
-      self.logger.info("W_fc-"+str(fcLayerNo)+".shape="+str(W_fc1.shape))
+      self.logger.info("W_fc-"+str(ensembleNo)+'.'+str(fcLayerNo)+".shape="+str(W_fc1.shape))
       B_fc1 = tf.Variable(tf.constant(0.1, shape=[number_of_fully_connected_layer_neurons]))
-      self.logger.info("B_fc-"+str(fcLayerNo)+".shape="+str(B_fc1.shape))
+      self.logger.info("B_fc-"+str(ensembleNo)+'.'+str(fcLayerNo)+".shape="+str(B_fc1.shape))
       matmul_fc1=tf.matmul(last_layer_output, W_fc1)+B_fc1
-      self.logger.info("matmul_fc-"+str(fcLayerNo)+".shape="+str(matmul_fc1.shape))
+      self.logger.info("matmul_fc-"+str(ensembleNo)+'.'+str(fcLayerNo)+".shape="+str(matmul_fc1.shape))
 
-     with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normlalization'):    
+     with tf.name_scope('fc-'+str(ensembleNo)+'.'+str(fcLayerNo)+'_batch_normlalization'):    
       batch_mean, batch_var = tf.nn.moments(matmul_fc1,[0])
       scale = tf.Variable(tf.ones(number_of_fully_connected_layer_neurons))
       beta = tf.Variable(tf.zeros(number_of_fully_connected_layer_neurons))
       batch_normalization_fc1 = tf.nn.batch_normalization(matmul_fc1,batch_mean,batch_var,beta,scale,epsilon)
-      self.logger.info("batch_normalization_fc-"+str(fcLayerNo)+".shape="+str(batch_normalization_fc1.shape))
+      self.logger.info("batch_normalization_fc-"+str(ensembleNo)+'.'+str(fcLayerNo)+".shape="+str(batch_normalization_fc1.shape))
 
-     with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normalized_relu'):    
+     with tf.name_scope('fc-'+str(ensembleNo)+'.'+str(fcLayerNo)+'_batch_normalized_relu'):    
       h_fc1 = tf.nn.relu( batch_normalization_fc1 )
-      self.logger.info("h_fc-"+str(fcLayerNo)+".shape="+str(h_fc1.shape))
+      self.logger.info("h_fc-"+str(ensembleNo)+'.'+str(fcLayerNo)+".shape="+str(h_fc1.shape))
 
      # Dropout - controls the complexity of the model, prevents co-adaptation of features.
-     with tf.name_scope('fc-'+str(fcLayerNo)+'_dropout'):    
+     with tf.name_scope('fc-'+str(ensembleNo)+'.'+str(fcLayerNo)+'_dropout'):    
       h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
-      self.logger.info("h_fc-"+str(fcLayerNo)+"_drop.shape="+str(h_fc1_drop.shape))
+      self.logger.info("h_fc-"+str(ensembleNo)+'.'+str(fcLayerNo)+"_drop.shape="+str(h_fc1_drop.shape))
       last_layer_output=h_fc1_drop
     fcEnsembleOutputLayers.append(last_layer_output)
 
@@ -179,7 +180,7 @@ class NeuralNetworkModel :
 
    # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS features to OUTPUT_SIZE=NUMBER_OF_CLASSES(10) classes, one for each class
    with tf.name_scope('last_fc'):
-    W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons*self.number_of_ensembles, self.output_size], stddev=0.1))
+    W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons*len(cnn_intermediate_levels_for_ensemble), self.output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.output_size]))
     #h_fc2 =tf.nn.relu( tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
     self.y_outputs =tf.matmul(last_layer_output, W_fc2) + b_fc2
