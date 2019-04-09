@@ -19,7 +19,6 @@ pandas      = importlib.import_module("pandas")
 time        = importlib.import_module("time")
 random      = importlib.import_module("random")
 datetime    = importlib.import_module("datetime")
-pyaudio    = importlib.import_module("pyaudio")
 
 
 ##
@@ -93,21 +92,9 @@ tfSummaryTimeMergedWriter = tf.summary.merge_all()
 ##
 # 1 RECORD is 4 seconds = 4 x sampling rate double values = 4 x 22050 = 88200 = (2^3) x ( 3^2) x (5^2) x (7^2)
 SOUND_RECORD_SAMPLING_RATE=22050
-DURATION=4
-TRACK_LENGTH=DURATION*SOUND_RECORD_SAMPLING_RATE
+TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
-## To traing fourier level 
-MAX_NUM_OF_SAMPLE_PER_FOLD=1000
-GENERATION_RATE=5
-NUMBER_OF_SYNTHETIC_TRAINNG_SAMPLES=GENERATION_RATE*MAX_NUM_OF_SAMPLE_PER_FOLD
-MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=1000
-MIN_HEARING_FREQUENCY=20
-#MAX_HEARING_FREQUENCY=20000
-MAX_HEARING_FREQUENCY=10000 #after 10000 to 20000 it is hardly heard.
-###        Humans can hear 20Hz to 20 000Hz
-###        Human  voice frq : 100 to 10000 Hz
-###        Human  talk voice frq : 100 to 8000 Hz
 
 
 ##
@@ -121,21 +108,17 @@ INPUT_SIZE=TRACK_LENGTH
 ##
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
-FULLY_CONNECTED_LAYERS=[1024,1024]
-ENCODER_LAYERS=[400,200,100]
+#FULLY_CONNECTED_LAYERS=[256,256,512]
+FULLY_CONNECTED_LAYERS=[2048,2048]
 
-### NOTE:  3500 Inner Hair Cell, each connected to ~10 neurons, they connect to auditory nucleus, then signals are transferred to the auditory cortex1 then to cortex2
-#NUMBER_OF_INNER_HAIR_CELLS=1000
-#FOURIER_FULLY_CONNECTED_LAYERS=[NUMBER_OF_INNER_HAIR_CELLS,NUMBER_OF_INNER_HAIR_CELLS,NUMBER_OF_INNER_HAIR_CELLS]
-#NUMBER_OF_HAIR_CELL_NEURONS=10*NUMBER_OF_INNER_HAIR_CELLS
-#NUMBER_OF_SECOND_LEVEL_NEURONS=int(NUMBER_OF_HAIR_CELL_NEURONS/100)
 
+## MATRICE SIZE UYUSMASI PROBLEMI ALDIGINDA MUHTEMELEN SAVED SESSION ILE CAKISMA VARDIR , rm -Rf ../save/1.0.1-CNN-34/
 
 ##
 ## CNN PARAMETERS
 ##
 ## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
-CNN_KERNEL_COUNTS       = np.array([1024,64,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32])
+CNN_KERNEL_COUNTS       = np.array([160,40,40,40,40,160,40,40,40,40,160,40,40,40,40,160,40,40,40,40,160,40,40,40,40,160,40,40,40,40,160,40,40,40,40])
 CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_KERNEL_Y_SIZES      = np.array([ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
 CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
@@ -161,10 +144,8 @@ LEARNING_RATE = 0.0001
 LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
-AUTOENCODER_TRAINING_ITERATIONS=5
 TRAINING_ITERATIONS=9000
 MINI_BATCH_SIZE=10
-MINI_BATCH_SIZE_FOR_GENERATED_DATA=GENERATION_RATE*MINI_BATCH_SIZE
 
 ##
 ## GLOBAL VARIABLES
@@ -172,7 +153,6 @@ MINI_BATCH_SIZE_FOR_GENERATED_DATA=GENERATION_RATE*MINI_BATCH_SIZE
 EPSILON = 1e-4
 MAX_VALUE_FOR_NORMALIZATION=0
 MIN_VALUE_FOR_NORMALIZATION=0
-GENERATED_DATA=dict()
 fold_data_dictionary=dict()
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
