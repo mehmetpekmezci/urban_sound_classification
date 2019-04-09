@@ -148,6 +148,9 @@ class NeuralNetworkModel :
     for fcLayerNo in range(len(self.fully_connected_layers)) :
 
      number_of_fully_connected_layer_neurons=self.fully_connected_layers[fcLayerNo]
+     if ensembleNo == 0 and fcLayerNo == 0 :
+         number_of_fully_connected_layer_neurons=int(number_of_fully_connected_layer_neurons/10)
+         # ilk layer cnn in en alt katlariyla muhatap oluyor, onun icin cnn'den cok veri geliyor, onun icin ram yetmiyor
 
      with tf.name_scope('fc-'+str(ensembleNo)+'.'+str(fcLayerNo)):
       W_fc1 =  tf.Variable( tf.truncated_normal([int(last_layer_output.shape[1]), number_of_fully_connected_layer_neurons], stddev=0.1))
