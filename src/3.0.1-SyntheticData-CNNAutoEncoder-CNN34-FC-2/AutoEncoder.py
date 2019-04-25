@@ -173,14 +173,14 @@ class AutoEncoder :
     self.logger.info("cnn_last_layer_output_flat.shape="+str( cnn_last_layer_output_flat.shape))
 
 
-   #self.y_output = cnn_last_layer_output_flat
+   self.y_output = cnn_last_layer_output_flat
 
    ### OUTPUT
-   with tf.name_scope('output_decoder'):
-     W_fc2 =  tf.Variable( tf.truncated_normal([int(cnn_last_layer_output_flat.shape[1]), self.input_size], stddev=0.1))
-     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.input_size]))
-     self.y_output =tf.matmul(cnn_last_layer_output_flat, W_fc2) + b_fc2
-     self.logger.info("self.y_output.shape="+str(self.y_output.shape))
+   #with tf.name_scope('output_decoder'):
+   #  W_fc2 =  tf.Variable( tf.truncated_normal([int(cnn_last_layer_output_flat.shape[1]), self.input_size], stddev=0.1))
+   #  b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.input_size]))
+   #  self.y_output =tf.matmul(cnn_last_layer_output_flat, W_fc2) + b_fc2
+   #  self.logger.info("self.y_output.shape="+str(self.y_output.shape))
       
     ## HERE NETWORK DEFINITION IS FINISHED
      
