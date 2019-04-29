@@ -198,8 +198,8 @@ class NeuralNetworkModel :
      previousLayerFcEnsembleOutputs.append(cnn_last_layer_output_flat)
      # give the same cnn output to all ensemble units
 
-   for ensembleLayerNo in range(self.numberOfEnsemblesPerMeshLayer) :
-    for ensembleNo in range(self.numberOfEnsemblesMesh) :
+   for ensembleLayerNo in range(self.numberOfEnsemblesMesh) :
+    for ensembleNo in range(self.numberOfEnsemblesPerMeshLayer) :
      with tf.name_scope('ensemble-layer-L'+str(ensembleLayerNo)+"_ensemble-no-N"+str(ensembleNo)):
       W_fc1 =  tf.Variable( tf.truncated_normal([int(2*previousLayerFcEnsembleOutputs[ensembleNo].shape[1]), self.numberOfFCCellPerEnsembleUnit], stddev=0.1))
       self.logger.info("W_L"+str(ensembleLayerNo)+"N"+str(ensembleNo)+".shape="+str(W_fc1.shape))

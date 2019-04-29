@@ -10,7 +10,7 @@ from AutoEncoder import *
 ##
 class NeuralNetworkModel :
  def __init__(self, session, logger, autoEncoder,
-              input_size=INPUT_SIZE, output_size=OUTPUT_SIZE , 
+              input_size=ENCODER_LAYERS[-1], output_size=OUTPUT_SIZE , 
               cnn_kernel_counts=CNN_KERNEL_COUNTS, 
               cnn_kernel_x_sizes=CNN_KERNEL_X_SIZES,cnn_kernel_y_sizes=CNN_KERNEL_Y_SIZES,
               cnn_stride_x_sizes=CNN_STRIDE_X_SIZES,cnn_stride_y_sizes=CNN_STRIDE_Y_SIZES,
@@ -71,7 +71,6 @@ class NeuralNetworkModel :
      self.logger.info("self.x_input_reshaped.shape="+str(self.x_input_reshaped.shape))
 
    previous_level_convolution_output = self.x_input_reshaped
-   previous_level_kernel_count=0
    for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
      self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
      cnnLayerName    = "cnn-"+str(cnnLayerNo)     
@@ -106,12 +105,12 @@ class NeuralNetworkModel :
        previous_level_convolution_output=P
        self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
      else :
-      #if previous_level_kernel_count==cnnKernelCount :
-      # with tf.name_scope(cnnLayerName+"-residual"):
-      #   previous_level_convolution_output=H+previous_level_convolution_output
-      #   ## put the output of this layer to the next layer's input layer.
-      #   self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
-      #else :
+      if previous_level_kernel_count==cnnKernelCount :
+       with tf.name_scope(cnnLayerName+"-residual"):
+         previous_level_convolution_output=H+previous_level_convolution_output
+         ## put the output of this layer to the next layer's input layer.
+         self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
+      else :
          ## put the output of this layer to the next layer's input layer.
          previous_level_convolution_output=H
 

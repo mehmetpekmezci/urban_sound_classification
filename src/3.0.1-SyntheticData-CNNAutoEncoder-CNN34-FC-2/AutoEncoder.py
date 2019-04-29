@@ -8,13 +8,13 @@ from data import *
 ## CNN LAYERS + LSTM LAYERS + FULLY CONNECTED LAYER + SOFTMAX
 ##
 class AutoEncoder :
- def __init__(self,session,logger,input_size=INPUT_SIZE,learning_rate=LEARNING_RATE,mini_batch_size=int(MINI_BATCH_SIZE+MINI_BATCH_SIZE_FOR_GENERATED_DATA),keep_prob_constant=KEEP_PROB,epsilon=EPSILON,
+ def __init__(self,session,logger,input_size=INPUT_SIZE,learning_rate=LEARNING_RATE,
               cnn_kernel_counts=AE_CNN_KERNEL_COUNTS,
               cnn_kernel_x_sizes=AE_CNN_KERNEL_X_SIZES,cnn_kernel_y_sizes=AE_CNN_KERNEL_Y_SIZES,
               cnn_stride_x_sizes=AE_CNN_STRIDE_X_SIZES,cnn_stride_y_sizes=AE_CNN_STRIDE_Y_SIZES,
-              cnn_pool_x_sizes=AE_CNN_POOL_X_SIZES,cnn_pool_y_sizes=AE_CNN_POOL_Y_SIZES
-              ):
-
+              cnn_pool_x_sizes=AE_CNN_POOL_X_SIZES,cnn_pool_y_sizes=AE_CNN_POOL_Y_SIZES,
+              mini_batch_size=int(MINI_BATCH_SIZE+MINI_BATCH_SIZE_FOR_GENERATED_DATA),
+              encoder_layers=ENCODER_LAYERS,keep_prob_constant=KEEP_PROB,epsilon=EPSILON):
 
    ##
    ## SET CLASS ATTRIBUTES WITH THE GIVEN INPUTS
@@ -22,19 +22,20 @@ class AutoEncoder :
    self.session               = session
    self.logger                = logger
    self.input_size            = input_size
-   self.input_size_y          = input_size
+   self.input_size_y          = 1
    self.learning_rate         = learning_rate 
    self.mini_batch_size       = mini_batch_size
+   self.encoder_layers        = encoder_layers
    self.keep_prob_constant    = keep_prob_constant
    self.epsilon               = epsilon  
-   self.cnn_kernel_counts     = cnn_kernel_counts  
-   self.cnn_kernel_x_sizes    = cnn_kernel_x_sizes  
-   self.cnn_kernel_y_sizes    = cnn_kernel_y_sizes  
-   self.cnn_stride_x_sizes    = cnn_stride_x_sizes  
-   self.cnn_stride_y_sizes    = cnn_stride_y_sizes  
-   self.cnn_pool_x_sizes      = cnn_pool_x_sizes  
-   self.cnn_pool_y_sizes      = cnn_pool_y_sizes  
-  
+   self.cnn_kernel_counts     = cnn_kernel_counts
+   self.cnn_kernel_x_sizes    = cnn_kernel_x_sizes
+   self.cnn_kernel_y_sizes    = cnn_kernel_y_sizes
+   self.cnn_stride_x_sizes    = cnn_stride_x_sizes
+   self.cnn_stride_y_sizes    = cnn_stride_y_sizes
+   self.cnn_pool_x_sizes      = cnn_pool_x_sizes
+   self.cnn_pool_y_sizes      = cnn_pool_y_sizes
+ 
    self.keep_prob = tf.placeholder(tf.float32)
 
    ##
@@ -46,19 +47,19 @@ class AutoEncoder :
    ##
    number_of_input_channels=1
    self.x_input                      = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.input_size), name="input")
-   
-   last_layer_output=self.x_input
 
+
+
+
+   last_layer_output=self.x_input
    with tf.name_scope('input_reshape'):
-     self.x_input_reshaped = tf.reshape(last_layer_output, [self.mini_batch_size, 1, input_size, number_of_input_channels])
+     self.x_input_reshaped = tf.reshape(last_layer_output, [self.mini_batch_size, self.input_size_y, last_layer_output.shape[1], number_of_input_channels])
      self.logger.info("self.x_input_reshaped.shape="+str(self.x_input_reshaped.shape))
+
    previous_level_convolution_output = self.x_input_reshaped
-   
-   
-   with tf.name_scope('cnn_encoder'):
-    for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
+   for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
      self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
-     cnnLayerName    = "cnn-encoder-"+str(cnnLayerNo)
+     cnnLayerName    = "cnn-"+str(cnnLayerNo)
      cnnKernelCount  = self.cnn_kernel_counts[cnnLayerNo]   # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
      cnnKernelSizeX  = self.cnn_kernel_x_sizes[cnnLayerNo]
      cnnKernelSizeY  = self.cnn_kernel_y_sizes[cnnLayerNo]
@@ -71,6 +72,7 @@ class AutoEncoder :
        cnnInputChannel = 1
      else :
        cnnInputChannel = self.cnn_kernel_counts[int(cnnLayerNo-1)]
+
 
      with tf.name_scope(cnnLayerName+"-convolution"):
        W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
@@ -100,87 +102,53 @@ class AutoEncoder :
 
      previous_level_kernel_count=cnnKernelCount
      cnn_last_layer_output=previous_level_convolution_output
-     
-     
-     
+
+   ##
+   ## FULLY CONNECTED LAYERS
+   ##Linear activation (FC layer on top of the RESNET )
+
+
    with tf.name_scope('cnn_to_fc_reshape'):
     cnn_last_layer_output_flat = tf.reshape( cnn_last_layer_output, [-1, int(cnn_last_layer_output.shape[1]*cnn_last_layer_output.shape[2]*cnn_last_layer_output.shape[3])] )
     self.logger.info("cnn_last_layer_output_flat="+str( cnn_last_layer_output_flat))
 
-
-   self.encoder=cnn_last_layer_output_flat
-
-
-   with tf.name_scope('fc_to_cnn_decoder_reshape'):
-    fc_to_cnn_decoder_reshape = tf.reshape(cnn_last_layer_output_flat, [self.mini_batch_size, 1 , cnn_last_layer_output_flat.shape[1], number_of_input_channels])
-    self.logger.info("fc_to_cnn_decoder_reshape="+str( fc_to_cnn_decoder_reshape))
-    previous_level_convolution_output=fc_to_cnn_decoder_reshape
-
-   with tf.name_scope('cnn_decoder'):
-    for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
-     inverseCnnLayerNo=int(-1*(cnnLayerNo+1))
-     self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
-     cnnLayerName    = "cnn-decoder-"+str(cnnLayerNo)
-     print(inverseCnnLayerNo)
-     print(cnnLayerName)
-     cnnKernelCount  = self.cnn_kernel_counts[inverseCnnLayerNo]   # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
-     cnnKernelSizeX  = self.cnn_kernel_x_sizes[inverseCnnLayerNo]
-     cnnKernelSizeY  = self.cnn_kernel_y_sizes[inverseCnnLayerNo]
-     cnnStrideSizeX  = self.cnn_stride_x_sizes[inverseCnnLayerNo]
-     cnnStrideSizeY  = self.cnn_stride_y_sizes[inverseCnnLayerNo]
-     cnnPoolSizeX    = self.cnn_pool_x_sizes[inverseCnnLayerNo]
-     cnnPoolSizeY    = self.cnn_pool_y_sizes[inverseCnnLayerNo]
-     cnnOutputChannel= cnnKernelCount
-     if cnnLayerNo == 0 :
-       cnnInputChannel = 1
-     else :
-       cnnInputChannel = self.cnn_kernel_counts[int(inverseCnnLayerNo+1)]
-       
-     with tf.name_scope(cnnLayerName+"-convolution"):
-       W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
-       B = tf.Variable(tf.constant(0.1, shape=[cnnOutputChannel]))
-       C = tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,cnnStrideSizeX, cnnStrideSizeY, 1], padding='SAME')+B
-
-       self.logger.info(cnnLayerName+"_C.shape="+str(C.shape)+"  W.shape="+str(W.shape)+ "  cnnStrideSizeX="+str(cnnStrideSizeX)+" cnnStrideSizeY="+str(cnnStrideSizeY))
-     with tf.name_scope(cnnLayerName+"-relu"):
-       H = tf.nn.relu(C)
-       self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
-
-     if cnnPoolSizeY != 1 :
-      with tf.name_scope(cnnLayerName+"-upsample"):
-       P = tf.image.resize_nearest_neighbor(H, (cnnPoolSizeY*H.shape[1],1*H.shape[2])) ## upsample 
-       #P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME')
-       ## put the output of this layer to the next layer's input layer.
-       previous_level_convolution_output=P
-       self.logger.info(cnnLayerName+".H_upsamples.shape="+str(P.shape))
-     else :
-#      if previous_level_kernel_count==cnnKernelCount :
-#       with tf.name_scope(cnnLayerName+"-residual"):
-#         previous_level_convolution_output=H+previous_level_convolution_output
-#         ## put the output of this layer to the next layer's input layer.
-#         self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
-#      else :
-         ## put the output of this layer to the next layer's input layer.
-         previous_level_convolution_output=H
-
-     previous_level_kernel_count=cnnKernelCount
-     cnn_last_layer_output=previous_level_convolution_output
-
-   self.logger.info("cnn_last_layer_output.shape="+str(cnn_last_layer_output.shape))
+   last_layer_output=cnn_last_layer_output_flat
+   encoder=last_layer_output
    
-   with tf.name_scope('cnn_to_fc_reshape'):
-    cnn_last_layer_output_flat = tf.reshape( cnn_last_layer_output, [-1, int(cnn_last_layer_output.shape[1]*cnn_last_layer_output.shape[2]*cnn_last_layer_output.shape[3])] )
-    self.logger.info("cnn_last_layer_output_flat.shape="+str( cnn_last_layer_output_flat.shape))
+   ### DECODER
+   with tf.name_scope('decoder'):
+    for fcLayerNo in range(len(self.encoder_layers)) :
+       number_of_fully_connected_layer_neurons=self.encoder_layers[int(-1*(fcLayerNo+1))]
+       W_fc1 =  tf.Variable( tf.truncated_normal([int(last_layer_output.shape[1]), number_of_fully_connected_layer_neurons], stddev=0.1))
+       self.logger.info("W_fc-"+str(fcLayerNo)+".shape="+str(W_fc1.shape))
+       B_fc1 = tf.Variable(tf.constant(0.1, shape=[number_of_fully_connected_layer_neurons]))
+       self.logger.info("B_fc-"+str(fcLayerNo)+".shape="+str(B_fc1.shape))
+       matmul_fc1=tf.matmul(last_layer_output, W_fc1)+B_fc1
+       self.logger.info("matmul_fc-"+str(fcLayerNo)+".shape="+str(matmul_fc1.shape))
 
+       with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normlalization'):    
+         batch_mean, batch_var = tf.nn.moments(matmul_fc1,[0])
+         scale = tf.Variable(tf.ones(number_of_fully_connected_layer_neurons))
+         beta = tf.Variable(tf.zeros(number_of_fully_connected_layer_neurons))
+         batch_normalization_fc1 = tf.nn.batch_normalization(matmul_fc1,batch_mean,batch_var,beta,scale,epsilon)
+         self.logger.info("batch_normalization_fc-"+str(fcLayerNo)+".shape="+str(batch_normalization_fc1.shape))
 
-   self.y_output = cnn_last_layer_output_flat
+       with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normalized_relu'):    
+         h_fc1 = tf.nn.relu( batch_normalization_fc1 )
+         self.logger.info("h_fc-"+str(fcLayerNo)+".shape="+str(h_fc1.shape))
+
+       # Dropout - controls the complexity of the model, prevents co-adaptation of features.
+       with tf.name_scope('fc-'+str(fcLayerNo)+'_dropout'):    
+         h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
+         self.logger.info("h_fc-"+str(fcLayerNo)+"_drop.shape="+str(h_fc1_drop.shape))
+         last_layer_output=h_fc1_drop
 
    ### OUTPUT
-   #with tf.name_scope('output_decoder'):
-   #  W_fc2 =  tf.Variable( tf.truncated_normal([int(cnn_last_layer_output_flat.shape[1]), self.input_size], stddev=0.1))
-   #  b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.input_size]))
-   #  self.y_output =tf.matmul(cnn_last_layer_output_flat, W_fc2) + b_fc2
-   #  self.logger.info("self.y_output.shape="+str(self.y_output.shape))
+   with tf.name_scope('output_decoder'):
+     W_fc2 =  tf.Variable( tf.truncated_normal([int(last_layer_output.shape[1]), self.input_size], stddev=0.1))
+     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.input_size]))
+     self.y_output =tf.matmul(last_layer_output, W_fc2) + b_fc2
+     self.logger.info("self.y_output.shape="+str(self.y_output.shape))
       
     ## HERE NETWORK DEFINITION IS FINISHED
      
@@ -226,12 +194,7 @@ class AutoEncoder :
   encodeTimeStart = int(round(time.time())) 
   x_data=data[:,:4*SOUND_RECORD_SAMPLING_RATE]
   encodedValue = self.encoder.eval(feed_dict={self.x_input: x_data, self.keep_prob: 1.0})
-  #encoded_output_flat = tf.reshape( encodedValue, [-1, int(encodedValue.shape[1]*encodedValue.shape[2]*encodedValue.shape[3])] )
-  encoded_output_flat = encodedValue
-  self.logger.info("encoded_output_flat.shape="+str( encoded_output_flat.shape))
-
   encodeTimeStop = int(round(time.time())) 
   encodeTime=encodeTimeStop-encodeTimeStart
   return encodedValue,encodeTime
   
-

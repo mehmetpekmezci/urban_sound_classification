@@ -122,7 +122,7 @@ INPUT_SIZE=TRACK_LENGTH
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
 FULLY_CONNECTED_LAYERS=[1024,1024]
-ENCODER_LAYERS=[50,200,500,1000,500,200,50]
+ENCODER_LAYERS=[80,400,800,1600,800,400,80]
 FOURIER_CNN_LAYERS=[64,64,32]
 
 ### NOTE:  3500 Inner Hair Cell, each connected to ~10 neurons, they connect to auditory nucleus, then signals are transferred to the auditory cortex1 then to cortex2
