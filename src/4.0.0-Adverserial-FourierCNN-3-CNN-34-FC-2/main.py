@@ -84,8 +84,8 @@ def main(_):
               testTimes.append(testTime)
               testAccuracies.append(testAccuracy)
          else:
-              batch_data_1=batch_data[0:int(MINI_BATCH_SIZE/2),:]
-              batch_data_2=batch_data[int(MINI_BATCH_SIZE/2+1):,:]
+              batch_data_1=batch_data
+              batch_data_2=np.random.permutation(batch_data)
               trainingTime,trainingAccuracy,prepareDataTime=neuralNetworkModel.train(batch_data_1,batch_data_2)
               trainingTimes.append(trainingTime)
               trainingAccuracies.append(trainingAccuracy)

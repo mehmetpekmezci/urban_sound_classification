@@ -14,7 +14,7 @@ class NeuralNetworkModel :
               cnn_kernel_x_sizes=CNN_KERNEL_X_SIZES,cnn_kernel_y_sizes=CNN_KERNEL_Y_SIZES,
               cnn_stride_x_sizes=CNN_STRIDE_X_SIZES,cnn_stride_y_sizes=CNN_STRIDE_Y_SIZES,
               cnn_pool_x_sizes=CNN_POOL_X_SIZES,cnn_pool_y_sizes=CNN_POOL_Y_SIZES, 
-              learning_rate=LEARNING_RATE, mini_batch_size=MINI_BATCH_SIZE/2,
+              learning_rate=LEARNING_RATE, mini_batch_size=MINI_BATCH_SIZE,
               learning_rate_beta1=LEARNING_RATE_BETA1, 
               learning_rate_beta2=LEARNING_RATE_BETA2, 
               epsilon=EPSILON,keep_prob_constant=KEEP_PROB,
@@ -53,8 +53,9 @@ class NeuralNetworkModel :
    ##
    ## DEFINE PLACE HOLDER FOR REAL OUTPUT VALUES FOR TRAINING
    ##
-   self.real_y_values_1=tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.output_size), name="real_y_values")
-   self.real_y_values_2=tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.output_size), name="real_y_values")
+   self.real_y_values_1=tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.output_size), name="real_y_values_1")
+   self.real_y_values_2=tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.output_size), name="real_y_values_2")
+   self.real_y_values_adverserial=tf.placeholder(tf.float32, shape=(self.mini_batch_size, 1), name="real_y_values_adverserial")
 
    ##
    ## BUILD THE NETWORK
@@ -64,8 +65,8 @@ class NeuralNetworkModel :
    ## INPUT  LAYER
    ##
    number_of_input_channels=1
-   self.x_input_1                      = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.input_size), name="input")
-   self.x_input_2                      = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.input_size), name="input")
+   self.x_input_1                      = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.input_size), name="input_1")
+   self.x_input_2                      = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.input_size), name="input_2")
    last_layer_output_1=self.x_input_1
    last_layer_output_2=self.x_input_2
 
@@ -73,8 +74,8 @@ class NeuralNetworkModel :
    ## RESHAPE
    ##
    with tf.name_scope('input_reshape'):
-     self.x_input_reshaped_1 = tf.reshape(last_layer_output_1, [self.mini_batch_size, self.input_size_y, last_layer_output.shape[1], number_of_input_channels])
-     self.x_input_reshaped_2 = tf.reshape(last_layer_output_2, [self.mini_batch_size, self.input_size_y, last_layer_output.shape[1], number_of_input_channels])
+     self.x_input_reshaped_1 = tf.reshape(last_layer_output_1, [self.mini_batch_size, self.input_size_y, int(last_layer_output_1.shape[1]), number_of_input_channels])
+     self.x_input_reshaped_2 = tf.reshape(last_layer_output_2, [self.mini_batch_size, self.input_size_y, int(last_layer_output_2.shape[1]), number_of_input_channels])
      self.logger.info("self.x_input_reshaped_1.shape="+str(self.x_input_reshaped_1.shape))
      self.logger.info("self.x_input_reshaped_2.shape="+str(self.x_input_reshaped_2.shape))
      previous_level_convolution_output_1 = self.x_input_reshaped_1
@@ -200,7 +201,7 @@ class NeuralNetworkModel :
      cnnPoolSizeY    = self.cnn_pool_y_sizes[cnnLayerNo]      
      cnnOutputChannel= cnnKernelCount   
      if cnnLayerNo == 0 :
-       cnnInputChannel = int (fourierCNNOutput.shape[3])
+       cnnInputChannel = int (previous_level_convolution_output.shape[3])
      else :
        cnnInputChannel = self.cnn_kernel_counts[int(cnnLayerNo-1)]   
 
@@ -395,11 +396,12 @@ class NeuralNetworkModel :
      self.loss_1 = tf.reduce_mean(cross_entropy_1)
      cross_entropy_2 = tf.nn.softmax_cross_entropy_with_logits(labels=self.real_y_values_2,logits=self.y_outputs_2)
      self.loss_2 = tf.reduce_mean(cross_entropy_2)
-     real_y_values_adverserial=[0]
-     if self.y_outputs_1 == self.y_outputs_2:
-         real_y_values_adverserial=[1]
-     cross_entropy_adverserial = tf.nn.softmax_cross_entropy_with_logits(labels=real_y_values_adverserial,logits=self.y_outputs_adverserial)
+     cross_entropy_adverserial = tf.nn.softmax_cross_entropy_with_logits(labels=self.real_y_values_adverserial,logits=self.y_outputs_adverserial)
      self.loss_adverserial = tf.reduce_mean(cross_entropy_adverserial)
+
+  ## ADVERSERIAL FC iki ciktinin ayni olup olmadigini soyler 0/1
+  ## gercekte ayni oluğ olmadigina gore duzeltme verilir.
+
 
    ##
    ## SET OPTIMIZER
@@ -453,7 +455,18 @@ class NeuralNetworkModel :
   prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   trainingTimeStart = int(round(time.time())) 
-  self.optimizer.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,  self.keep_prob:self.keep_prob_constant})
+
+
+  y_values_adverserial=np.zeros((self.mini_batch_size,1)) # [0,0,0,0,0]
+  for i in range(self.mini_batch_size) :
+    if  np.array_equal(y_data1[i], y_data2[i]) :
+          y_values_adverserial[i][0]=1
+
+
+  self.optimizer_1.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
+  self.optimizer_2.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
+  self.optimizer_adverserial.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
+
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
   trainingAccuracy = self.accuracy.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2, self.keep_prob: 1.0})
