@@ -399,6 +399,8 @@ class NeuralNetworkModel :
      cross_entropy_adverserial = tf.nn.softmax_cross_entropy_with_logits(labels=self.real_y_values_adverserial,logits=self.y_outputs_adverserial)
      self.loss_adverserial = tf.reduce_mean(cross_entropy_adverserial)
 
+
+
   ## ADVERSERIAL FC iki ciktinin ayni olup olmadigini soyler 0/1
   ## gercekte ayni oluğ olmadigina gore duzeltme verilir.
 
