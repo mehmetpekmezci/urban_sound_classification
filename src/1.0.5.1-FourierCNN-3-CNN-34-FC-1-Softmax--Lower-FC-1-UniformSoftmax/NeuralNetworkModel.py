@@ -294,8 +294,8 @@ class NeuralNetworkModel :
      self.loss = tf.reduce_mean(cross_entropy)
 
    with tf.name_scope('calculate_bias_predictor_loss'):
-     Q_bias_target_probability_uniform_distribution=tf.Variable(tf.constant(1/int(bias_predictor_output.shape[1]), shape=bias_predictor_output.shape))
-     bias_predictor_cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=Q_bias_target_probability_uniform_distribution,logits=bias_predictor_output)
+     Q_bias_target_probability_distribution=tf.constant(np.random.normal(loc=0.0, scale=1.0, size=bias_predictor_output.shape))
+     bias_predictor_cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels=Q_bias_target_probability_distribution,logits=bias_predictor_output)
      bias_predictor_loss = tf.reduce_mean(bias_predictor_cross_entropy)
 
    ##

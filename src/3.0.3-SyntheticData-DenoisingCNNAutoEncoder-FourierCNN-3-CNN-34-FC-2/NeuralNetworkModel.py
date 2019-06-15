@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from header import *
 from data import *
-from AutoEncoder import *
 
 
 ##
@@ -9,25 +8,25 @@ from AutoEncoder import *
 ## CNN LAYERS + LSTM LAYERS + FULLY CONNECTED LAYER + SOFTMAX
 ##
 class NeuralNetworkModel :
- def __init__(self, session, logger, autoEncoder,
-              output_size=OUTPUT_SIZE , 
+ def __init__(self, session, logger, autoEncoder, 
+              input_size=INPUT_SIZE, output_size=OUTPUT_SIZE , 
               cnn_kernel_counts=CNN_KERNEL_COUNTS, 
               cnn_kernel_x_sizes=CNN_KERNEL_X_SIZES,cnn_kernel_y_sizes=CNN_KERNEL_Y_SIZES,
               cnn_stride_x_sizes=CNN_STRIDE_X_SIZES,cnn_stride_y_sizes=CNN_STRIDE_Y_SIZES,
               cnn_pool_x_sizes=CNN_POOL_X_SIZES,cnn_pool_y_sizes=CNN_POOL_Y_SIZES, 
-              learning_rate=LEARNING_RATE, mini_batch_size=int(MINI_BATCH_SIZE+MINI_BATCH_SIZE_FOR_GENERATED_DATA),
+              learning_rate=LEARNING_RATE, mini_batch_size=MINI_BATCH_SIZE,
               learning_rate_beta1=LEARNING_RATE_BETA1, 
               learning_rate_beta2=LEARNING_RATE_BETA2, 
               epsilon=EPSILON,keep_prob_constant=KEEP_PROB,
-              fully_connected_layers=FULLY_CONNECTED_LAYERS):
+              fully_connected_layers=FULLY_CONNECTED_LAYERS,
+              fourier_cnn_layers=FOURIER_CNN_LAYERS):
 
    ##
    ## SET CLASS ATTRIBUTES WITH THE GIVEN INPUTS
    ##
    self.session               = session
    self.logger                = logger
-   self.autoEncoder           = autoEncoder
-   self.input_size            = autoEncoder.encoder.shape[1]
+   self.input_size            = input_size
    self.input_size_y          = 1
    self.output_size           = output_size
    self.cnn_kernel_counts     = cnn_kernel_counts
@@ -43,7 +42,10 @@ class NeuralNetworkModel :
    self.mini_batch_size       = mini_batch_size
    self.keep_prob_constant    = keep_prob_constant
    self.epsilon               = epsilon
-   self.fully_connected_layers=fully_connected_layers
+   self.fully_connected_layers= fully_connected_layers
+   self.fourier_cnn_layers    = fourier_cnn_layers
+   self.autoEncoder           = autoEncoder
+
 
    self.keep_prob = tf.placeholder(tf.float32)
 
@@ -65,13 +67,73 @@ class NeuralNetworkModel :
    self.x_input                      = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.input_size), name="input")
    last_layer_output=self.x_input
 
-
+   ##
+   ## RESHAPE
+   ##
    with tf.name_scope('input_reshape'):
      self.x_input_reshaped = tf.reshape(last_layer_output, [self.mini_batch_size, self.input_size_y, last_layer_output.shape[1], number_of_input_channels])
      self.logger.info("self.x_input_reshaped.shape="+str(self.x_input_reshaped.shape))
+     previous_level_convolution_output = self.x_input_reshaped
 
-   previous_level_convolution_output = self.x_input_reshaped
-   for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
+
+   ##
+   ## FOURIER  CNN LAYERS
+   ##
+   with tf.name_scope('fourier_CNN'):
+    for fourierCNNLayerNo in range(len(self.fourier_cnn_layers)) :
+     self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
+     cnnLayerName    = "fourier-cnn-"+str(fourierCNNLayerNo)     
+     cnnKernelCount  = self.fourier_cnn_layers[fourierCNNLayerNo]   
+     # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
+     cnnKernelSizeX  = 1
+     cnnKernelSizeY  = 3        
+     cnnStrideSizeX  = 1 
+     cnnStrideSizeY  = 1                     
+     cnnPoolSizeX    = 1
+     cnnPoolSizeY    = 2
+     cnnOutputChannel= cnnKernelCount   
+     if fourierCNNLayerNo == 0 :
+       cnnInputChannel = 1
+     else :
+       cnnInputChannel = self.fourier_cnn_layers[int(fourierCNNLayerNo-1)]   
+
+
+     with tf.name_scope(cnnLayerName+"-convolution"):
+       W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
+       B = tf.Variable(tf.constant(0.1, shape=[cnnOutputChannel]))
+       C = tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,cnnStrideSizeX, cnnStrideSizeY, 1], padding='SAME')+B
+
+       self.logger.info(cnnLayerName+"_C.shape="+str(C.shape)+"  W.shape="+str(W.shape)+ "  cnnStrideSizeX="+str(cnnStrideSizeX)+" cnnStrideSizeY="+str(cnnStrideSizeY))
+     
+     ## no relu,  fourier transformation is linear.
+     H=C
+     
+     #with tf.name_scope(cnnLayerName+"-relu"):  
+     #  H = tf.nn.relu(C)
+     #  self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
+
+     if cnnPoolSizeY != 1 :
+      with tf.name_scope(cnnLayerName+"-pool"):
+       P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
+       ## put the output of this layer to the next layer's input layer.
+       previous_level_convolution_output=P
+       self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
+     else :
+       ## no residual for layer liner CNN as fourier transform.
+       previous_level_convolution_output=H
+
+     previous_level_kernel_count=cnnKernelCount
+     fourierCNNOutput=previous_level_convolution_output
+
+
+
+
+
+   ##
+   ## CNN LAYERS
+   ##
+
+    for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
      self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
      cnnLayerName    = "cnn-"+str(cnnLayerNo)     
      cnnKernelCount  = self.cnn_kernel_counts[cnnLayerNo]   # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
@@ -83,7 +145,7 @@ class NeuralNetworkModel :
      cnnPoolSizeY    = self.cnn_pool_y_sizes[cnnLayerNo]      
      cnnOutputChannel= cnnKernelCount   
      if cnnLayerNo == 0 :
-       cnnInputChannel = 1
+       cnnInputChannel = int (fourierCNNOutput.shape[3])
      else :
        cnnInputChannel = self.cnn_kernel_counts[int(cnnLayerNo-1)]   
 
@@ -219,7 +281,6 @@ class NeuralNetworkModel :
   x_data=data[:,:4*SOUND_RECORD_SAMPLING_RATE]
   if augment==True :
     x_data=augment_random(x_data)
-  x_data,encodeTime=self.autoEncoder.encode(x_data)
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
   return x_data,y_data_one_hot_encoded
@@ -228,6 +289,7 @@ class NeuralNetworkModel :
   augment=True
   prepareDataTimeStart = int(round(time.time())) 
   x_data,y_data=self.prepareData(data,augment)
+  x_data,encodeTime=self.autoEncoder.denoise(x_data)
   prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   trainingTimeStart = int(round(time.time())) 
@@ -241,6 +303,7 @@ class NeuralNetworkModel :
   testTimeStart = int(round(time.time())) 
   augment=False
   x_data,y_data=self.prepareData(data,augment) 
+  x_data,encodeTime=self.autoEncoder.denoise(x_data)
   testAccuracy = self.accuracy.eval(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob: 1.0})
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
