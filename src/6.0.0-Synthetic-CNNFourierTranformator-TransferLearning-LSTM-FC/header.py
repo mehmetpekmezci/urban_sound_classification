@@ -28,64 +28,41 @@ LSTM        = importlib.import_module("keras.layers.LSTM")
 Dropout     = importlib.import_module("keras.layers.Dropout")
 Dense       = importlib.import_module("keras.layers.Dense")
 
+
 SCRIPT_DIR  = os.path.dirname(os.path.realpath(__file__))
 uscLogger   = USCLogger(SCRIPT_DIR)
 tfSummary   = TFSummary(SCRIPT_DIR)
 dataObject  = Data(uscLogger.logger,SCRIPT_DIR)
 SAVE_DIR    = SCRIPT_DIR+"/../../save/"+uscLogger.SCRIPT_NAME
-
-
-
-
-   
+config = tf.ConfigProto()
+config.gpu_options.allow_growth=True
 ##
 ## GENERAL CONSTANTS
 ##
 OUTPUT_SIZE=NUMBER_OF_CLASSES
 INPUT_SIZE=TRACK_LENGTH
 FULLY_CONNECTED_LAYER=2048
-
 NUMBER_OF_INNER_HAIR_CELLS=3500
 NUMBER_OF_AFFERENT_NERVES_PER_INNER_HAIR_CELL=10
-
 FOURIER_CNN_NUMBER_OF_LAYERS=3
 FOURIER_CNN_NUMBER_OF_KERNELS=128
 FOURIER_CNN_KERNEL_SIZE=128
 FOURIER_CNN_STRIDE_SIZE=1
 FOURIER_CNN_POOL_SIZE=1
-
-
 AUTOENCODER_TRAINING_ITERATIONS=100
-
-
 ##
 ## TRAINING PARAMETERS
 ##
 LEARNING_RATE = 0.001
 TRAINING_ITERATIONS=9000
 MINI_BATCH_SIZE=50
-
 ##
 ## LSTM PARAMETERS
 ##
 NUMBER_OF_LSTM_LAYERS=1
 LSTM_STATE_SIZE=1024
 LSTM_FORGET_BIAS=0.5
-
 ##
 ## GLOBAL VARIABLES
 ##
 EPSILON = 1e-4
-MAX_VALUE_FOR_NORMALIZATION=0
-MIN_VALUE_FOR_NORMALIZATION=0
-fold_data_dictionary=dict()
-config = tf.ConfigProto()
-config.gpu_options.allow_growth=True
-
-
-
-LAST_AUGMENTATION_CHOICE=0
-
-
-
-

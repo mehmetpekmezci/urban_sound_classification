@@ -4,9 +4,8 @@ from data import *
 from NeuralNetworkModel import *
 
 def main(_):
-  global fold_data_dictionary,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION
   # if not already done  : Download from internet , convert to  csv files.   
-  prepareData()
+  uscData.prepareData()
   # load all data into the memory
   MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION=load_all_np_data_back_to_memory(fold_data_dictionary)
   # normalize all the data

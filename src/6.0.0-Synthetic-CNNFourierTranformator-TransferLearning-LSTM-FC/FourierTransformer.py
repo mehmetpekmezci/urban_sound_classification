@@ -2,11 +2,6 @@
 from header import *
 from data import *
 
-
-##
-## NueralNetworkModel will be as :
-## CNN LAYERS + LSTM LAYERS + FULLY CONNECTED LAYER + SOFTMAX
-##
 class FourierTransformer :
  def __init__(self,session,logger):
 
