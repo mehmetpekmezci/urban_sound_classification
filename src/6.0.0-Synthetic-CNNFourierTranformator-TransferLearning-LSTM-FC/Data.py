@@ -3,7 +3,7 @@ from header import *
 
 class Data :
 
- def __init__(self,logger,self.SCRIPT_DIR):
+ def __init__(self,logger,SCRIPT_DIR):
    self.logger=logger
    self.SCRIPT_DIR=SCRIPT_DIR
    self.FOLD_DIRS=['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
@@ -24,7 +24,19 @@ class Data :
    self.MIN_VALUE_FOR_NORMALIZATION=0
    self.FOLD_DATA_DICTIONARY=dict()
    self.LAST_AUGMENTATION_CHOICE=0
-
+   ##self.MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=3500 ## 3500 different frequencies may be sensed by humn ear at an instance. (There are 3500 inner hair cells in the cochlea)
+   self.MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=350 ## 3500 different frequencies may be sensed by humn ear at an instance. (There are 3500 inner hair cells in the cochlea)
+   self.ANALYZED_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=50 ## 3500 different frequencies may be sensed by humn ear at an instance. (There are 3500 inner hair cells in the cochlea)
+   self.MAX_HEARING_FREQUENCY=20000 ## 20KHz Max hearing freq of humans.
+   self.GENERATED_DATA=dict()
+   self.NUMBER_OF_SYNTHETIC_TRAINNG_SAMPLES=100000
+   
+   self.FOURIER_TRANSFORMER_INPUT_SIZE=TRACK_LENGTH ## 88200
+   self.FOURIER_TRANSFORMER_OUTPUT_SIZE=self.NUMBER_OF_TIME_SLICES*self.ANALYZED_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE
+   self.CLASSIFIER_OUTPUT_SIZE=self.ANALYZED_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE
+   self.CLASSIFIER_INPUT_SIZE=TRACK_LENGTH
+   
+   
 
  def parse_audio_files(self):
     sub4SecondSoundFilesCount=0
@@ -216,14 +228,14 @@ class Data :
    self.logger.info("self.x_input[0].shape"+str(self.x_input_list[0].shape))
    return x_input_list
 
- def generate_single_synthetic_sample(self,MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE,self.SOUND_RECORD_SAMPLING_RATE,DURATION,MAX_HEARING_FREQUENCY):
+ def generate_single_synthetic_sample(self):
     generated_data=np.zeros(DURATION*self.SOUND_RECORD_SAMPLING_RATE,np.float32)
     randomValue=np.random.rand()
-    number_of_frequencies=int(randomValue*MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE)
+    number_of_frequencies=int(randomValue*self.MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE)
     for i in range(number_of_frequencies):
       randomValue=np.random.rand()
-      frequency=randomValue*MAX_HEARING_FREQUENCY # this generates 0-10000 float number,  from uniform dist.
-      duration=randomValue*DURATION # this generates 0-4 float number,  from uniform dist.
+      frequency=randomValue*self.MAX_HEARING_FREQUENCY # this generates 0-10000 float number,  from uniform dist.
+      duration=randomValue*self.DURATION # this generates 0-4 float number,  from uniform dist.
       volume=randomValue*5
       sine_cosine_choice=int(randomValue*2)
       frequency_data=2*np.pi*np.arange(self.SOUND_RECORD_SAMPLING_RATE*duration)*frequency/self.SOUND_RECORD_SAMPLING_RATE
@@ -242,28 +254,25 @@ class Data :
     return generated_data
 
  def generate_normalized_synthetic_samples(self,fold):
-    GENERATED_DATA=dict()
-    if fold not in GENERATED_DATA :
-      if os.path.exists(self.MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy"):
-        self.logger.info("Loading Already Generated Synthetic Sound Sample Data from "+self.MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy")
-        GENERATED_DATA[fold]=np.load(self.MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy")
+    if fold not in self.GENERATED_DATA :
+      if os.path.exists(self.MAIN_DATA_DIR+"/2.np/generated-data-"+fold+".npy"):
+        self.logger.info("Loading Already Generated Synthetic Sound Sample Data from "+self.MAIN_DATA_DIR+"/2.np/generated-data-"+fold+".npy")
+        self.GENERATED_DATA[fold]=np.load(self.MAIN_DATA_DIR+"/2.np/generated-data-"+fold+".npy")
       else :
         self.logger.info("Starting to Generate Synthetic Sound Sample Data for fold "+str(fold))
-        global NUMBER_OF_SYNTHETIC_TRAINNG_SAMPLES,MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE,self.SOUND_RECORD_SAMPLING_RATE,DURATION,MAX_HEARING_FREQUENCY
-        samples=np.zeros((NUMBER_OF_SYNTHETIC_TRAINNG_SAMPLES,DURATION*self.SOUND_RECORD_SAMPLING_RATE),np.float32)
-        for i in range(NUMBER_OF_SYNTHETIC_TRAINNG_SAMPLES):
-          samples[i]=self.generate_single_synthetic_sample(MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE,self.SOUND_RECORD_SAMPLING_RATE,DURATION,MAX_HEARING_FREQUENCY)
+        samples=np.zeros((self.NUMBER_OF_SYNTHETIC_TRAINNG_SAMPLES,self.DURATION*self.SOUND_RECORD_SAMPLING_RATE),np.float32)
+        for i in range(self.NUMBER_OF_SYNTHETIC_TRAINNG_SAMPLES):
+          samples[i]=self.generate_single_synthetic_sample()
         max_value=np.amax(samples)
         min_value=np.amin(samples)
         samples=normalize(samples,max_value,min_value)
-        GENERATED_DATA[fold]=samples
+        self.GENERATED_DATA[fold]=samples
         self.logger.info("Saving Generated Synthetic Sound Sample Data to "+self.MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy")
-        np.save(self.MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy", samples)
+        np.save(self.MAIN_DATA_DIR+"/2.np/generated-data-"+fold+".npy", samples)
         self.logger.info("Finished to Generate Synthetic Sound Sample Data for fold "+str(fold))
-    return  GENERATED_DATA[fold]
+    return  self.GENERATED_DATA[fold]
 
  def play_sound(self,sound_data):
-  global self.SOUND_RECORD_SAMPLING_RATE
   self.logger.info("sound_data.shape="+str(sound_data.shape))
   self.logger.info("SOUND_RECORD_SAMPLING_RATE="+str(self.SOUND_RECORD_SAMPLING_RATE))
   p = pyaudio.PyAudio()
