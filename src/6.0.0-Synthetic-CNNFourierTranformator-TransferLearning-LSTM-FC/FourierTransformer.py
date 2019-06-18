@@ -336,4 +336,152 @@ with tf.Session() as sess:
     plt.imshow(canvas_recon, origin="upper", cmap="gray")
     plt.show()
 '''
+def buildAlexNet(inputShape,activationFn,learningRateAdjustmentType,denseNodeCount,removeThirdLayerFromOutput,removeFourthLayerFromOutput):
+    #denseNodeCount=4096
+    #activationFn='relu'
+    #activationFn='sigmoid'
+    #activationFn='tanh'
 
+    model = Sequential()
+
+    ##Normally i would prefer smaller kernels because our data (28x28) is different than Alex's case (224x224x3)
+    ## But just to experience how it behaves, i let the kernel sizes as they are in AlexNet.
+    
+    # 1st Convolutional Layer
+    model.add(Conv2D(filters=96, input_shape=inputShape, kernel_size=(11,11),strides=(4,4), padding='valid'))
+    model.add(Activation(activationFn))
+    # Pooling
+    ## Normally Alexnet has 3x3 pooling but, data gets too  small if i do it. So we did 2x2 pooling.
+    model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='same'))
+    # Batch Normalisation before passing it to the next layer
+    # Normally "local response normalization" is used within AlexNet.
+    # But we use "batch normalization" here, instead of "local response normalization" .
+    model.add(BatchNormalization())
+
+     # 2nd Convolutional Layer
+    model.add(Conv2D(filters=256, kernel_size=(5,5), strides=(1,1), padding='same'))
+    model.add(Activation(activationFn))
+    # Pooling
+    model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='same'))
+    # Batch Normalisation before passing it to the next layer
+    # Normally "local response normalization" is used within AlexNet.
+    # But we use "batch normalization" here, instead of "local response normalization" .
+    model.add(BatchNormalization())
+    
+
+    # 3rd Convolutional Layer
+    model.add(Conv2D(filters=384, kernel_size=(3,3), strides=(1,1), padding='same'))
+    model.add(Activation(activationFn))
+    # Batch Normalisation before passing it to the next layer
+    # Normally "local response normalization" is used within AlexNet.
+    # But we use "batch normalization" here, instead of "local response normalization" .
+    model.add(BatchNormalization())
+
+    # 4th Convolutional Layer
+    model.add(Conv2D(filters=384, kernel_size=(3,3), strides=(1,1), padding='same'))
+    model.add(Activation(activationFn))
+    # Batch Normalisation before passing it to the next layer
+    # Normally "local response normalization" is used within AlexNet.
+    # But we use "batch normalization" here, instead of "local response normalization" .
+    model.add(BatchNormalization())
+
+    
+    if removeFourthLayerFromOutput==0 :
+        # This layer is the fourth layer, counting from output.
+        # 5th Convolutional Layer
+        model.add(Conv2D(filters=256, kernel_size=(3,3), strides=(1,1), padding='same'))
+        model.add(Activation('relu'))
+        # Pooling
+        model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='same'))
+        # Batch Normalisation before passing it to the next layer
+        # Normally "local response normalization" is used within AlexNet.
+        # But we use "batch normalization" here, instead of "local response normalization" .
+        model.add(BatchNormalization())
+
+   
+    # Passing it to a dense layer
+    model.add(Flatten())
+        
+    if removeThirdLayerFromOutput==0 :        
+        # This layer is the third layer, counting from output.
+        # 1st Dense Layer
+        model.add(Dense(denseNodeCount))
+        model.add(Activation(activationFn))
+        # Add Dropout to prevent overfitting
+        model.add(Dropout(0.5))
+        # Batch Normalisation
+        model.add(BatchNormalization())
+
+    # 2nd Dense Layer
+    model.add(Dense(denseNodeCount))
+    model.add(Activation(activationFn))
+    # Add Dropout
+    model.add(Dropout(0.5))
+    # Batch Normalisation
+    model.add(BatchNormalization())
+
+    # 3rd Dense Layer
+    model.add(Dense(NumberOfClasses))
+    model.add(Activation('softmax'))
+
+
+    #model.summary()
+
+    if learningRateAdjustmentType==0:
+              modelOptimizer=keras.optimizers.SGD(lr=LearningRate, momentum=0.9, decay=0.0, nesterov=False)
+              #
+    elif learningRateAdjustmentType==1:
+              modelOptimizer=keras.optimizers.SGD(lr=LearningRate, momentum=0.0, decay=0.01, nesterov=False)
+              #LearningRate = LearningRate * 1/(1 + decay * epoch)
+    elif learningRateAdjustmentType==2:
+              modelOptimizer=keras.optimizers.Adam(lr=LearningRate, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.01)
+    # (4) Compile
+
+    model.compile(loss='categorical_crossentropy',optimizer=modelOptimizer,metrics=['accuracy'])
+              
+    return model
+
+
+
+def runMnistAlexnetCombinations(trainImages, trainLabels, testImages, testLabels, inputShape,denseNodeCount,removeThirdLayerFromOutput,removeThirdFourthLayerFromOutput):
+        for activationFn in ['relu','sigmoid','tanh']:
+            for learningRateAdjustmentType in range(2):
+                print('LearningRateAdjustmentType='+str(learningRateAdjustmentType))
+                model=buildAlexNet(inputShape,activationFn,learningRateAdjustmentType,denseNodeCount,removeThirdLayerFromOutput,removeThirdFourthLayerFromOutput)
+                history=model.fit(trainImages, trainLabels,batch_size=200,epochs=50,verbose=0,validation_data=(testImages, testLabels))
+                print('DenseNodeCount='+str(denseNodeCount)+
+                          ' ActivationFn='+str(activationFn)+
+                          ' LearningRateAdjustmentType='+str(learningRateAdjustmentType)+
+                          ' TrainingError='+str(history.history['loss'][-1])+
+                          ' TestError='+str(history.history['val_loss'][-1])
+                     )
+
+
+
+def homeworkPart2():
+    (trainImages, trainLabels), (testImages, testLabels) , inputShape=loadData()
+    removeThirdLayerFromOutput=0
+    removeThirdFourthLayerFromOutput=0
+    for denseNodeCount in [4096,4596,5096,5596]:
+        runMnistAlexnetCombinations(trainImages, trainLabels, testImages, testLabels, inputShape,denseNodeCount,removeThirdLayerFromOutput,removeThirdFourthLayerFromOutput)
+
+    ## Remove Third LAyer From
+    removeThirdLayerFromOutput=1
+    removeThirdFourthLayerFromOutput=0
+    denseNodeCount=496
+    runMnistAlexnetCombinations(trainImages, trainLabels, testImages, testLabels, inputShape,denseNodeCount,removeThirdLayerFromOutput,removeThirdFourthLayerFromOutput)
+
+    ## Remove Third and Fourth LAyer From
+    removeThirdLayerFromOutput=1
+    removeThirdFourthLayerFromOutput=0
+    denseNodeCount=1000
+    runMnistAlexnetCombinations(trainImages, trainLabels, testImages, testLabels, inputShape,denseNodeCount,removeThirdLayerFromOutput,removeThirdFourthLayerFromOutput)
+
+
+
+
+
+
+
+
+'''

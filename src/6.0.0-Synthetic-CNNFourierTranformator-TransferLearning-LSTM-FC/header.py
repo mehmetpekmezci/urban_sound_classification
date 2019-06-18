@@ -28,6 +28,12 @@ LSTM        = importlib.import_module("keras.layers.LSTM")
 Dropout     = importlib.import_module("keras.layers.Dropout")
 Dense       = importlib.import_module("keras.layers.Dense")
 
+from keras.layers import Dense, Dropout, Flatten,Activation
+from keras.layers import Conv2D, MaxPooling2D
+from keras.layers.normalization import BatchNormalization
+from keras import backend as K
+
+
 
 SCRIPT_DIR  = os.path.dirname(os.path.realpath(__file__))
 uscLogger   = USCLogger(SCRIPT_DIR)
