@@ -4,17 +4,8 @@ from data import *
 
 class FourierTransformer :
  def __init__(self,session,logger):
-
-   ##
-   ## SET CLASS ATTRIBUTES WITH THE GIVEN INPUTS
-   ##
    self.session               = session
    self.logger                = logger
-
-   ##
-   ## BUILD THE NETWORK
-   ##
-
    ##
    ## INPUT  LAYER
    ##
