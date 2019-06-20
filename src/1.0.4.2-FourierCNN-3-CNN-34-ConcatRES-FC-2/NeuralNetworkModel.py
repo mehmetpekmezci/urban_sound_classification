@@ -89,12 +89,13 @@ class NeuralNetworkModel :
      cnnStrideSizeX  = 1 
      cnnStrideSizeY  = 1                     
      cnnPoolSizeX    = 1
-     cnnPoolSizeY    = 2
+     cnnPoolSizeY    = 4
      cnnOutputChannel= cnnKernelCount   
      if fourierCNNLayerNo == 0 :
        cnnInputChannel = 1
      else :
-       cnnInputChannel = self.fourier_cnn_layers[int(fourierCNNLayerNo-1)]   
+       #cnnInputChannel = self.fourier_cnn_layers[int(fourierCNNLayerNo-1)]   
+       cnnInputChannel = int(previous_level_convolution_output.shape[3]) # previous_level_convolution_output's cnnOutputChannel size
 
 
      with tf.name_scope(cnnLayerName+"-convolution"):
@@ -106,20 +107,16 @@ class NeuralNetworkModel :
      
      ## no relu,  fourier transformation is linear.
      H=C
-     
-     #with tf.name_scope(cnnLayerName+"-relu"):  
-     #  H = tf.nn.relu(C)
-     #  self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
+     P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
 
-     if cnnPoolSizeY != 1 :
-      with tf.name_scope(cnnLayerName+"-pool"):
-       P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
-       ## put the output of this layer to the next layer's input layer.
+     with tf.name_scope(cnnLayerName+"-residual"):
+      if fourierCNNLayerNo > 0 :
+       W = tf.Variable(tf.truncated_normal([1, 1, int(previous_level_convolution_output.shape[3]), int(P.shape[3])], stddev=0.1))
+       previous_level_convolution_output=tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,1, 1, 1], padding='SAME')
+       previous_level_convolution_output=tf.nn.max_pool(previous_level_convolution_output, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME')
+       previous_level_convolution_output=tf.concat((P,previous_level_convolution_output),2)
+      else :
        previous_level_convolution_output=P
-       self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
-     else :
-       ## no residual for layer liner CNN as fourier transform.
-       previous_level_convolution_output=H
 
      previous_level_kernel_count=cnnKernelCount
      fourierCNNOutput=previous_level_convolution_output
@@ -164,26 +161,19 @@ class NeuralNetworkModel :
      if cnnPoolSizeY != 1 :
       with tf.name_scope(cnnLayerName+"-pool"):
        P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
-       previous_level_convolution_output_Pooled= tf.nn.max_pool(previous_level_convolution_output, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME')
+       previous_level_convolution_output= tf.nn.max_pool(previous_level_convolution_output, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME')
        ## put the output of this layer to the next layer's input layer.
        self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
      else :
        P=H
      #else :
      # if previous_level_kernel_count==cnnKernelCount :
-     if cnnLayerNo > 0 :
-      with tf.name_scope(cnnLayerName+"-residual"):
-       #previous_level_convolution_output=H+previous_level_convolution_output
-       previous_level_convolution_output=tf.concat((P,previous_level_convolution_output_Pooled),2)
-
-       ## put the output of this layer to the next layer's input layer.
-       self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
-     else :
-       previous_level_convolution_output=P
-       self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
-      #else :
-      #   ## put the output of this layer to the next layer's input layer.
-      #   previous_level_convolution_output=H
+     with tf.name_scope(cnnLayerName+"-residual"):
+      if cnnLayerNo == 0 :
+       previous_level_convolution_output=tf.concat((P,previous_level_convolution_output),2)
+      else :
+       previous_level_convolution_output=tf.concat((P,previous_level_convolution_output),2)
+      self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
 
      previous_level_kernel_count=cnnKernelCount
      cnn_last_layer_output=previous_level_convolution_output
