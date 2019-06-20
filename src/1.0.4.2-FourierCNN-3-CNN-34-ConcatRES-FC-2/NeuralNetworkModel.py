@@ -174,7 +174,7 @@ class NeuralNetworkModel :
      if cnnLayerNo > 0 :
       with tf.name_scope(cnnLayerName+"-residual"):
        #previous_level_convolution_output=H+previous_level_convolution_output
-       previous_level_convolution_output=tf.concat((P,previous_level_convolution_output_Pooled),1)
+       previous_level_convolution_output=tf.concat((P,previous_level_convolution_output_Pooled),2)
 
        ## put the output of this layer to the next layer's input layer.
        self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
