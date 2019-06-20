@@ -132,6 +132,7 @@ class NeuralNetworkModel :
    ## CNN LAYERS
    ##
 
+   with tf.name_scope('CNN'):
     for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
      self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
      cnnLayerName    = "cnn-"+str(cnnLayerNo)     
@@ -146,7 +147,8 @@ class NeuralNetworkModel :
      if cnnLayerNo == 0 :
        cnnInputChannel = int (fourierCNNOutput.shape[3])
      else :
-       cnnInputChannel = self.cnn_kernel_counts[int(cnnLayerNo-1)]   
+       cnnInputChannel = int(previous_level_convolution_output.shape[3]) # previous_level_convolution_output's cnnOutputChannel size
+       #cnnInputChannel = self.cnn_kernel_counts[int(cnnLayerNo-1)]   
 
 
      with tf.name_scope(cnnLayerName+"-convolution"):
@@ -165,13 +167,19 @@ class NeuralNetworkModel :
        previous_level_convolution_output_Pooled= tf.nn.max_pool(previous_level_convolution_output, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME')
        ## put the output of this layer to the next layer's input layer.
        self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
+     else :
+       P=H
      #else :
      # if previous_level_kernel_count==cnnKernelCount :
-     with tf.name_scope(cnnLayerName+"-residual"):
+     if cnnLayerNo > 0 :
+      with tf.name_scope(cnnLayerName+"-residual"):
        #previous_level_convolution_output=H+previous_level_convolution_output
        previous_level_convolution_output=tf.concat((P,previous_level_convolution_output_Pooled),1)
 
        ## put the output of this layer to the next layer's input layer.
+       self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
+     else :
+       previous_level_convolution_output=P
        self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
       #else :
       #   ## put the output of this layer to the next layer's input layer.
