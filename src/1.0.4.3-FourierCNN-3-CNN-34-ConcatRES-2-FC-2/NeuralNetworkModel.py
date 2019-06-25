@@ -73,7 +73,8 @@ class NeuralNetworkModel :
      self.x_input_reshaped = tf.reshape(last_layer_output, [self.mini_batch_size, self.input_size_y, last_layer_output.shape[1], number_of_input_channels])
      self.logger.info("self.x_input_reshaped.shape="+str(self.x_input_reshaped.shape))
      previous_level_convolution_output = self.x_input_reshaped
-
+   
+   firstLayer=self.x_input_reshaped
 
    ##
    ## FOURIER  CNN LAYERS
@@ -117,6 +118,7 @@ class NeuralNetworkModel :
        previous_level_convolution_output=tf.concat((P,previous_level_convolution_output),2)
       else :
        previous_level_convolution_output=P
+       firstLayer=previous_level_convolution_output
 
      previous_level_kernel_count=cnnKernelCount
      fourierCNNOutput=previous_level_convolution_output
@@ -177,7 +179,14 @@ class NeuralNetworkModel :
 
      previous_level_kernel_count=cnnKernelCount
      cnn_last_layer_output=previous_level_convolution_output
-   
+  
+
+     ## RESIDUAL FROM FIRST LAYER TO LAST LAYER
+
+     W = tf.Variable(tf.truncated_normal([1, 1, int(firstLayer.shape[3]), int(cnn_last_layer_output.shape[3])], stddev=0.1))
+     firstLayer=tf.nn.conv2d(firstLayer,W,strides=[1,1, 1, 1], padding='SAME')
+     firstLayer=tf.nn.max_pool(firstLayer, ksize=[1, 1,8, 1],strides=[1, 1,8 , 1], padding='SAME')
+     cnn_last_layer_output=tf.concat((firstLayer,cnn_last_layer_output),2)
    ##
    ## FULLY CONNECTED LAYERS
    ##Linear activation (FC layer on top of the RESNET )
