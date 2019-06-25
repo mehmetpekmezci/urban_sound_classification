@@ -14,3 +14,12 @@ stream.write(volume*samples)
 stream.stop_stream()
 stream.close()
 p.terminate()
+
+
+### NOTE:  3500 Inner Hair Cell, each connected to ~10 neurons, they connect to auditory nucleus, then signals are transferred to the auditory cortex1 then to cortex2
+###        Humans can hear 20Hz to 20 000Hz
+###        Human  voice frq : 100 to 10000 Hz
+###        Human  talk voice frq : 100 to 8000 Hz
+###        Asagidaki calismadi:
+###        Softmax'de history tut. Weighted Correction by history. Eg. onehot 3'te 0.2 var ama 0 olması lazım, duzeltme olarak 0.2 degil de son K tane errorun ortalamasini verelim. (K=10 ?)
+
