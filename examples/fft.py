@@ -9,6 +9,8 @@ X[i]=energy value for  i*fs/window_size, i=0 to window_size
 
 20-20K Hz human hearing
 
+TIME_SLICE=441 --> optimum value for 22050 ( par raport aux graphs)
+
 '''
 
 
@@ -17,6 +19,8 @@ import matplotlib.pyplot as plt
 import plotly.plotly as py
 import librosa as librosa
 import pyaudio as pyaudio
+
+TIME_SLICE=440
 
 SOUND_RECORD_SAMPLING_RATE=22050
 def play_sound(sound_data):
@@ -35,12 +39,12 @@ def generate_single_synthetic_sample():
     generated_data=np.zeros(88200,np.float32)
     randomValue=np.random.rand()
     number_of_frequencies=int(randomValue*50)
-    #print("generated_data[0:440]="+str(generated_data[0:440]))
+    #print("generated_data[0:TIME_SLICE]="+str(generated_data[0:TIME_SLICE]))
     #print("number_of_frequencies:"+str(number_of_frequencies))
     for i in range(number_of_frequencies):
       randomValue=np.random.rand()
       frequency=randomValue*10000 # this generates 0-10000 float number,  from uniform dist.
-                                  #  frequencies between 10000-20000 is not heard well . so we ignore them. Also sampling rate 22050 only allows to detect 440 frequency.
+                                  #  frequencies between 10000-20000 is not heard well . so we ignore them. Also sampling rate 22050 only allows to detect TIME_SLICE frequency.
       duration=randomValue*4 # this generates 0-4 float number,  from uniform dist.
       volume=randomValue*5
       #volume=5
@@ -53,18 +57,18 @@ def generate_single_synthetic_sample():
       current_frequency_data=volume*wave_data
       start_point=int(randomValue*2000)
       #start_point=0
-      if start_point <= 440 :
+      if start_point <= TIME_SLICE :
          print("frequency-"+str(i)+":"+str(frequency)+"  start_point:"+str(start_point))
       generated_data[start_point:start_point+current_frequency_data.shape[0]]+=current_frequency_data[0:int(current_frequency_data.shape[0]-start_point)]
-      #print("generated_data[0:440]="+str(generated_data[0:440]))
+      #print("generated_data[0:TIME_SLICE]="+str(generated_data[0:TIME_SLICE]))
     return generated_data
 
 y=generate_single_synthetic_sample()
 
 #play_sound(y)
 
-y=y[0:440]
-play_sound(y)
+y=y[0:TIME_SLICE]
+#play_sound(y)
 
 #print(y)
 
@@ -93,7 +97,7 @@ for i in range(int(n/2)):
 Y = np.fft.fft(y) # fft computing and normalization
 Yabs = np.abs(np.fft.fft(y)) # fft computing and normalization
 #Y = Y[range(int(n/2))]
-fig, ax = plt.subplots(3, 1)
+fig, ax = plt.subplots(4, 1)
 #ax[0].plot(t,y)
 ax[0].plot(k,y)
 ax[0].set_xlabel('Time')
@@ -112,4 +116,24 @@ ax[2].set_xlabel('Freq')
 ax[2].set_ylabel('Amplitude')
 
 
+freqsPooled=freqs[::10]
+YabsPooled=np.zeros(int(Yabs.shape[0]/10))
+for i in range(int(freqsPooled.shape[0])):
+    print(Yabs[i:i+10])
+    YabsPooled[i]=np.max(Yabs[i:i+10])
+    print(YabsPooled[i])
+
+print(YabsPooled)
+
+
+ax[3].plot(freqsPooled,YabsPooled,'r') # plotting the spectrum
+ax[3].set_xlabel('Freq')
+ax[3].set_ylabel('Amplitude')
+
+
 plt.show()
+
+
+
+
+
