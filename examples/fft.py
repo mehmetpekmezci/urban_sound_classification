@@ -107,6 +107,11 @@ ax[0].set_ylabel('Amplitude')
 #ax[1].set_ylabel('|Y(freq)|')
 #Y=Y/100
 #print(Y)
+
+freqs=freqs[:int(freqs.shape[0]/2)]
+Yabs=Yabs[:int(Yabs.shape[0]/2)]
+Y=Y[:int(Y.shape[0]/2)]
+
 ax[1].plot(freqs,Yabs,'r') # plotting the spectrum
 ax[1].set_xlabel('FreqAbs')
 ax[1].set_ylabel('Amplitude')
@@ -118,11 +123,14 @@ ax[2].set_ylabel('Amplitude')
 
 freqsPooled=freqs[::10]
 YabsPooled=np.zeros(int(Yabs.shape[0]/10))
-for i in range(int(freqsPooled.shape[0])):
+for i in range(0,int(freqsPooled.shape[0]),10):
     print(Yabs[i:i+10])
-    YabsPooled[i]=np.max(Yabs[i:i+10])
-    print(YabsPooled[i])
+    j=int((i+1)/10)
+    YabsPooled[j]=np.max(Yabs[i:i+10])
+    print(YabsPooled[j])
 
+#print(freqsPooled)
+print(Yabs)
 print(YabsPooled)
 
 
