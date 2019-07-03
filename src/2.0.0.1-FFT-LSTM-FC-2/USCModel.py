@@ -13,7 +13,7 @@ class USCModel :
    self.uscLogger             = uscLogger
    self.uscData               = uscData
    self.mini_batch_size       = 100
-   self.lstm_size             = 256
+   self.lstm_size             = 2
    #self.lstm_time_steps       = 20
    self.training_iterations   = 1000
    config = tf.ConfigProto()
@@ -35,8 +35,9 @@ class USCModel :
   x_data=data[:,:4*self.uscData.sound_record_sampling_rate]
   if augment==True :
     x_data=self.uscData.augment_random(x_data)
-  x_data=self.uscData.overlapping_slice(x_data)
+  x_data=self.uscData.overlapping_hanning_slice(x_data)
   x_data=self.uscData.fft(x_data)
+  x_data=self.uscData.normalize(x_data)
   y_data=data[:,4*self.uscData.sound_record_sampling_rate]
   y_data_one_hot_encoded=self.uscData.one_hot_encode_array(y_data)
   return x_data,y_data_one_hot_encoded
@@ -46,27 +47,24 @@ class USCModel :
   augment=True
   prepareDataTimeStart = int(round(time.time())) 
   x_data,y_data=self.prepareData(data,augment)
-  #fftListOfData=applyFFT(inputList)
   prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
-  return 0,0,prepareDataTime
   trainingTimeStart = int(round(time.time())) 
-
-  self.model.fit(x_data, y_data, epochs = 1, batch_size = self.mini_batch_size,verbose=2)
-  
+  self.model.fit(x_data, y_data, epochs = 1, batch_size = self.mini_batch_size,verbose=0)
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
-  evaluation = self.model.evaluate(x_data, y_data)
-  trainingAccuracy = evaluation['acc']
+  evaluation = self.model.evaluate(x_data, y_data, batch_size = self.mini_batch_size)
+  trainingAccuracy = evaluation[1]
+  #print(self.model.metrics_names) 
+  #print(evaluation) 
   return trainingTime,trainingAccuracy,prepareDataTime
      
  def test(self,data):
-  return 0,0
   testTimeStart = int(round(time.time())) 
   augment=False
   x_data,y_data=self.prepareData(data,augment) 
-  evaluation = self.model.evaluate(x_data, y_data)
-  testAccuracy = evaluation['acc']
+  evaluation = self.model.evaluate(x_data, y_data,batch_size = self.mini_batch_size)
+  testAccuracy = evaluation[1]
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
   return testTime,testAccuracy

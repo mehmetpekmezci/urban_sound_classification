@@ -116,9 +116,9 @@ class USCData :
     np.save(self.main_data_dir+"/2.np/minmax.npy",[min_value_for_normalization,max_value_for_normalization]) 
     self.logger.info ("save_as_np function finished ...")
 
- def normalize(self,data,max_value_for_normalization,min_value_for_normalization):
-    data_normalized=(data-min_value_for_normalization)/(max_value_for_normalization-min_value_for_normalization)
-    return data_normalized
+ def normalize(self,data):
+    normalized_data = data/np.linalg.norm(data) 
+    return normalized_data
 
  def one_hot_encode_array(self,arrayOfYData):
     returnMatrix=np.empty([0,self.number_of_classes]);
@@ -147,25 +147,8 @@ class USCData :
     return max_value_for_normalization,min_value_for_normalization
    
 
- def normalize_all_data(self,fold_data_dictionary,max_value_for_normalization,min_value_for_normalization):
-    self.logger.info ("normalize_all_data function started ...")
-    for fold in self.fold_dirs:
-      for i in range(fold_data_dictionary[fold].shape[0]) :
-         loadedData=fold_data_dictionary[fold][i]
-         loadedDataX=loadedData[:4*self.sound_record_sampling_rate]
-         loadedDataY=loadedData[4*self.sound_record_sampling_rate]
-         normalizedLoadedDataX=normalize(loadedDataX,max_value_for_normalization,min_value_for_normalization)
-         fold_data_dictionary[fold][i]=np.append(normalizedLoadedDataX,loadedDataY)
-    self.logger.info ("normalize_all_data function finished ...")
-    return fold_data_dictionary
-
  def get_fold_data(self,fold):
     return np.random.permutation(self.fold_data_dictionary[fold])
-
-
- def slice_data(self,data,NUMBER_OF_TIME_SLICES) :
-    return np.reshape(data,[-1,NUMBER_OF_TIME_SLICES,int(data.shape[1]/NUMBER_OF_TIME_SLICES)])
-  
 
  def augment_speedx(self,sound_array, factor):
     """ Multiplies the sound's speed by some `factor` """
@@ -208,13 +191,16 @@ class USCData :
          #augmented_data[i]=self.augment_volume(augmented_data[i],VOLUME_FACTOR)
     return augmented_data
 
- def overlapping_slice(self,x_data):
+ def overlapping_hanning_slice(self,x_data):
     sliced_and_overlapped_data=np.zeros([self.mini_batch_size,self.number_of_time_slices,self.time_slice_length])
     step=self.time_slice_length-self.time_slice_overlap_length
+    hanning_window=np.hanning(self.time_slice_length)
     for i in range(self.mini_batch_size):
         for j in range(self.number_of_time_slices):
             step_index=j*step
+            #sliced_and_overlapped_data[i,j]=x_data[i,step_index:step_index+self.time_slice_length]
             sliced_and_overlapped_data[i,j]=x_data[i,step_index:step_index+self.time_slice_length]
+            sliced_and_overlapped_data[i,j]*=hanning_window
     #self.logger.info(sliced_and_overlapped_data.shape)
     #self.logger.info(sliced_and_overlapped_data[0][100][step])
     #self.logger.info(sliced_and_overlapped_data[0][101][0])
@@ -229,8 +215,4 @@ class USCData :
     x_data = np.abs(np.fft.fft(x_data))
     #self.logger.info("x_data[15][25][18]="+str(x_data[15][25][18]))
     return x_data
-    #windowed_frames_list = inputList * tf.contrib.signal.hann_window(self.time_slice_length, periodic=True)
-    #windowed_frames_list_FFT=tf.abs(tf.signal.fft(windowed_frames_list))
-    #windowed_frame_list_FFT_Normalized=tf.keras.utils.normalize(windowed_frame_list_FFT,axis=1)
-    #return windowed_frame_list_FFT_Normalized
 
