@@ -39,9 +39,11 @@ class USCModel :
   x_data=self.uscData.overlapping_hanning_slice(x_data)
   x_data=self.uscData.fft(x_data)
   x_data=self.uscData.normalize(x_data)
+  #x_data=np.reshape(x_data,[self.uscData.mini_batch_size,self.num_of_paralel_lstms,self.lstm_time_steps,self.uscData.time_slice_length])
+  x_data_list = tf.unstack(self.x_data, self.number_of_time_slices, 1)
   y_data=data[:,4*self.uscData.sound_record_sampling_rate]
   y_data_one_hot_encoded=self.uscData.one_hot_encode_array(y_data)
-  return x_data,y_data_one_hot_encoded
+  return x_data_list,y_data_one_hot_encoded
 
 
  def train(self,data):
