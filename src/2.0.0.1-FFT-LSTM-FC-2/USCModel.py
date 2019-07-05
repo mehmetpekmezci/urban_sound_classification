@@ -12,15 +12,17 @@ class USCModel :
    self.session               = session
    self.uscLogger             = uscLogger
    self.uscData               = uscData
-   self.mini_batch_size       = 100
+   self.mini_batch_size       = 10
    self.lstm_size             = 2
-   #self.lstm_time_steps       = 20
-   self.training_iterations   = 1000
+   ## self.uscData.time_slice_length = 440
+   ## so we will have nearly 400 time steps in 4 secs record. (88200) (with %50 overlapping)
+   ## so we again sliced the input data into 20 (num_of_paral_lstms)
+   ## each lstm cell works on one part only (for example lstm[0] works on the begginning of the data
+   self.num_of_paralel_lstms  = 20
+   self.lstm_time_steps       = int(self.uscData.number_of_time_slices/self.num_of_paralel_lstms)
+   self.training_iterations   = 10000
    config = tf.ConfigProto()
    config.gpu_options.allow_growth=True
-
-   self.real_y_values=tf.placeholder(tf.float32, shape=(self.uscData.mini_batch_size, self.uscData.number_of_classes), name="real_y_values")
-   self.x_input = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.uscData.track_length), name="input")
    self.buildModel()
 
  #def cutIntoLSTMSTepSizes(self,inputList):
@@ -70,14 +72,21 @@ class USCModel :
   return testTime,testAccuracy
   
  def buildModel(self):
-   self.model = keras.models.Sequential()
-   self.model.add(keras.layers.LSTM(self.lstm_size,dropout=0.2,recurrent_dropout=0.2,batch_input_shape=(self.mini_batch_size,self.uscData.number_of_time_slices,self.uscData.time_slice_length)))
-   self.model.add(keras.layers.Dropout(0.2))
-   self.model.add(keras.layers.Dense(units = 1024))
-   ## self.output_size == number of classes (which is 10 in our case)
-   self.model.add(keras.layers.Dense(self.uscData.number_of_classes, activation=tf.nn.softmax))
+   inputs=[]
+   lstm_outputs=[]
+   for i in range(self.num_of_paralel_lstms):
+     layer_input = keras.layers.Input(batch_shape=(self.mini_batch_size,self.lstm_time_steps,self.uscData.time_slice_length))
+     inputs.append(layer_input)
+     lstm_output=keras.layers.LSTM(self.lstm_size,dropout=0.2,recurrent_dropout=0.2)(layer_input)
+     lstm_outputs.append(lstm_output) 
+   out=keras.layers.Concatenate()(lstm_outputs)
+   # merged = Flatten()(merged)
+   out=keras.layers.Dense(units = 1024,activation='relu')(out)
+   out=keras.layers.Dropout(0.2)(out)
+   out=keras.layers.Dense(units = 1024,activation='relu')(out)
+   out=keras.layers.Dropout(0.2)(out)
+   out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
+   self.model = keras.models.Model(inputs=inputs, outputs=[out])
    self.model.compile(optimizer='adam', loss='categorical_crossentropy',metrics=['accuracy'])
-
-
 
 
