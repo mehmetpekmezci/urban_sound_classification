@@ -195,10 +195,13 @@ class USCData :
     sliced_and_overlapped_data=np.zeros([self.mini_batch_size,self.number_of_time_slices,self.time_slice_length])
     step=self.time_slice_length-self.time_slice_overlap_length
     hanning_window=np.hanning(self.time_slice_length)
+    print("self.mini_batch_size")
+    print(self.mini_batch_size)
+    print(self.number_of_time_slices)
+    print(x_data.shape)
     for i in range(self.mini_batch_size):
         for j in range(self.number_of_time_slices):
             step_index=j*step
-            #sliced_and_overlapped_data[i,j]=x_data[i,step_index:step_index+self.time_slice_length]
             sliced_and_overlapped_data[i,j]=x_data[i,step_index:step_index+self.time_slice_length]
             sliced_and_overlapped_data[i,j]*=hanning_window
     #self.logger.info(sliced_and_overlapped_data.shape)

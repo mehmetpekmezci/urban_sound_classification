@@ -12,7 +12,6 @@ class USCModel :
    self.session               = session
    self.uscLogger             = uscLogger
    self.uscData               = uscData
-   self.mini_batch_size       = 10
    self.lstm_size             = 2
    ## self.uscData.time_slice_length = 440
    ## so we will have nearly 400 time steps in 4 secs record. (88200) (with %50 overlapping)
@@ -52,10 +51,10 @@ class USCModel :
   prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   trainingTimeStart = int(round(time.time())) 
-  self.model.fit(x_data, y_data, epochs = 1, batch_size = self.mini_batch_size,verbose=0)
+  self.model.fit(x_data, y_data, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
-  evaluation = self.model.evaluate(x_data, y_data, batch_size = self.mini_batch_size)
+  evaluation = self.model.evaluate(x_data, y_data, batch_size = self.uscData.mini_batch_size)
   trainingAccuracy = evaluation[1]
   #print(self.model.metrics_names) 
   #print(evaluation) 
@@ -65,7 +64,7 @@ class USCModel :
   testTimeStart = int(round(time.time())) 
   augment=False
   x_data,y_data=self.prepareData(data,augment) 
-  evaluation = self.model.evaluate(x_data, y_data,batch_size = self.mini_batch_size)
+  evaluation = self.model.evaluate(x_data, y_data,batch_size = self.uscData.mini_batch_size)
   testAccuracy = evaluation[1]
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
@@ -75,7 +74,7 @@ class USCModel :
    inputs=[]
    lstm_outputs=[]
    for i in range(self.num_of_paralel_lstms):
-     layer_input = keras.layers.Input(batch_shape=(self.mini_batch_size,self.lstm_time_steps,self.uscData.time_slice_length))
+     layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.lstm_time_steps,self.uscData.time_slice_length))
      inputs.append(layer_input)
      lstm_output=keras.layers.LSTM(self.lstm_size,dropout=0.2,recurrent_dropout=0.2)(layer_input)
      lstm_outputs.append(lstm_output) 

@@ -22,11 +22,11 @@ def main(_):
     for fold in np.random.permutation(uscData.fold_dirs):
        #uscLogger.logger.info("  Fold : "+str(fold))
        current_fold_data=uscData.get_fold_data(fold)
-       for current_batch_counter in range(int(current_fold_data.shape[0]/uscModel.mini_batch_size)) :
-         if (current_batch_counter+1)*uscModel.mini_batch_size <= current_fold_data.shape[0] :
-           batch_data=current_fold_data[current_batch_counter*uscModel.mini_batch_size:(current_batch_counter+1)*uscModel.mini_batch_size,:]
+       for current_batch_counter in range(int(current_fold_data.shape[0]/uscData.mini_batch_size)) :
+         if (current_batch_counter+1)*uscData.mini_batch_size <= current_fold_data.shape[0] :
+           batch_data=current_fold_data[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size,:]
          else:
-           batch_data=current_fold_data[current_batch_counter*uscModel.mini_batch_size:,:]
+           batch_data=current_fold_data[current_batch_counter*uscData.mini_batch_size:,:]
          if fold == "fold10":
              ## FOLD10 is reserved for testing
               #uscLogger.logger.info("  Testing Batch Counter : "+str(current_batch_counter))
