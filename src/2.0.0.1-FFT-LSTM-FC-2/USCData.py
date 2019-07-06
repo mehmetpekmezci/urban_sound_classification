@@ -16,10 +16,8 @@ class USCData :
    self.sound_record_sampling_rate=22050 # 22050 sample points per second
    self.track_length=4*self.sound_record_sampling_rate # 4 seconds record
    self.time_slice_length=440
-   self.time_slice_overlap_length=220
-   a=self.track_length-self.time_slice_length
-   b=self.time_slice_length-self.time_slice_overlap_length
-   self.number_of_time_slices=int(int(a)/int(b)+1)
+   self.time_slice_overlap_length=265
+   self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
    self.mini_batch_size=100
    self.fold_data_dictionary=dict()
@@ -195,14 +193,15 @@ class USCData :
     sliced_and_overlapped_data=np.zeros([self.mini_batch_size,self.number_of_time_slices,self.time_slice_length])
     step=self.time_slice_length-self.time_slice_overlap_length
     hanning_window=np.hanning(self.time_slice_length)
-    print("self.mini_batch_size")
-    print(self.mini_batch_size)
-    print(self.number_of_time_slices)
-    print(x_data.shape)
     for i in range(self.mini_batch_size):
         for j in range(self.number_of_time_slices):
             step_index=j*step
-            sliced_and_overlapped_data[i,j]=x_data[i,step_index:step_index+self.time_slice_length]
+            if step_index+self.time_slice_length>x_data.shape[1]:
+                overlapped_time_slice=np.zeros(self.time_slice_length)
+                overlapped_time_slice[0:int(x_data.shape[1]-step_index)]=x_data[i,step_index:x_data.shape[1]]
+            else :
+                overlapped_time_slice=x_data[i,step_index:step_index+self.time_slice_length]
+            sliced_and_overlapped_data[i,j]=overlapped_time_slice
             sliced_and_overlapped_data[i,j]*=hanning_window
     #self.logger.info(sliced_and_overlapped_data.shape)
     #self.logger.info(sliced_and_overlapped_data[0][100][step])
@@ -218,4 +217,11 @@ class USCData :
     x_data = np.abs(np.fft.fft(x_data))
     #self.logger.info("x_data[15][25][18]="+str(x_data[15][25][18]))
     return x_data
+
+ def convert_to_list_for_parallel_lstms(self,x_data,num_of_paralel_lstms,lstm_time_steps):
+     print(x_data.shape)
+     x_data=np.reshape(x_data,(self.mini_batch_size,num_of_paralel_lstms,lstm_time_steps,self.time_slice_length))
+     ## switch axes of batch_size and parallel_lstms, then convert it to list according to first axis. --> this will give us list of matrices of shape (mini_batch_size,lstm_time_steps,time_slice_lentgh)
+     x_list=np.swapaxes(x_data,0,1).tolist()
+     return x_list
 

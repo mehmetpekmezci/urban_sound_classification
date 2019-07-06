@@ -17,7 +17,8 @@ class USCModel :
    ## so we will have nearly 400 time steps in 4 secs record. (88200) (with %50 overlapping)
    ## so we again sliced the input data into 20 (num_of_paral_lstms)
    ## each lstm cell works on one part only (for example lstm[0] works on the begginning of the data
-   self.num_of_paralel_lstms  = 20
+   self.num_of_paralel_lstms  = 28
+   ## (self.num_of_paralel_lstms  = 28) x (self.lstm_time_steps = 18) = (self.uscData.number_of_time_slices=504)
    self.lstm_time_steps       = int(self.uscData.number_of_time_slices/self.num_of_paralel_lstms)
    self.training_iterations   = 10000
    config = tf.ConfigProto()
@@ -39,8 +40,7 @@ class USCModel :
   x_data=self.uscData.overlapping_hanning_slice(x_data)
   x_data=self.uscData.fft(x_data)
   x_data=self.uscData.normalize(x_data)
-  #x_data=np.reshape(x_data,[self.uscData.mini_batch_size,self.num_of_paralel_lstms,self.lstm_time_steps,self.uscData.time_slice_length])
-  x_data_list = tf.unstack(self.x_data, self.number_of_time_slices, 1)
+  x_data_list = self.uscData.convert_to_list_for_parallel_lstms(x_data,self.num_of_paralel_lstms,self.lstm_time_steps)
   y_data=data[:,4*self.uscData.sound_record_sampling_rate]
   y_data_one_hot_encoded=self.uscData.one_hot_encode_array(y_data)
   return x_data_list,y_data_one_hot_encoded
