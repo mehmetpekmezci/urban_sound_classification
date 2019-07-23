@@ -16,12 +16,10 @@ class USCData :
    self.sound_record_sampling_rate=22050 # 22050 sample points per second
    self.track_length=4*self.sound_record_sampling_rate # 4 seconds record
    self.time_slice_length=440
-   #self.time_slice_length=110
    self.time_slice_overlap_length=265
-   #self.time_slice_overlap_length=60
    self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
-   self.mini_batch_size=50
+   self.mini_batch_size=100
    self.fold_data_dictionary=dict()
 
  def parse_audio_files(self):

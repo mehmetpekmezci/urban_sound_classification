@@ -15,10 +15,12 @@ class USCData :
    self.np_data_dir=self.main_data_dir+'/2.np'
    self.sound_record_sampling_rate=22050 # 22050 sample points per second
    self.track_length=4*self.sound_record_sampling_rate # 4 seconds record
-   self.time_slice_length=440
-   #self.time_slice_length=110
-   self.time_slice_overlap_length=265
-   #self.time_slice_overlap_length=60
+   self.time_slice_length=880
+   #self.time_slice_length=440
+   #self.time_slice_length=55
+   self.time_slice_overlap_length=550
+   #self.time_slice_overlap_length=265
+   #self.time_slice_overlap_length=30
    self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
    self.mini_batch_size=50
@@ -174,23 +176,6 @@ class USCData :
     new_array[n:]=snd_array[:-n]
     return new_array
 
- def augment_random(self,x_data):
-    augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
-    for i in range(x_data.shape[0]) :
-       choice=np.random.rand()*20
-       augmented_data[i]=x_data[i]
-       # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
-       if choice%10 != 0 :
-         SPEED_FACTOR=0.8+choice/50
-         TRANSLATION_FACTOR=int(5000*choice/10)+1
-         INVERSE_FACTOR=choice%2
-         if INVERSE_FACTOR == 1 :
-          augmented_data[i]=-augmented_data[i]
-         augmented_data[i]=self.augment_speedx(augmented_data[i],SPEED_FACTOR)
-         augmented_data[i]=self.augment_translate(augmented_data[i],TRANSLATION_FACTOR)
-         #augmented_data[i]=self.augment_volume(augmented_data[i],VOLUME_FACTOR)
-    return augmented_data
-
  def overlapping_hanning_slice(self,x_data):
     sliced_and_overlapped_data=np.zeros([self.mini_batch_size,self.number_of_time_slices,self.time_slice_length])
     step=self.time_slice_length-self.time_slice_overlap_length
@@ -227,3 +212,55 @@ class USCData :
      x_list=np.swapaxes(x_data,0,1).tolist()
      return x_list
 
+ def augment_random(self,x_data):
+    augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
+    for i in range(x_data.shape[0]) :
+       choice=np.random.rand()*20
+       augmented_data[i]=x_data[i]
+       # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
+       if choice%10 != 0 :
+         SPEED_FACTOR=0.8+choice/40
+         TRANSLATION_FACTOR=int(1000*choice)+1
+         INVERSE_FACTOR=choice%2
+         if INVERSE_FACTOR == 1 :
+          augmented_data[i]=-augmented_data[i]
+         augmented_data[i]=self.augment_speedx(augmented_data[i],SPEED_FACTOR)
+         augmented_data[i]=self.augment_translate(augmented_data[i],TRANSLATION_FACTOR)
+         #augmented_data[i]=self.augment_volume(augmented_data[i],VOLUME_FACTOR)
+    return augmented_data
+
+'''
+ def generate_single_synthetic_sample(self,single_data):
+    generated_data=single_data.copy()
+    randomValue=np.random.rand()
+    number_of_frequencies=int(randomValue*20)
+    #print("generated_data[0:TIME_SLICE]="+str(generated_data[0:TIME_SLICE]))
+    #print("number_of_frequencies:"+str(number_of_frequencies))
+    for i in range(number_of_frequencies):
+      randomValue=np.random.rand()
+      frequency=randomValue*10000 # this generates 0-10000 float number,  from uniform dist.
+                                  #  frequencies between 10000-20000 is not heard well . so we ignore them. Also sampling rate 22050 only allows to detect TIME_SLICE frequency.
+      duration=randomValue*4 # this generates 0-4 float number,  from uniform dist.
+      volume=randomValue*5
+      #volume=5
+      sine_cosine_choice=int(randomValue*2)
+      frequency_data=2*np.pi*np.arange(88200)*frequency/22050
+      if sine_cosine_choice == 0 :
+          wave_data = (np.sin(frequency_data)).astype(np.float32)
+      else :
+          wave_data = (np.cos(frequency_data)).astype(np.float32)
+      current_frequency_data=volume*wave_data
+      start_point=int(randomValue*2000)
+      #start_point=0
+      #if start_point <= self.time_slice_length :
+      #   print("frequency-"+str(i)+":"+str(frequency)+"  start_point:"+str(start_point))
+      generated_data[start_point:start_point+current_frequency_data.shape[0]]+=current_frequency_data[0:int(current_frequency_data.shape[0]-start_point)]
+      #print("generated_data[0:TIME_SLICE]="+str(generated_data[0:TIME_SLICE]))
+    return generated_data
+
+ def augment_random(self,x_data):
+    augmented_data=np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
+    for i in range(x_data.shape[0]) :
+        augmented_data[i]=self.generate_single_synthetic_sample(x_data[i])
+    return augmented_data
+''' 

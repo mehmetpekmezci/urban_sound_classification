@@ -12,7 +12,7 @@ class USCModel :
    self.session               = session
    self.uscLogger             = uscLogger
    self.uscData               = uscData
-   self.lstm_size             = 256
+   self.lstm_size             = 64
    ## self.uscData.time_slice_length = 440
    ## so we will have nearly 400 time steps in 4 secs record. (88200) (with %50 overlapping)
    ## so we again sliced the input data into 20 (num_of_paral_lstms)
@@ -78,9 +78,9 @@ class USCModel :
    for i in range(self.num_of_paralel_lstms):
      layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.lstm_time_steps,self.uscData.time_slice_length))
      inputs.append(layer_input)
-     #lstm_output=keras.layers.LSTM(self.lstm_size,dropout=0.2,recurrent_dropout=0.2)(layer_input)
-     lstm_output=keras.layers.LSTM(self.lstm_size,dropout=0.2,recurrent_dropout=0.2,return_sequences=True)(layer_input)
-     lstm_output=keras.layers.LSTM(self.lstm_size,dropout=0.2,recurrent_dropout=0.2)(lstm_output)
+     lstm_output=keras.layers.Bidirectional(keras.layers.LSTM(self.lstm_size,dropout=0.2,recurrent_dropout=0.2))(layer_input)
+     #lstm_output=keras.layers.LSTM(self.lstm_size,dropout=0.2,recurrent_dropout=0.2,return_sequences=True)(layer_input)
+     #lstm_output=keras.layers.LSTM(self.lstm_size,dropout=0.2,recurrent_dropout=0.2)(lstm_output)
      lstm_output=keras.layers.BatchNormalization()(lstm_output)
      lstm_outputs.append(lstm_output) 
    out=keras.layers.Concatenate()(lstm_outputs)
