@@ -1,0 +1,23 @@
+copied from 1.0.8
+arch will be
+
+All filter sizes will be 32
+
+CNN(1)  CNN(3)  CNN(5)  CNN(7)  CNN(9)  CNN(11)
+CNN(3)  CNN(3)  CNN(3)  CNN(3)  CNN(3)  CNN(3)
+        /        /       /        /         /
+CNN(3) /      /      /        /         /
+           /      /       /         /
+CNN(3)  /      /      /          / 
+          /        /         /
+CNN(3) /        /         /               
+            /         /
+CNN(3) /          /
+             /
+CNN(3) /
+
+.... (20 LAyer)
+
+FC(2048)
+FC(2048)
+
