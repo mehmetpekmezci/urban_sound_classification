@@ -29,7 +29,7 @@ datetime    = importlib.import_module("datetime")
 ## DATA DIRECTORY NAMES
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-#FOLD_DIRS = ['fold1']
+FOLD_DIRS = ['fold1']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 SCRIPT_NAME=os.path.basename(SCRIPT_DIR)
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
@@ -111,8 +111,8 @@ KEEP_PROB=DROP_OUT
 FULLY_CONNECTED_LAYERS=[2048,2048]
 
 
-CNN_FIRST_LAYER_KERNELS=[2,3,5,8,13,21,34,55,89,144]
-CNN_FIRST_LAYER_FILTER_COUNT=10
+CNN_FIRST_LAYER_KERNEL_SIZES =[2 , 3, 5, 8,13,21,34,55,89,144]
+CNN_FIRST_LAYER_KERNEL_COUNTS=[60,50,40,30,20,10,10,10,10,10 ]
 CNN_KERNEL_SIZE=3
 CNN_KERNEL_COUNT=10
 CNN_LAYER_COUNT=20

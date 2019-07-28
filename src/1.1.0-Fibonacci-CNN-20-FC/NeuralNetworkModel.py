@@ -10,24 +10,24 @@ from data import *
 class NeuralNetworkModel :
  def __init__(self, session, logger, 
               input_size=INPUT_SIZE, output_size=OUTPUT_SIZE , 
-              cnn_first_layer_kernels=CNN_FIRST_LAYER_KERNELS, 
-              cnn_first_layer_filter_count=CNN_FIRST_LAYER_FILTER_COUNT,
+              cnn_first_layer_kernel_sizes=CNN_FIRST_LAYER_KERNEL_SIZES,
+              cnn_first_layer_kernel_counts=CNN_FIRST_LAYER_KERNEL_COUNTS,
               cnn_kernel_size=CNN_KERNEL_SIZE,
               cnn_kernel_count=CNN_KERNEL_COUNT,
               cnn_layer_count=CNN_LAYER_COUNT,
+              learning_rate=LEARNING_RATE,
+              mini_batch_size=MINI_BATCH_SIZE,
               learning_rate_beta1=LEARNING_RATE_BETA1, 
               learning_rate_beta2=LEARNING_RATE_BETA2, 
               epsilon=EPSILON,keep_prob_constant=KEEP_PROB,
               fully_connected_layers=FULLY_CONNECTED_LAYERS
               ):
 
-
-#CNN_FIRST_LAYER_KERNELS=[2,3,5,8,13,21,34,55,89,144]
-#CNN_FIRST_LAYER_FILTER_COUNT=10
+#CNN_FIRST_LAYER_KERNEL_SIZES =[2 , 3, 5, 8,13,21,34,55,89,144]
+#CNN_FIRST_LAYER_KERNEL_COUNTS=[60,50,40,30,20,10,10,10,10,10 ]
 #CNN_KERNEL_SIZE=3
 #CNN_KERNEL_COUNT=10
 #CNN_LAYER_COUNT=20
-
 
    ##
    ## SET CLASS ATTRIBUTES WITH THE GIVEN INPUTS
@@ -45,8 +45,8 @@ class NeuralNetworkModel :
    self.epsilon               = epsilon
    self.fully_connected_layers=fully_connected_layers
    self.keep_prob = tf.placeholder(tf.float32)
-   self.cnn_first_layer_kernels=cnn_first_layer_kernels
-   self.cnn_first_layer_filter_count=cnn_first_layer_filter_count
+   self.cnn_first_layer_kernel_sizes=cnn_first_layer_kernel_sizes
+   self.cnn_first_layer_kernel_counts=cnn_first_layer_kernel_counts
    self.cnn_kernel_size=cnn_kernel_size
    self.cnn_kernel_count=cnn_kernel_count
    self.cnn_layer_count=cnn_layer_count
@@ -78,18 +78,18 @@ class NeuralNetworkModel :
    firstLayer=self.x_input_reshaped
 
    ##
-   ## FOURIER  CNN LAYERS
+   ## FIBONACCI CNN LAYERS
    ##
    with tf.name_scope('fibonacci_CNN'):
     
     layer_1_outputs=[]
     ## LAYER 1
     
-    for kernelNo in range(len(self.cnn_first_layer_kernels)) :
+    for kernelNo in range(len(self.cnn_first_layer_kernel_sizes)) :
        cnnKernelSizeX=1
-       cnnKernelSizeY=self.cnn_first_layer_kernels[kernelNo]
+       cnnKernelSizeY=self.cnn_first_layer_kernel_sizes[kernelNo]
        cnnInputChannel=1
-       cnnOutputChannel=self.cnn_first_layer_filter_count
+       cnnOutputChannel=self.cnn_first_layer_kernel_counts[kernelNo]
        cnnStrideSizeX=1
        cnnStrideSizeY=int(cnnKernelSizeY/2)
        cnnPoolSizeX=1
@@ -103,10 +103,7 @@ class NeuralNetworkModel :
 
     previous_level_convolution_output=layer_1_outputs[0]
     ## AFTER LAYER 1
-    for layerNo in range(self.cnn_layer_count) :
-        if layerNo < len(layer_1_outputs) :
-           previous_level_convolution_output=tf.concat((layer_1_outputs[layerNo],previous_level_convolution_output),2)
-        self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
+    for layerNo in range(1,self.cnn_layer_count,1) :
         cnnLayerName    = "fibonacci-cnn-"+str(layerNo)     
         cnnKernelCount  = self.cnn_kernel_count
         # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
@@ -118,98 +115,30 @@ class NeuralNetworkModel :
         cnnPoolSizeY    = 2
         cnnOutputChannel= cnnKernelCount   
         cnnInputChannel = int(previous_level_convolution_output.shape[3]) # previous_level_convolution_output's cnnOutputChannel size
+        self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
+
         W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
         B = tf.Variable(tf.constant(0.1, shape=[cnnOutputChannel]))
         C = tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,cnnStrideSizeX, cnnStrideSizeY, 1], padding='SAME')+B
-        self.logger.info(cnnLayerName+"_C.shape="+str(C.shape)+"  W.shape="+str(W.shape)+ "  cnnStrideSizeX="+str(cnnStrideSizeX)+" cnnStrideSizeY="+str(cnnStrideSizeY))
-     
-     with tf.name_scope(cnnLayerName+"-relu"):  
-       H = tf.nn.relu(C)
-       self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
-     #H=C
-     P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
+        H = tf.nn.relu(C)
+        P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
+        self.logger.info(cnnLayerName+"_P.shape="+str(P.shape)+"  W.shape="+str(W.shape)+ "  cnnStrideSizeX="+str(cnnStrideSizeX)+" cnnStrideSizeY="+str(cnnStrideSizeY))
 
-     with tf.name_scope(cnnLayerName+"-residual"):
-      if fourierCNNLayerNo > 0 :
-       W = tf.Variable(tf.truncated_normal([1, 1, int(previous_level_convolution_output.shape[3]), int(P.shape[3])], stddev=0.1))
-       previous_level_convolution_output=tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,1, 1, 1], padding='SAME')
-       previous_level_convolution_output=tf.nn.max_pool(previous_level_convolution_output, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME')
-       previous_level_convolution_output=tf.concat((P,previous_level_convolution_output),2)
-      else :
-       previous_level_convolution_output=P
-       firstLayer=previous_level_convolution_output
+        if layerNo < len(layer_1_outputs) :
+           # fibonacci residuals, concat one of the first layer fibonbacci cnn output with current layers output
+           W = tf.Variable(tf.truncated_normal([1, 1, int(layer_1_outputs[layerNo].shape[3]), cnnOutputChannel], stddev=0.1))
+           previous_level_convolution_output=tf.nn.conv2d(layer_1_outputs[layerNo],W,strides=[1,1, 1, 1], padding='SAME')
+        else :
+            #normal residuals, concat previous layers output with current layers output.
+           W = tf.Variable(tf.truncated_normal([1, 1, int(previous_level_convolution_output.shape[3]), cnnOutputChannel], stddev=0.1))
+           previous_level_convolution_output=tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,1, 1, 1], padding='SAME')
+        previous_level_convolution_output=tf.concat((P,previous_level_convolution_output),2)
 
-     previous_level_kernel_count=cnnKernelCount
-     fourierCNNOutput=previous_level_convolution_output
-
-
-
-
-
-   ##
-   ## CNN LAYERS
-   ##
-
-   with tf.name_scope('CNN'):
-    for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
-     self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
-     cnnLayerName    = "cnn-"+str(cnnLayerNo)     
-     cnnKernelCount  = self.cnn_kernel_counts[cnnLayerNo]   # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
-     cnnKernelSizeX  = self.cnn_kernel_x_sizes[cnnLayerNo]
-     cnnKernelSizeY  = self.cnn_kernel_y_sizes[cnnLayerNo]         
-     cnnStrideSizeX  = self.cnn_stride_x_sizes[cnnLayerNo] 
-     cnnStrideSizeY  = self.cnn_stride_y_sizes[cnnLayerNo]                     
-     cnnPoolSizeX    = self.cnn_pool_x_sizes[cnnLayerNo]          
-     cnnPoolSizeY    = self.cnn_pool_y_sizes[cnnLayerNo]      
-     cnnOutputChannel= cnnKernelCount   
-     if cnnLayerNo == 0 :
-       cnnInputChannel = int (fourierCNNOutput.shape[3])
-     else :
-       cnnInputChannel = int(previous_level_convolution_output.shape[3]) # previous_level_convolution_output's cnnOutputChannel size
-       #cnnInputChannel = self.cnn_kernel_counts[int(cnnLayerNo-1)]   
-
-
-     with tf.name_scope(cnnLayerName+"-convolution"):
-       W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
-       B = tf.Variable(tf.constant(0.1, shape=[cnnOutputChannel]))
-       C = tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,cnnStrideSizeX, cnnStrideSizeY, 1], padding='SAME')+B
-
-       self.logger.info(cnnLayerName+"_C.shape="+str(C.shape)+"  W.shape="+str(W.shape)+ "  cnnStrideSizeX="+str(cnnStrideSizeX)+" cnnStrideSizeY="+str(cnnStrideSizeY))
-     with tf.name_scope(cnnLayerName+"-relu"):  
-       H = tf.nn.relu(C)
-       self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
-
-     if cnnPoolSizeY != 1 :
-      with tf.name_scope(cnnLayerName+"-pool"):
-       P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
-       previous_level_convolution_output= tf.nn.max_pool(previous_level_convolution_output, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME')
-       ## put the output of this layer to the next layer's input layer.
-       self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
-     else :
-       P=H
-     #else :
-     # if previous_level_kernel_count==cnnKernelCount :
-     with tf.name_scope(cnnLayerName+"-residual"):
-      if cnnLayerNo == 0 :
-       previous_level_convolution_output=tf.concat((P,previous_level_convolution_output),2)
-      else :
-       previous_level_convolution_output=tf.concat((P,previous_level_convolution_output),2)
-      self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
-
-     previous_level_kernel_count=cnnKernelCount
-     cnn_last_layer_output=previous_level_convolution_output
-  
-
-     ## RESIDUAL FROM FIRST LAYER TO LAST LAYER
-
-     W = tf.Variable(tf.truncated_normal([1, 1, int(firstLayer.shape[3]), int(cnn_last_layer_output.shape[3])], stddev=0.1))
-     firstLayer=tf.nn.conv2d(firstLayer,W,strides=[1,1, 1, 1], padding='SAME')
-     firstLayer=tf.nn.max_pool(firstLayer, ksize=[1, 1,8, 1],strides=[1, 1,8 , 1], padding='SAME')
-     cnn_last_layer_output=tf.concat((firstLayer,cnn_last_layer_output),2)
    ##
    ## FULLY CONNECTED LAYERS
    ##Linear activation (FC layer on top of the RESNET )
 
+   cnn_last_layer_output=previous_level_convolution_output
 
    with tf.name_scope('cnn_to_fc_reshape'):
     cnn_last_layer_output_flat = tf.reshape( cnn_last_layer_output, [-1, int(cnn_last_layer_output.shape[1]*cnn_last_layer_output.shape[2]*cnn_last_layer_output.shape[3])] )
