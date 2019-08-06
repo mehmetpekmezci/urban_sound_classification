@@ -5,7 +5,7 @@ mkdir -p downloads
 
 Running=true
 
-while Running
+while $Running
 do
   Running=false
   for i in $(cat list.txt)
