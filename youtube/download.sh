@@ -16,7 +16,8 @@ do
 	then
 	   Running=true
 	   echo "downloading $name"
-           youtube-dl --extract-audio --audio-format m4a --output  downloads/$name.m4a $url
+           #youtube-dl -c -r 100k --extract-audio --audio-format m4a --output  downloads/$name.m4a $url
+           youtube-dl -c -r 900k --extract-audio --audio-format m4a --output  downloads/$name.m4a $url
 	fi
   done
 
