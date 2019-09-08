@@ -237,10 +237,17 @@ class USCData :
 
  def convert_to_list_of_word2vec_window_sized_data(self,x_data):
      #print(x_data.shape)
-     x_data=np.reshape(x_data,(self.mini_batch_size,int(self.number_of_time_slices/self.word2vec_window_size),self.word2vec_window_size,self.time_slice_length))
-     ## switch axes of batch_size and parallel_lstms, then convert it to list according to first axis. --> this will give us list of matrices of shape (mini_batch_size,lstm_time_steps,time_slice_lentgh)
-     x_list=np.swapaxes(x_data,0,1).tolist()
-     return np.random.permutation(x_list)
+     result=[]
+     # Mehmet Pekmezci. : make combination 
+     for i in range(self.word2vec_window_size):
+      row_i=x_data[:,i,:]
+      x_data[:,i,:]=x_data[:,int((i+1)%self.word2vec_window_size),:]
+      x_data[:,int((i+1)%self.word2vec_window_size),:]=row_i
+      x_data_window=np.reshape(x_data,(self.mini_batch_size,int(self.number_of_time_slices/self.word2vec_window_size),self.word2vec_window_size,self.time_slice_length))
+      ## switch axes of batch_size and parallel_lstms, then convert it to list according to first axis. --> this will give us list of matrices of shape (mini_batch_size,lstm_time_steps,time_slice_lentgh)
+      x_list=np.swapaxes(x_data_window,0,1).tolist()
+      result=result+x_list
+     return np.random.permutation(result)
 
  def augment_random(self,x_data):
     augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
