@@ -67,7 +67,7 @@ class USCAutoEncoder :
    y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
    y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2],1)
    print(y_data.shape)
-   x_data=x_data[:,int(x_data.shape[1]/2),:].rehape(x_data.shape[0],x_data.shape[2],1)
+   x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
    print(x_data.shape)
    self.model.fit(x_data, y_data, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   trainingTimeStop = int(round(time.time())) 
