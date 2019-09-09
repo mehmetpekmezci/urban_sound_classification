@@ -18,8 +18,8 @@ class USCAutoEncoder :
    self.uscData               = uscData
    self.time_window_size      = 10
    script_dir=os.path.dirname(os.path.realpath(__file__))
-   script_name=os.path.basename(self.script_dir)
-   self.model_save_file=script_dir+"/../../save/"+script_name+"/autoEndoer.h5")
+   script_name=os.path.basename(script_dir)
+   self.model_save_file=script_dir+"/../../save/"+script_name+"/autoEndoer.h5"
    ## self.uscData.time_slice_length = 440
    ## so we will have nearly 400 time steps in 4 secs record. (88200) (with %50 overlapping)
    ## so we again sliced the input data into 20 (num_of_paral_lstms)
@@ -65,9 +65,9 @@ class USCAutoEncoder :
   ## pull the data in the middle
    #y_data=np.concatenate((x_data[:,:int(len(x_data)/2+1),:],x_data[:,int(len(x_data)/2+1):,:]))
    y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
-   y_data=y_data.rehape(y_data.shape[0],y_data.shape[1]*y_data.shape[2])
+   y_data=y_data.rehape(y_data.shape[0],y_data.shape[1]*y_data.shape[2],1)
    print(y_data.shape)
-   x_data=x_data[:,int(x_data.shape[1]/2),:].rehape(x_data.shape[0],x_data.shape[2])
+   x_data=x_data[:,int(x_data.shape[1]/2),:].rehape(x_data.shape[0],x_data.shape[2],1)
    print(x_data.shape)
    self.model.fit(x_data, y_data, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   trainingTimeStop = int(round(time.time())) 
@@ -88,7 +88,7 @@ class USCAutoEncoder :
      
 
  def buildModel(self):
-   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.time_slice_length))
+   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.time_slice_length,1))
 #   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.word2vec_window_size,self.uscData.time_slice_length))
    x = keras.layers.Convolution1D(16, 3,activation='relu', border_mode='same')(layer_input) #nb_filter, nb_row, nb_col
    x = keras.layers.MaxPooling1D((2), border_mode='same')(x)
@@ -97,7 +97,7 @@ class USCAutoEncoder :
    x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(x)
    self.encoder = keras.layers.MaxPooling1D((2), border_mode='same')(x)  # (self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length)
    #print ("shape of self.encoder ", K.int_shape(self.encoder ))
-   self.uscLogger.info("shape of encoder"+str( self.encoder.shape))
+   self.uscLogger.logger.info("shape of encoder"+str( self.encoder.shape))
    x = Convolution1D(8, 3, activation='relu', border_mode='same')(self.encoder)
    x = UpSampling1D((2))(x)
    x = Convolution1D(8, 3, activation='relu', border_mode='same')(x)

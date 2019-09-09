@@ -146,8 +146,8 @@ class USCData :
  def findListOfYoutubeDataFiles(self):
     self.logger.info ("Crawling Youtube Data Files From Directory ../../youtube/downloads/ ...")
     for category in glob.glob('../../youtube/downloads/*/'):
-      datafileList=glob.glob(category+'/*.npy')
-      if len(dataFileList) > self.youtube_data_max_category_data :
+      dataFileList=glob.glob(category+'/*.npy')
+      if len(dataFileList) > self.youtube_data_max_category_data_file_count :
           self.youtube_data_max_category_data_file_count=len(dataFileList)
       self.youtube_data_file_dictionary[category]=random.sample(dataFileList,len(dataFileList))
 

@@ -3,6 +3,7 @@ from USCHeader import *
 from USCLogger import *
 from USCData import *
 from USCModel import *
+from USCAutoEncoder import *
 
 
 def main(_):
