@@ -14,9 +14,9 @@ random      = importlib.import_module("random")
 # 1 RECORD is 4 seconds = 4 x sampling rate double values = 4 x 22050 = 88200 = (2^3) x ( 3^2) x (5^2) x (7^2)
 SOUND_RECORD_SAMPLING_RATE=22050
 TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
-NUMBER_OF_RECORDS_PER_NPY_FILE=500
+NUMBER_OF_RECORDS_PER_NPY_FILE=100
 
-for category in glob.glob('downloads/*/'):
+for category in glob.glob('raw/*/'):
    print('Importing ',category,' ...')
    counter=0
    sound_data_group=[] ## sound data is shuffled and grouped by NUMBER_OF_RECORDS_PER_NPY_FILE records
