@@ -29,7 +29,7 @@ class USCData :
    self.current_youtube_data=[]
    self.youtube_data_max_category_data_file_count=0
    self.current_data_file_number=0
-   self.word2vec_window_size=5
+   self.word2vec_window_size=7 ## Bunu degistirme
    self.latent_space_presentation_data_length=0 ## WILL BE SET IN USCAutoEncoder.buildModel method.
    
 
