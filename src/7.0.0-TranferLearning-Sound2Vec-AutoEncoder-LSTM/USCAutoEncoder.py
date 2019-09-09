@@ -44,7 +44,7 @@ class USCAutoEncoder :
   x_data=data[:,:4*self.uscData.sound_record_sampling_rate]
   if augment==True :
     x_data=self.uscData.augment_random(x_data)
-  x_data=self.uscData.overlapping_slice(x_data,hanning=False)
+  x_data=self.uscData.overlapping_slice(x_data)
   ## returns -> (batch_size, number_of_time_slices, time_slice_length)
   #x_data=self.uscData.fft(x_data)
   x_data=self.uscData.normalize(x_data)
@@ -91,40 +91,43 @@ class USCAutoEncoder :
    layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.time_slice_length,1))
 #   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.word2vec_window_size,self.uscData.time_slice_length))
    x = keras.layers.Convolution1D(16, 3,activation='relu', border_mode='same')(layer_input) #nb_filter, nb_row, nb_col
-   x = keras.layers.MaxPooling1D((2), border_mode='same')(x)
+   x = keras.layers.MaxPooling1D((5), border_mode='same')(x)
    x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(x)
-   x = keras.layers.MaxPooling1D((2), border_mode='same')(x)
+   x = keras.layers.MaxPooling1D((5), border_mode='same')(x)
+   x = keras.layers.Convolution1D(1, 3, activation='relu', border_mode='same')(x)
+   encoded = keras.layers.MaxPooling1D((5), border_mode='same')(x)  # (self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length)
+   self.uscLogger.logger.info("shape of encoder"+str(encoded.shape))
+   self.uscData.latent_space_presentation_data_length=int(encoded.shape[1])
+   
+   x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(encoded)
+   x = keras.layers.UpSampling1D((5))(x)
    x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(x)
-   self.encoder = keras.layers.MaxPooling1D((2), border_mode='same')(x)  # (self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length)
-   #print ("shape of self.encoder ", K.int_shape(self.encoder ))
-   self.uscLogger.logger.info("shape of encoder"+str( self.encoder.shape))
-   x = Convolution1D(8, 3, activation='relu', border_mode='same')(self.encoder)
-   x = UpSampling1D((2))(x)
-   x = Convolution1D(8, 3, activation='relu', border_mode='same')(x)
-   x = UpSampling1D((2))(x)
+   x = keras.layers.UpSampling1D((5))(x)
 
    # In original tutorial, border_mode='same' was used. 
    # then the shape of 'decoded' will be 32 x 32, instead of 28 x 28
    # x = Convolution2D(16, 3, 3, activation='relu', border_mode='same')(x) 
-   x = Convolution1D(16, 3, activation='relu', border_mode='valid')(x) 
+   x = keras.layers.Convolution1D(16, 3, activation='relu', border_mode='valid')(x) 
 
-   x = UpSampling2D((2))(x)
-   decoded = Convolution1D(int(self.uscData.word2vec_window_size-1),1, activation='sigmoid', border_mode='same')(x)
-   self.uscLogger.info("shape of decoded"+str( decoded.shape))
+   x = keras.layers.UpSampling1D((5))(x)
+   decoded = keras.layers.Convolution1D(int(self.uscData.word2vec_window_size-1),1, activation='sigmoid', border_mode='same')(x)
+   self.uscLogger.logger.info("shape of decoded "+str( decoded.shape))
 
-   autoencoder = Model(layer_input, decoded)
+   autoencoder = keras.models.Model(layer_input,decoded)
+   flattennedEncoded=keras.layers.Flatten()(encoded)
+   encoder = keras.models.Model(layer_input,flattennedEncoded)
    selectedOptimizer=keras.optimizers.Adam(lr=0.0001)
    #autoencoder.compile(optimizer=selectedOptimizer, loss='binary_crossentropy')
    #autoencoder.compile(optimizer=selectedOptimizer, loss='categorical_crossentropy',metrics=['accuracy'])
    autoencoder.compile(optimizer=selectedOptimizer, loss='mse')
-   return model
+   return autoencoder,encoder
 
 #   out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
 #   model = keras.models.Model(inputs=inputs, outputs=[out])
 
  def encode(self,x_data):
    encodeTimeStart = int(round(time.time()))
-   x_data_list=np.swapaxes(x_data,0,1).to_list() 
+   x_data_list=np.swapaxes(x_data,0,1).tolist() 
    x_encoded_data_list=[]
    ##  (self.mini_batch_size      ,self.number_of_time_slices,self.time_slice_length)  to
    ##  (self.number_of_time_slices,self.mini_batch_size      ,self.time_slice_length)

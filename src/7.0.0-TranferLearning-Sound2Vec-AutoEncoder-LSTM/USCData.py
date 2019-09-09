@@ -23,14 +23,14 @@ class USCData :
    #self.time_slice_overlap_length=30
    self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
-   self.mini_batch_size=5
+   self.mini_batch_size=50
    self.fold_data_dictionary=dict()
    self.youtube_data_file_dictionary=dict()
    self.current_youtube_data=[]
    self.youtube_data_max_category_data_file_count=0
    self.current_data_file_number=0
    self.word2vec_window_size=5
-   self.latent_space_presentation_data_length=self.time_slice_length/10
+   self.latent_space_presentation_data_length=0 ## WILL BE SET IN USCAutoEncoder.buildModel method.
    
 
  def parse_audio_files(self):
@@ -145,7 +145,7 @@ class USCData :
 
  def findListOfYoutubeDataFiles(self):
     self.logger.info ("Crawling Youtube Data Files From Directory ../../youtube/downloads/ ...")
-    for category in glob.glob('../../youtube/downloads/*/'):
+    for category in glob.glob('../../youtube/raw/*/'):
       dataFileList=glob.glob(category+'/*.npy')
       if len(dataFileList) > self.youtube_data_max_category_data_file_count :
           self.youtube_data_max_category_data_file_count=len(dataFileList)
@@ -156,8 +156,10 @@ class USCData :
      self.current_youtube_data=[]
      for category in  self.youtube_data_file_dictionary :
          dataFileList= self.youtube_data_file_dictionary[category]
-         if len(dataFileList) < self.current_data_file_number :
-             listOf4SecondRecords=np.load(category+'/data.'+self.current_data_file_number+'.npy')
+         if len(dataFileList) > self.current_data_file_number :
+             self.logger.info("loading"+ category+'/data.'+str(self.current_data_file_number)+'.npy')
+             listOf4SecondRecords=np.load(category+'/data.'+str(self.current_data_file_number)+'.npy').tolist()
+             self.logger.info(len(listOf4SecondRecords))
              self.current_youtube_data=self.current_youtube_data+listOf4SecondRecords ## this appends listOf4SecondRecords to self.current_youtube_data
      self.current_data_file_number= (self.current_data_file_number+1)%self.youtube_data_max_category_data_file_count        
      self.current_youtube_data=np.random.permutation(self.current_youtube_data)

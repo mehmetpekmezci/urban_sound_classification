@@ -34,7 +34,7 @@ class USCModel :
   x_data=data[:,:4*self.uscData.sound_record_sampling_rate]
   if augment==True :
     x_data=self.uscData.augment_random(x_data)
-  x_data=self.uscData.overlapping_hanning_slice(x_data) #  (self.mini_batch_size,self.number_of_time_slices,self.time_slice_length)
+  x_data=self.uscData.overlapping_slice(x_data) #  (self.mini_batch_size,self.number_of_time_slices,self.time_slice_length)
   #x_data=self.uscData.fft(x_data)
   x_data=self.uscData.normalize(x_data)
   #x_data_list = self.uscData.convert_to_list_for_parallel_lstms(x_data,self.num_of_paralel_lstms,self.lstm_time_steps)
@@ -82,7 +82,7 @@ class USCModel :
    out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Dropout(0.2)(out)
    out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
-   self.model = keras.models.Model(inputs=inputs, outputs=[out])
+   self.model = keras.models.Model(inputs=[layer_input], outputs=[out])
    selectedOptimizer=keras.optimizers.Adam(lr=0.0001)
    self.model.compile(optimizer=selectedOptimizer, loss='categorical_crossentropy',metrics=['accuracy'])
 
