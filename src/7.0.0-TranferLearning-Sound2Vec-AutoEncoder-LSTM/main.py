@@ -22,14 +22,14 @@ def main(_):
     uscLogger.logAutoEncoderStepStart(session,trainingIterationNo)
     prepareDataTimes=[ ]
     trainingTimes=[ ]
-    trainingAccuracies=[ ]
+    trainingLosses=[ ]
     for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)) :
          batch_data=current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size]
-         trainingTime,trainingAccuracy,prepareDataTime=uscAutoEncoder.train(batch_data)
+         trainingTime,trainingLoss,prepareDataTime=uscAutoEncoder.train(batch_data)
          trainingTimes.append(trainingTime)
-         trainingAccuracies.append(trainingAccuracy)
+         trainingLosses.append(trainingLoss)
          prepareDataTimes.append(prepareDataTime)
-    uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingAccuracies,trainingIterationNo)
+    uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
    
    uscData.prepareData()
    uscModel=USCModel(session,uscLogger,uscData,uscAutoEncoder)

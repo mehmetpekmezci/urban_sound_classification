@@ -145,6 +145,19 @@ class USCData :
 
  def findListOfYoutubeDataFiles(self):
     self.logger.info ("Crawling Youtube Data Files From Directory ../../youtube/downloads/ ...")
+    if not os.path.exists('../../youtube/raw/'):
+        self.logger.info("../../youtube/raw/ directory does not exist.")
+        self.logger.info("Please do the following :")
+        self.logger.info(" 1. cd ../../youtube/")
+        self.logger.info(" 2. ./download.sh")
+        self.logger.info(" 3. ./convertAll.sh")
+        self.logger.info(" 4. ./splitAll.sh")
+        self.logger.info(" 5. python3 prepareNPYDataFiles.py")
+        exit(1);
+    if len(glob.glob('../../youtube/raw/*/*.npy')) == 0:
+        self.logger.info("../../youtube/raw/*/*.npy data files do not exist , first go to ../../youtube directory and run 'python3 prepareNPYDataFiles.py' ")
+        exit(1);
+
     for category in glob.glob('../../youtube/raw/*/'):
       dataFileList=glob.glob(category+'/*.npy')
       if len(dataFileList) > self.youtube_data_max_category_data_file_count :

@@ -66,17 +66,18 @@ class USCAutoEncoder :
    #y_data=np.concatenate((x_data[:,:int(len(x_data)/2+1),:],x_data[:,int(len(x_data)/2+1):,:]))
    y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
    y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2],1)
-   print(y_data.shape)
    x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
-   print(x_data.shape)
    self.model.fit(x_data, y_data, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
-  trainingAccuracyTotal=0
+  trainingLossTotal=0
   for x_data in x_data_list :
+   y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
+   y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2],1)
+   x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
    evaluation = self.model.evaluate(x_data, y_data, batch_size = self.uscData.mini_batch_size,verbose=0)
-   trainingAccuracyTotal+=evaluation[1]
-  trainingAccuracy=trainingAccuracyTotal/len(x_data_list)
+   trainingLossTotal+=evaluation
+  trainingLoss=trainingLossTotal/len(x_data_list)
   #print(self.model.metrics_names) 
   #print(evaluation) 
   self.trainCount+=1
@@ -84,7 +85,7 @@ class USCAutoEncoder :
   if self.trainCount % 100 :
      self.save_weights()
   
-  return trainingTime,trainingAccuracy,prepareDataTime
+  return trainingTime,trainingLoss,prepareDataTime
      
 
  def buildModel(self):
@@ -107,10 +108,10 @@ class USCAutoEncoder :
    # In original tutorial, border_mode='same' was used. 
    # then the shape of 'decoded' will be 32 x 32, instead of 28 x 28
    # x = Convolution2D(16, 3, 3, activation='relu', border_mode='same')(x) 
-   x = keras.layers.Convolution1D(16, 3, activation='relu', border_mode='valid')(x) 
-
-   x = keras.layers.UpSampling1D((5))(x)
-   decoded = keras.layers.Convolution1D(int(self.uscData.word2vec_window_size-1),1, activation='sigmoid', border_mode='same')(x)
+   x = keras.layers.Convolution1D(16, 3, activation='relu', border_mode='same')(x) 
+   x = keras.layers.UpSampling1D((int(5*(self.uscData.word2vec_window_size-1))))(x)
+   
+   decoded = keras.layers.Convolution1D(1,3, activation='sigmoid', border_mode='same')(x)
    self.uscLogger.logger.info("shape of decoded "+str( decoded.shape))
 
    autoencoder = keras.models.Model(layer_input,decoded)
