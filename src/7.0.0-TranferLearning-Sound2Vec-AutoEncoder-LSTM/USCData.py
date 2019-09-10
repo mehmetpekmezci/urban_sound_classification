@@ -172,7 +172,7 @@ class USCData :
          if len(dataFileList) > self.current_data_file_number :
              self.logger.info("loading"+ category+'/data.'+str(self.current_data_file_number)+'.npy')
              listOf4SecondRecords=np.load(category+'/data.'+str(self.current_data_file_number)+'.npy').tolist()
-             self.logger.info(len(listOf4SecondRecords))
+             #self.logger.info(len(listOf4SecondRecords))
              self.current_youtube_data=self.current_youtube_data+listOf4SecondRecords ## this appends listOf4SecondRecords to self.current_youtube_data
      self.current_data_file_number= (self.current_data_file_number+1)%self.youtube_data_max_category_data_file_count        
      self.current_youtube_data=np.random.permutation(self.current_youtube_data)

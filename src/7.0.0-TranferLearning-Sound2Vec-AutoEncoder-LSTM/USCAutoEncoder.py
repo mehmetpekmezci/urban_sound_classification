@@ -128,15 +128,22 @@ class USCAutoEncoder :
 
  def encode(self,x_data):
    encodeTimeStart = int(round(time.time()))
-   x_data_list=np.swapaxes(x_data,0,1).tolist() 
+   x_data_swapped=np.swapaxes(x_data,0,1)
+   x_data_list=[]
+   for i in range(x_data_swapped.shape[0]):
+       x_data_list.append(x_data_swapped[i])
    x_encoded_data_list=[]
    ##  (self.mini_batch_size      ,self.number_of_time_slices,self.time_slice_length)  to
    ##  (self.number_of_time_slices,self.mini_batch_size      ,self.time_slice_length)
-   for x_data in x_data_list :
-       x_encoded_data_list.append(self.encoder.predict(x_data))
+   for x_data_item in x_data_list :
+       #self.uscLogger.logger.info("len(x_data_item)="+str( len(x_data_item)))
+       x_data_item=x_data_item.reshape(x_data_item.shape[0],x_data_item.shape[1],1)
+       encoded_x_data_item=self.encoder.predict(x_data_item)
+       #self.uscLogger.logger.info("encoded_x_data_item.shape="+str( encoded_x_data_item.shape))
+       x_encoded_data_list.append(encoded_x_data_item)
    encoded_x_data=np.asarray(x_encoded_data_list)
    encodedValue=np.swapaxes(encoded_x_data,0,1)
-   self.uscLogger.info("encodedValue.shape="+str( encodedValue.shape))
+   #self.uscLogger.logger.info("encodedValue.shape="+str( encodedValue.shape))
    encodeTimeStop = int(round(time.time()))
    encodeTime=encodeTimeStop-encodeTimeStart
    return encodedValue,encodeTime    
