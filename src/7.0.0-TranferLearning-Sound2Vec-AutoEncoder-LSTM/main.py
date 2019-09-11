@@ -25,10 +25,12 @@ def main(_):
     trainingLosses=[ ]
     for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)) :
          batch_data=current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size]
+         #uscLogger.logger.info("batch_data.shape: "+str(batch_data.shape))
          trainingTime,trainingLoss,prepareDataTime=uscAutoEncoder.train(batch_data)
          trainingTimes.append(trainingTime)
          trainingLosses.append(trainingLoss)
          prepareDataTimes.append(prepareDataTime)
+         
     uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
    
    uscData.prepareData()

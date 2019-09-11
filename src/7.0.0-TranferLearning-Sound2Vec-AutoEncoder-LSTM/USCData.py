@@ -166,16 +166,19 @@ class USCData :
 
 
  def loadNextYoutubeData(self):
-     self.current_youtube_data=[]
+     self.current_youtube_data=np.empty([0,4*self.sound_record_sampling_rate])
      for category in  self.youtube_data_file_dictionary :
          dataFileList= self.youtube_data_file_dictionary[category]
          if len(dataFileList) > self.current_data_file_number :
              self.logger.info("loading"+ category+'/data.'+str(self.current_data_file_number)+'.npy')
-             listOf4SecondRecords=np.load(category+'/data.'+str(self.current_data_file_number)+'.npy').tolist()
+             loadedData=np.load(category+'/data.'+str(self.current_data_file_number)+'.npy')
+             loadedData=loadedData[:,:4*self.sound_record_sampling_rate]
+             #listOf4SecondRecords=loadedData.tolist()
              #self.logger.info(len(listOf4SecondRecords))
-             self.current_youtube_data=self.current_youtube_data+listOf4SecondRecords ## this appends listOf4SecondRecords to self.current_youtube_data
-     self.current_data_file_number= (self.current_data_file_number+1)%self.youtube_data_max_category_data_file_count        
-     self.current_youtube_data=np.random.permutation(self.current_youtube_data)
+             self.current_youtube_data=np.vstack((self.current_youtube_data,loadedData)) ## this appends listOf4SecondRecords to self.current_youtube_data
+     self.current_data_file_number= (self.current_data_file_number+1)%self.youtube_data_max_category_data_file_count  
+     np.random.shuffle(self.current_youtube_data)
+     self.logger.info(self.current_youtube_data.shape)
      return self.current_youtube_data
 
 
