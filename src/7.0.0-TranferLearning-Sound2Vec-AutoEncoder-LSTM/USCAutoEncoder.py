@@ -19,7 +19,8 @@ class USCAutoEncoder :
    self.time_window_size      = 10
    script_dir=os.path.dirname(os.path.realpath(__file__))
    script_name=os.path.basename(script_dir)
-   self.model_save_file=script_dir+"/../../save/"+script_name+"/autoEndoer.h5"
+   self.model_save_dir=script_dir+"/../../save/"+script_name
+   self.model_save_file="autoEndoer.h5"
    ## self.uscData.time_slice_length = 440
    ## so we will have nearly 400 time steps in 4 secs record. (88200) (with %50 overlapping)
    ## so we again sliced the input data into 20 (num_of_paral_lstms)
@@ -33,12 +34,14 @@ class USCAutoEncoder :
    self.trainCount=0
 
  def load_weights(self):
-     if os.path.exists(self.model_save_file):
-         self. model.load_weights(self.model_save_file)
+     if os.path.exists(self.model_save_dir+"/"+self.model_save_file):
+         self.model.load_weights(self.model_save_dir+"/"+self.model_save_file)
 
  def save_weights(self):
-     if os.path.exists(self.model_save_file):
-          self.model.save_weights(self.model_save_file)
+     if not os.path.exists(self.model_save_dir):
+         os.makedirs(self.model_save_dir)
+     self.model.save_weights(self.model_save_dir+"/"+self.model_save_file)
+
 
  def prepareData(self,data,augment):
   x_data=data[:,:4*self.uscData.sound_record_sampling_rate]
