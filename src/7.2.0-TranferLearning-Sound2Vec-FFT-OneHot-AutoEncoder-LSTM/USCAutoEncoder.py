@@ -69,7 +69,7 @@ class USCAutoEncoder :
   ## pull the data in the middle
    #y_data=np.concatenate((x_data[:,:int(len(x_data)/2+1),:],x_data[:,int(len(x_data)/2+1):,:]))
    y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
-   y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2],1)
+   y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2])
    x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
    self.model.fit(x_data, y_data, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   trainingTimeStop = int(round(time.time())) 
@@ -77,10 +77,12 @@ class USCAutoEncoder :
   trainingLossTotal=0
   for x_data in x_data_list :
    y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
-   y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2],1)
+   y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2])
    x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
    evaluation = self.model.evaluate(x_data, y_data, batch_size = self.uscData.mini_batch_size,verbose=0)
-   trainingLossTotal+=evaluation
+   #print(self.model.metrics_names)
+   #print(evaluation)
+   trainingLossTotal+=evaluation[0]
   trainingLoss=trainingLossTotal/len(x_data_list)
   #print(self.model.metrics_names) 
   #print(evaluation) 
@@ -115,7 +117,8 @@ class USCAutoEncoder :
    x = keras.layers.Convolution1D(16, 3, activation='relu', border_mode='same')(x) 
    x = keras.layers.UpSampling1D((int(5*(self.uscData.word2vec_window_size-1))))(x)
    
-   decoded = keras.layers.Convolution1D(1,3, activation='sigmoid', border_mode='same')(x)
+   x = keras.layers.Convolution1D(1,3, activation='sigmoid', border_mode='same')(x)
+   decoded = keras.layers.Flatten()(x)
    self.uscLogger.logger.info("shape of decoded "+str( decoded.shape))
 
    autoencoder = keras.models.Model(layer_input,decoded)
@@ -147,7 +150,7 @@ class USCAutoEncoder :
        x_encoded_data_list.append(encoded_x_data_item)
    encoded_x_data=np.asarray(x_encoded_data_list)
    encodedValue=np.swapaxes(encoded_x_data,0,1)
-   #self.uscLogger.logger.info("encodedValue.shape="+str( encodedValue.shape))
+   self.uscLogger.logger.info("encodedValue.shape="+str( encodedValue.shape))
    encodeTimeStop = int(round(time.time()))
    encodeTime=encodeTimeStop-encodeTimeStart
    return encodedValue,encodeTime    

@@ -15,12 +15,12 @@ class USCData :
    self.np_data_dir=self.main_data_dir+'/2.np'
    self.sound_record_sampling_rate=22050 # 22050 sample points per second
    self.track_length=4*self.sound_record_sampling_rate # 4 seconds record
-   #self.time_slice_length=2000
-   self.time_slice_length=440
+   self.time_slice_length=2000
+   #self.time_slice_length=440
    #self.time_slice_length=55
-   #self.time_slice_overlap_length=200
+   self.time_slice_overlap_length=200
    #self.time_slice_overlap_length=265
-   self.time_slice_overlap_length=44
+   #self.time_slice_overlap_length=44
    self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
    self.mini_batch_size=50
@@ -246,7 +246,7 @@ class USCData :
 
  def peaksMultiHot(self,x_data):
     for i in range(x_data.shape[0]): #batch_size_no
-     for j in range(x_data.shape[0]): #time_slice_no
+     for j in range(x_data.shape[1]): #time_slice_no
        x_data_peak_points=scipy.signal.find_peaks(x_data[i][j])
        x_data[i][j]=np.zeros([x_data.shape[2]],np.float32)
        x_data[i][j][x_data_peak_points[0]]=1
@@ -261,7 +261,6 @@ class USCData :
     #self.logger.info("x_data[15][25][18]="+str(x_data[15][25][18]))
     return x_data
 
- def convert_to_list_of_word2vec_window_sized_data(self,x_data):
  def convert_to_list_of_word2vec_window_sized_data(self,x_data):
      #print(x_data.shape)
      result=[]
