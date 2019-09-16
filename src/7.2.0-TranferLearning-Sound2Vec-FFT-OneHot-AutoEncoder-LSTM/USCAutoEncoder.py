@@ -50,7 +50,8 @@ class USCAutoEncoder :
   x_data=self.uscData.normalize(x_data)
   x_data=self.uscData.overlapping_slice(x_data)
   ## returns -> (batch_size, number_of_time_slices, time_slice_length)
-  #x_data=self.uscData.fft(x_data)
+  x_data=self.uscData.fft(x_data)
+  x_data=self.uscData.peaksMultiHot(x_data)
   x_data_list = self.uscData.convert_to_list_of_word2vec_window_sized_data(x_data)
   ## returns -> list of (mini_batch_size,word2vec_window_size,time_slice_lentgh), this list has self.number_of_time_slices/self.word2vec_window_size elements
   return x_data_list
@@ -122,8 +123,8 @@ class USCAutoEncoder :
    encoder = keras.models.Model(layer_input,flattennedEncoded)
    selectedOptimizer=keras.optimizers.Adam(lr=0.0001)
    #autoencoder.compile(optimizer=selectedOptimizer, loss='binary_crossentropy')
-   #autoencoder.compile(optimizer=selectedOptimizer, loss='categorical_crossentropy',metrics=['accuracy'])
-   autoencoder.compile(optimizer=selectedOptimizer, loss='mse')
+   autoencoder.compile(optimizer=selectedOptimizer, loss='categorical_crossentropy',metrics=['accuracy'])
+   #autoencoder.compile(optimizer=selectedOptimizer, loss='mse')
    return autoencoder,encoder
 
 #   out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
