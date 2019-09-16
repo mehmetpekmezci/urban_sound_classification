@@ -150,7 +150,7 @@ class USCAutoEncoder :
        x_encoded_data_list.append(encoded_x_data_item)
    encoded_x_data=np.asarray(x_encoded_data_list)
    encodedValue=np.swapaxes(encoded_x_data,0,1)
-   self.uscLogger.logger.info("encodedValue.shape="+str( encodedValue.shape))
+   #self.uscLogger.logger.info("encodedValue.shape="+str( encodedValue.shape))
    encodeTimeStop = int(round(time.time()))
    encodeTime=encodeTimeStop-encodeTimeStart
    return encodedValue,encodeTime    
