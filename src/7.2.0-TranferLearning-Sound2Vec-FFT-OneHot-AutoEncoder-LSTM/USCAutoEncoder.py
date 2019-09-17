@@ -83,7 +83,7 @@ class USCAutoEncoder :
    #print(self.model.metrics_names)
    #print(evaluation)
    trainingLossTotal+=evaluation[0]
-  print(trainingLossTotal)
+  #print(trainingLossTotal)
   trainingLoss=trainingLossTotal/len(x_data_list)
   #print(self.model.metrics_names) 
   #print(evaluation) 
