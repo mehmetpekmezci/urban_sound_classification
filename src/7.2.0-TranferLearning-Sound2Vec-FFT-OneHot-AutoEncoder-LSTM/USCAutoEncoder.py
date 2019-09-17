@@ -83,6 +83,7 @@ class USCAutoEncoder :
    #print(self.model.metrics_names)
    #print(evaluation)
    trainingLossTotal+=evaluation[0]
+  print(trainingLossTotal)
   trainingLoss=trainingLossTotal/len(x_data_list)
   #print(self.model.metrics_names) 
   #print(evaluation) 
@@ -118,7 +119,9 @@ class USCAutoEncoder :
    x = keras.layers.UpSampling1D((int(5*(self.uscData.word2vec_window_size-1))))(x)
    
    x = keras.layers.Convolution1D(1,3, activation='sigmoid', border_mode='same')(x)
-   decoded = keras.layers.Flatten()(x)
+   x =  keras.layers.Flatten()(x)
+   decoded =keras.layers.Dense(units =(self.uscData.word2vec_window_size-1)*self.uscData.time_slice_length,activation='softmax')(x)
+
    self.uscLogger.logger.info("shape of decoded "+str( decoded.shape))
 
    autoencoder = keras.models.Model(layer_input,decoded)
