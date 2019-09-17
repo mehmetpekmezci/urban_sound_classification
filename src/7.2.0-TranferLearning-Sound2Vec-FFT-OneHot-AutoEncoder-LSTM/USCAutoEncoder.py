@@ -102,23 +102,31 @@ class USCAutoEncoder :
    x = keras.layers.MaxPooling1D((5), border_mode='same')(x)
    x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(x)
    x = keras.layers.MaxPooling1D((5), border_mode='same')(x)
+   x = keras.layers.Convolution1D(4, 3, activation='relu', border_mode='same')(x)
+   x = keras.layers.Convolution1D(4, 3, activation='relu', border_mode='same')(x)
+
+   x = keras.layers.Convolution1D(2, 3, activation='relu', border_mode='same')(x)
+   x = keras.layers.Convolution1D(2, 3, activation='relu', border_mode='same')(x)
    x = keras.layers.Convolution1D(1, 3, activation='relu', border_mode='same')(x)
-   encoded = keras.layers.MaxPooling1D((5), border_mode='same')(x)  # (self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length)
+
+   encoded = x  # (self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length)
+   #encoded = keras.layers.MaxPooling1D((5), border_mode='same')(x)  # (self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length)
    self.uscLogger.logger.info("shape of encoder"+str(encoded.shape))
    self.uscData.latent_space_presentation_data_length=int(encoded.shape[1])
    
-   x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(encoded)
+   x = keras.layers.Convolution1D(1, 3, activation='relu', border_mode='same')(encoded)
+   x = keras.layers.Convolution1D(2, 3, activation='relu', border_mode='same')(encoded)
+   x = keras.layers.Convolution1D(2, 3, activation='relu', border_mode='same')(encoded)
+
+   x = keras.layers.Convolution1D(4, 3, activation='relu', border_mode='same')(encoded)
+   x = keras.layers.Convolution1D(4, 3, activation='relu', border_mode='same')(encoded)
    x = keras.layers.UpSampling1D((5))(x)
    x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(x)
    x = keras.layers.UpSampling1D((5))(x)
-
-   # In original tutorial, border_mode='same' was used. 
-   # then the shape of 'decoded' will be 32 x 32, instead of 28 x 28
-   # x = Convolution2D(16, 3, 3, activation='relu', border_mode='same')(x) 
    x = keras.layers.Convolution1D(16, 3, activation='relu', border_mode='same')(x) 
-   x = keras.layers.UpSampling1D((int(5*(self.uscData.word2vec_window_size-1))))(x)
+   #x = keras.layers.UpSampling1D((int(3*(self.uscData.word2vec_window_size-1))))(x)
    
-   x = keras.layers.Convolution1D(1,3, activation='sigmoid', border_mode='same')(x)
+   ##x = keras.layers.Convolution1D(1,3, activation='sigmoid', border_mode='same')(x)
    x =  keras.layers.Flatten()(x)
    decoded =keras.layers.Dense(units =(self.uscData.word2vec_window_size-1)*self.uscData.time_slice_length,activation='softmax')(x)
 
