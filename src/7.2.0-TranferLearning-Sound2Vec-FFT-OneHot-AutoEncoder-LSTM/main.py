@@ -16,7 +16,7 @@ def main(_):
    session.run(tf.global_variables_initializer())
    
    uscAutoEncoder=USCAutoEncoder(session,uscLogger,uscData)
-   for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count*2):
+   for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count*200):
     uscLogger.logger.info("AutoEncoder Training Iteration No: "+str(trainingIterationNo))
     current_youtube_data_as_list=uscData.loadNextYoutubeData()
     uscLogger.logAutoEncoderStepStart(session,trainingIterationNo)

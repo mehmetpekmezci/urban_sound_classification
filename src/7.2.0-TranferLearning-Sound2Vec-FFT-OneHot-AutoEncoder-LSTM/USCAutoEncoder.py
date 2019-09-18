@@ -70,21 +70,40 @@ class USCAutoEncoder :
    #y_data=np.concatenate((x_data[:,:int(len(x_data)/2+1),:],x_data[:,int(len(x_data)/2+1):,:]))
    y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
    y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2])
-   x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
+   x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],1,x_data.shape[2])
    self.model.fit(x_data, y_data, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
   trainingLossTotal=0
+
+  test_data_x=None
+  test_data_y=None
   for x_data in x_data_list :
    y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
    y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2])
-   x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
+   x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],1,x_data.shape[2])
+   test_data_x=x_data
+   test_data_y=y_data
    evaluation = self.model.evaluate(x_data, y_data, batch_size = self.uscData.mini_batch_size,verbose=0)
    #print(self.model.metrics_names)
    #print(evaluation)
    trainingLossTotal+=evaluation[0]
   #print(trainingLossTotal)
   trainingLoss=trainingLossTotal/len(x_data_list)
+
+
+  self.uscLogger.logger.info("x_data.shape : "+str(test_data_x.shape))
+  self.uscLogger.logger.info("y_data.shape : "+str(test_data_y.shape))
+  self.uscLogger.logger.info("x_data[0].shape : "+str(test_data_x[0].shape))
+  self.uscLogger.logger.info("y_data[0].shape : "+str(test_data_y[0].shape))
+  test_data_x=test_data_x[0].reshape(1,1,test_data_x[0].shape[1])
+  test_data_y=test_data_y[0].reshape(1,test_data_y[0].shape[0])
+  self.uscLogger.logger.info("x_data.shape : "+str(test_data_x.shape))
+  self.uscLogger.logger.info("y_data.shape : "+str(test_data_y.shape))
+  self.uscLogger.logger.info("x_data : "+str(test_data_x))
+  self.uscLogger.logger.info("y_data : "+str(test_data_y))
+  self.uscLogger.logger.info("predicted_data : "+str(self.model.predict(test_data_x)))
+
   #print(self.model.metrics_names) 
   #print(evaluation) 
   self.trainCount+=1
@@ -96,7 +115,7 @@ class USCAutoEncoder :
      
 
  def buildModel(self):
-   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.time_slice_length,1))
+   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,1,self.uscData.time_slice_length))
 #   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.word2vec_window_size,self.uscData.time_slice_length))
    x = keras.layers.Convolution1D(16, 3,activation='relu', border_mode='same')(layer_input) #nb_filter, nb_row, nb_col
    x = keras.layers.MaxPooling1D((5), border_mode='same')(x)
@@ -135,7 +154,7 @@ class USCAutoEncoder :
    autoencoder = keras.models.Model(layer_input,decoded)
    flattennedEncoded=keras.layers.Flatten()(encoded)
    encoder = keras.models.Model(layer_input,flattennedEncoded)
-   selectedOptimizer=keras.optimizers.Adam(lr=0.0001)
+   selectedOptimizer=keras.optimizers.Adam(lr=0.001)
    #autoencoder.compile(optimizer=selectedOptimizer, loss='binary_crossentropy')
    autoencoder.compile(optimizer=selectedOptimizer, loss='categorical_crossentropy',metrics=['accuracy'])
    #autoencoder.compile(optimizer=selectedOptimizer, loss='mse')
@@ -155,7 +174,7 @@ class USCAutoEncoder :
    ##  (self.number_of_time_slices,self.mini_batch_size      ,self.time_slice_length)
    for x_data_item in x_data_list :
        #self.uscLogger.logger.info("len(x_data_item)="+str( len(x_data_item)))
-       x_data_item=x_data_item.reshape(x_data_item.shape[0],x_data_item.shape[1],1)
+       x_data_item=x_data_item.reshape(x_data_item.shape[0],1,x_data_item.shape[1])
        encoded_x_data_item=self.encoder.predict(x_data_item)
        #self.uscLogger.logger.info("encoded_x_data_item.shape="+str( encoded_x_data_item.shape))
        x_encoded_data_list.append(encoded_x_data_item)
