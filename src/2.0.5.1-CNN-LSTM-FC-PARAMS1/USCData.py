@@ -15,23 +15,16 @@ class USCData :
    self.np_data_dir=self.main_data_dir+'/2.np'
    self.sound_record_sampling_rate=22050 # 22050 sample points per second
    self.track_length=4*self.sound_record_sampling_rate # 4 seconds record
-   self.time_slice_length=2000
+   self.time_slice_length=700
    #self.time_slice_length=440
    #self.time_slice_length=55
-   self.time_slice_overlap_length=200
+   self.time_slice_overlap_length=400
    #self.time_slice_overlap_length=265
    #self.time_slice_overlap_length=30
    self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
-   self.mini_batch_size=50
+   self.mini_batch_size=15
    self.fold_data_dictionary=dict()
-   self.youtube_data_file_dictionary=dict()
-   self.current_youtube_data=[]
-   self.youtube_data_max_category_data_file_count=0
-   self.current_data_file_number=0
-   self.word2vec_window_size=7 ## Bunu degistirme
-   self.latent_space_presentation_data_length=0 ## WILL BE SET IN USCAutoEncoder.buildModel method.
-   
 
  def parse_audio_files(self):
     sub4SecondSoundFilesCount=0
@@ -142,47 +135,8 @@ class USCData :
     one_hot_encoded_class_number[int(classNumber)]=1
     return one_hot_encoded_class_number
 
-
- def findListOfYoutubeDataFiles(self):
-    self.logger.info ("Crawling Youtube Data Files From Directory ../../youtube/downloads/ ...")
-    if not os.path.exists('../../youtube/raw/'):
-        self.logger.info("../../youtube/raw/ directory does not exist.")
-        self.logger.info("Please do the following :")
-        self.logger.info(" 1. cd ../../youtube/")
-        self.logger.info(" 2. ./download.sh")
-        self.logger.info(" 3. ./convertAll.sh")
-        self.logger.info(" 4. ./splitAll.sh")
-        self.logger.info(" 5. python3 prepareNPYDataFiles.py")
-        exit(1);
-    if len(glob.glob('../../youtube/raw/*/*.npy')) == 0:
-        self.logger.info("../../youtube/raw/*/*.npy data files do not exist , first go to ../../youtube directory and run 'python3 prepareNPYDataFiles.py' ")
-        exit(1);
-
-    for category in glob.glob('../../youtube/raw/*/'):
-      dataFileList=glob.glob(category+'/*.npy')
-      if len(dataFileList) > self.youtube_data_max_category_data_file_count :
-          self.youtube_data_max_category_data_file_count=len(dataFileList)
-      self.youtube_data_file_dictionary[category]=random.sample(dataFileList,len(dataFileList))
-
-
- def loadNextYoutubeData(self):
-     self.current_youtube_data=np.empty([0,4*self.sound_record_sampling_rate])
-     for category in  self.youtube_data_file_dictionary :
-         dataFileList= self.youtube_data_file_dictionary[category]
-         if len(dataFileList) > self.current_data_file_number :
-             self.logger.info("loading"+ category+'/data.'+str(self.current_data_file_number)+'.npy')
-             loadedData=np.load(category+'/data.'+str(self.current_data_file_number)+'.npy')
-             loadedData=loadedData[:,:4*self.sound_record_sampling_rate]
-             #listOf4SecondRecords=loadedData.tolist()
-             #self.logger.info(len(listOf4SecondRecords))
-             self.current_youtube_data=np.vstack((self.current_youtube_data,loadedData)) ## this appends listOf4SecondRecords to self.current_youtube_data
-     self.current_data_file_number= (self.current_data_file_number+1)%self.youtube_data_max_category_data_file_count  
-     np.random.shuffle(self.current_youtube_data)
-     self.logger.info(self.current_youtube_data.shape)
-     return self.current_youtube_data
-
-
  def load_all_np_data_back_to_memory(self):
+   
     self.logger.info ("load_all_np_data_back_to_memory function started ...")
     for fold in self.fold_dirs:
         self.logger.info ("loading from "+self.main_data_dir+"/2.np/"+fold+".npy  ...")
@@ -222,7 +176,7 @@ class USCData :
     new_array[n:]=snd_array[:-n]
     return new_array
 
- def overlapping_slice(self,x_data,hanning=False):
+ def overlapping_hanning_slice(self,x_data):
     sliced_and_overlapped_data=np.zeros([self.mini_batch_size,self.number_of_time_slices,self.time_slice_length])
     step=self.time_slice_length-self.time_slice_overlap_length
     hanning_window=np.hanning(self.time_slice_length)
@@ -235,9 +189,7 @@ class USCData :
             else :
                 overlapped_time_slice=x_data[i,step_index:step_index+self.time_slice_length]
             sliced_and_overlapped_data[i,j]=overlapped_time_slice
-            if hanning :
-                 sliced_and_overlapped_data[i,j]*=hanning_window
-                 
+            sliced_and_overlapped_data[i,j]*=hanning_window
     #self.logger.info(sliced_and_overlapped_data.shape)
     #self.logger.info(sliced_and_overlapped_data[0][100][step])
     #self.logger.info(sliced_and_overlapped_data[0][101][0])
@@ -253,19 +205,12 @@ class USCData :
     #self.logger.info("x_data[15][25][18]="+str(x_data[15][25][18]))
     return x_data
 
- def convert_to_list_of_word2vec_window_sized_data(self,x_data):
+ def convert_to_list_for_parallel_lstms(self,x_data,num_of_paralel_lstms,lstm_time_steps):
      #print(x_data.shape)
-     result=[]
-     # Mehmet Pekmezci. : make combination 
-     for i in range(self.word2vec_window_size):
-      row_i=x_data[:,i,:]
-      x_data[:,i,:]=x_data[:,int((i+1)%self.word2vec_window_size),:]
-      x_data[:,int((i+1)%self.word2vec_window_size),:]=row_i
-      x_data_window=np.reshape(x_data,(self.mini_batch_size,int(self.number_of_time_slices/self.word2vec_window_size),self.word2vec_window_size,self.time_slice_length))
-      ## switch axes of batch_size and parallel_lstms, then convert it to list according to first axis. --> this will give us list of matrices of shape (mini_batch_size,lstm_time_steps,time_slice_lentgh)
-      x_list=np.swapaxes(x_data_window,0,1).tolist()
-      result=result+x_list
-     return np.random.permutation(result)
+     x_data=np.reshape(x_data,(self.mini_batch_size,num_of_paralel_lstms,lstm_time_steps,self.time_slice_length))
+     ## switch axes of batch_size and parallel_lstms, then convert it to list according to first axis. --> this will give us list of matrices of shape (mini_batch_size,lstm_time_steps,time_slice_lentgh)
+     x_list=np.swapaxes(x_data,0,1).tolist()
+     return x_list
 
  def augment_random(self,x_data):
     augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)

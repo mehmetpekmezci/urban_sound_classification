@@ -21,7 +21,7 @@ class USCData :
    self.time_slice_overlap_length=200
    #self.time_slice_overlap_length=265
    #self.time_slice_overlap_length=30
-   self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
+   self.number_of_time_slices=math.floor(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
    self.mini_batch_size=50
    self.fold_data_dictionary=dict()
