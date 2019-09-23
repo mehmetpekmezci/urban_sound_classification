@@ -37,7 +37,6 @@ class USCModel :
   x_data=self.uscData.normalize(x_data)
   x_data=self.uscData.overlapping_slice(x_data) #  (self.mini_batch_size,self.number_of_time_slices,self.time_slice_length)
   x_data=self.uscData.fft(x_data)
-  x_data=self.uscData.peaksMultiHot(x_data)
   #x_data_list = self.uscData.convert_to_list_for_parallel_lstms(x_data,self.num_of_paralel_lstms,self.lstm_time_steps)
   #self.uscLogger.logger.info("x_data.shape="+str(x_data.shape))
   encodedValue,encodeTime=self.uscAutoEncoder.encode(x_data)  # (self.uscData.mini_batch_size,self.uscData.number_of_time_slices,self.latent_space_presentation_data_length)
