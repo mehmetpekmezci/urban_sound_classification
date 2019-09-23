@@ -79,6 +79,7 @@ class USCAutoEncoder :
    y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2],1)
    x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
    evaluation = self.model.evaluate(x_data, y_data, batch_size = self.uscData.mini_batch_size,verbose=0)
+   #trainingLossTotal+=evaluation[0]
    trainingLossTotal+=evaluation
   trainingLoss=trainingLossTotal/len(x_data_list)
   #print(self.model.metrics_names) 
