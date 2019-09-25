@@ -3,6 +3,10 @@ from USCHeader import *
 from USCLogger import *
 from USCData import *
 
+
+# https://github.com/guillaume-chevalier/LSTM-Human-Activity-Recognition
+
+
 ##
 ## NueralNetworkModel will be as :
 ## CNN LAYERS + LSTM LAYERS + FULLY CONNECTED LAYER + SOFTMAX
