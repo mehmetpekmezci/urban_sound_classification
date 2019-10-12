@@ -155,13 +155,13 @@ CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1
 ## CNN AUTO ENCODER
 ##
 
-AE_CNN_KERNEL_COUNTS       = np.array([128,64,64,64,32,32,32,32,32,32])
-AE_CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-AE_CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
-AE_CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-AE_CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-AE_CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-AE_CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 2, 2, 2, 1, 1])
+AE_CNN_KERNEL_COUNTS       = np.array([128,32,32,32,32,32,32,32,32,32,32])
+AE_CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+AE_CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+AE_CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+AE_CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+AE_CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+AE_CNN_POOL_Y_SIZES        = np.array([  5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1])
 
 
 ##
@@ -173,10 +173,9 @@ LEARNING_RATE = 0.0001
 LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
-AUTOENCODER_TRAINING_ITERATIONS=15
+
 TRAINING_ITERATIONS=9000
 MINI_BATCH_SIZE=5
-MINI_BATCH_SIZE_FOR_GENERATED_DATA=5
 
 ##
 ## GLOBAL VARIABLES

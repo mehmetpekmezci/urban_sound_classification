@@ -24,19 +24,11 @@ class Data :
    self.MIN_VALUE_FOR_NORMALIZATION=0
    self.FOLD_DATA_DICTIONARY=dict()
    self.LAST_AUGMENTATION_CHOICE=0
-   ##self.MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=3500 ## 3500 different frequencies may be sensed by humn ear at an instance. (There are 3500 inner hair cells in the cochlea)
-   self.MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=350 ## 3500 different frequencies may be sensed by humn ear at an instance. (There are 3500 inner hair cells in the cochlea)
-   self.ANALYZED_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=50 ## 3500 different frequencies may be sensed by humn ear at an instance. (There are 3500 inner hair cells in the cochlea)
+   self.MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=3500 ## 3500 different frequencies may be sensed by humn ear at an instance. (There are 3500 inner hair cells in the cochlea)
    self.MAX_HEARING_FREQUENCY=20000 ## 20KHz Max hearing freq of humans.
    self.GENERATED_DATA=dict()
    self.NUMBER_OF_SYNTHETIC_TRAINNG_SAMPLES=100000
-  
-   ## Every slice in the time slice list will be converted into frequency domain
-   self.FOURIER_TRANSFORMER_INPUT_SIZE=self.TIME_SLICE_LENGTH ## 220
-   self.FOURIER_TRANSFORMER_OUTPUT_SIZE=self.ANALYZED_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE
-   ## classifier is fed by a list of time slices each containing self.ANALYZED_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE sized data.
-   self.CLASSIFIER_INPUT_SIZE=self.ANALYZED_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE
-   self.CLASSIFIER_OUTPUT_SIZE=self.NUMBER_OF_CLASSES
+
    
    
 

@@ -12,6 +12,10 @@ def main(_):
   MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION=load_all_np_data_back_to_memory(fold_data_dictionary)
   normalize_all_data(fold_data_dictionary,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION)
 
+  current_youtube_data_as_list=findListOfYoutubeDataFiles();
+  youtube_data_max_category_data_file_count,youtube_data_file_dictionary=findListOfYoutubeDataFiles();
+  
+  
   with tf.Session() as session:
     
    autoEncoder=AutoEncoder(session,logger)
@@ -30,33 +34,21 @@ def main(_):
    ##
    ##
     
-   for iterationNo in range(AUTOENCODER_TRAINING_ITERATIONS):
+   for iterationNo in range(youtube_data_max_category_data_file_count*2):
         
     logger.info("##############################################################")
     logger.info("AutoEncoder Training Iteration : "+str(iterationNo))
-        
-    prepareDataTimes=[ ]
-    trainingTimes=[ ]
-    trainingAccuracies=[ ]
-    testTimes=[ ]
-    trainingLosses=[ ]
-    for fold in np.random.permutation(FOLD_DIRS):
-      ## DO NOT USE FOLD10 AT ALL
-      if fold != "fold10": 
-       current_fold_data=get_fold_data(fold)
-       generated_data=generate_normalized_synthetic_samples(fold)
-       for current_batch_counter in range(int(current_fold_data.shape[0]/MINI_BATCH_SIZE)) :
-         if (current_batch_counter+1)*MINI_BATCH_SIZE <= current_fold_data.shape[0] :
-           batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:(current_batch_counter+1)*MINI_BATCH_SIZE,:]
-           batch_generated_data=generated_data[int(current_batch_counter*MINI_BATCH_SIZE_FOR_GENERATED_DATA):int((current_batch_counter+1)*MINI_BATCH_SIZE_FOR_GENERATED_DATA),:]
-         else:
-           batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:,:]
-           batch_generated_data=generated_data[current_batch_counter*MINI_BATCH_SIZE_FOR_GENERATED_DATA:,:]
-         trainingTime,trainingLoss,prepareDataTime=autoEncoder.train(batch_data,batch_generated_data)
+
+
+    for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/MINI_BATCH_SIZE)) :
+         batch_data=current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size]
+         #uscLogger.logger.info("batch_data.shape: "+str(batch_data.shape))
+         trainingTime,trainingLoss,prepareDataTime=autoEncoder.train(batch_data)
          trainingTimes.append(trainingTime)
          trainingLosses.append(trainingLoss)
          prepareDataTimes.append(prepareDataTime)
-    ## LOGGING            
+         
+    uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
     logger.info("AutoEncoder Prepare Data Time : "+str(np.sum(prepareDataTimes)))
     logger.info("AutoEncoder Training Time : "+str(np.sum(trainingTimes)))
     logger.info("AutoEncoder Mean Training Loss : "+str(np.mean(trainingLosses)))
@@ -77,14 +69,13 @@ def main(_):
     trainingAccuracies=[ ]
     testTimes=[ ]
     testAccuracies=[ ]
-    UNIFIED_MINI_BATCH_SIZE=int(MINI_BATCH_SIZE+MINI_BATCH_SIZE_FOR_GENERATED_DATA)
     for fold in np.random.permutation(FOLD_DIRS):
        current_fold_data=get_fold_data(fold)
-       for current_batch_counter in range(int(current_fold_data.shape[0]/UNIFIED_MINI_BATCH_SIZE)) :
-         if (current_batch_counter+1)*UNIFIED_MINI_BATCH_SIZE <= current_fold_data.shape[0] :
-           batch_data=current_fold_data[current_batch_counter*UNIFIED_MINI_BATCH_SIZE:(current_batch_counter+1)*UNIFIED_MINI_BATCH_SIZE,:]
+       for current_batch_counter in range(int(current_fold_data.shape[0]/MINI_BATCH_SIZE)) :
+         if (current_batch_counter+1)*MINI_BATCH_SIZE <= current_fold_data.shape[0] :
+           batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:(current_batch_counter+1)*MINI_BATCH_SIZE,:]
          else:
-           batch_data=current_fold_data[current_batch_counter*UNIFIED_MINI_BATCH_SIZE:,:]
+           batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:,:]
          if fold == "fold10":
              ## FOLD10 is reserved for testing
               testTime,testAccuracy=neuralNetworkModel.test(batch_data)

@@ -3,108 +3,34 @@ from header import *
 from data import *
 
 class FourierTransformer :
- def __init__(self,session,logger):
-   self.session               = session
-   self.logger                = logger
-   ##
-   ## INPUT  LAYER
-   ##
-   self.x_input                      = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.input_size), name="input")
+ def __init__(self,session,logger,savedir,data):
+   self.session = session
+   self.logger  = logger
+   self.savedir = savedir
+   self.data    = data
+   self.model   = Sequential()
    
-   last_layer_output=self.x_input
-   with tf.name_scope('encoder'):
-    for fcLayerNo in range(len(self.encoder_layers)) :
-       number_of_fully_connected_layer_neurons=self.encoder_layers[fcLayerNo]
-       W_fc1 =  tf.Variable( tf.truncated_normal([int(last_layer_output.shape[1]), number_of_fully_connected_layer_neurons], stddev=0.1))
-       self.logger.info("W_fc-"+str(fcLayerNo)+".shape="+str(W_fc1.shape))
-       B_fc1 = tf.Variable(tf.constant(0.1, shape=[number_of_fully_connected_layer_neurons]))
-       self.logger.info("B_fc-"+str(fcLayerNo)+".shape="+str(B_fc1.shape))
-       matmul_fc1=tf.matmul(last_layer_output, W_fc1)+B_fc1
-       self.logger.info("matmul_fc-"+str(fcLayerNo)+".shape="+str(matmul_fc1.shape))
-
-       with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normlalization'):    
-         batch_mean, batch_var = tf.nn.moments(matmul_fc1,[0])
-         scale = tf.Variable(tf.ones(number_of_fully_connected_layer_neurons))
-         beta = tf.Variable(tf.zeros(number_of_fully_connected_layer_neurons))
-         batch_normalization_fc1 = tf.nn.batch_normalization(matmul_fc1,batch_mean,batch_var,beta,scale,epsilon)
-         self.logger.info("batch_normalization_fc-"+str(fcLayerNo)+".shape="+str(batch_normalization_fc1.shape))
-
-       with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normalized_relu'):    
-         h_fc1 = tf.nn.relu( batch_normalization_fc1 )
-         self.logger.info("h_fc-"+str(fcLayerNo)+".shape="+str(h_fc1.shape))
-
-       # Dropout - controls the complexity of the model, prevents co-adaptation of features.
-       with tf.name_scope('fc-'+str(fcLayerNo)+'_dropout'):    
-         h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
-         self.logger.info("h_fc-"+str(fcLayerNo)+"_drop.shape="+str(h_fc1_drop.shape))
-         last_layer_output=h_fc1_drop
-   self.encoder=last_layer_output
+   self.model.add(Conv2D(filters=20, input_shape=data.TIME_SLICE_LENGTH, kernel_size=(3,1),strides=(1,1), padding='same'))
+   ## no activation fn.  self.model.add(Activation(activationFn))
+   self.model.add(MaxPooling2D(pool_size=(3,1), strides=(3,1), padding='same'))
+   self.model.add(BatchNormalization())
+   self.model.add(Conv2D(filters=20,kernel_size=(3,1),strides=(1,1), padding='same'))
+   ## no activation fn.  self.model.add(Activation(activationFn))
+   self.model.add(MaxPooling2D(pool_size=(3,1), strides=(3,1), padding='same'))
+   self.model.add(BatchNormalization())
+   self.model.add(Conv2D(filters=20,kernel_size=(3,1),strides=(1,1), padding='same'))
+   ## no activation fn.  self.model.add(Activation(activationFn))
+   self.model.add(MaxPooling2D(pool_size=(3,1), strides=(3,1), padding='same'))
+   self.model.add(BatchNormalization())
    
+   self.model.add(Flatten())
    
-   ### DECODER
-   with tf.name_scope('decoder'):
-    for fcLayerNo in range(len(self.encoder_layers)) :
-       number_of_fully_connected_layer_neurons=self.encoder_layers[int(-1*(fcLayerNo+1))]
-       W_fc1 =  tf.Variable( tf.truncated_normal([int(last_layer_output.shape[1]), number_of_fully_connected_layer_neurons], stddev=0.1))
-       self.logger.info("W_fc-"+str(fcLayerNo)+".shape="+str(W_fc1.shape))
-       B_fc1 = tf.Variable(tf.constant(0.1, shape=[number_of_fully_connected_layer_neurons]))
-       self.logger.info("B_fc-"+str(fcLayerNo)+".shape="+str(B_fc1.shape))
-       matmul_fc1=tf.matmul(last_layer_output, W_fc1)+B_fc1
-       self.logger.info("matmul_fc-"+str(fcLayerNo)+".shape="+str(matmul_fc1.shape))
+   self.model.add(Dense(100, kernel_initializer='normal', activation='relu'))
+   self.model.add(Dense(100, kernel_initializer='normal', activation='relu'))
+   self.modelOptimizer=keras.optimizers.Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.01)
+   self.model.compile(loss='mean_squared_error',optimizer=modelOptimizer,metrics=['accuracy'])
 
-       with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normlalization'):    
-         batch_mean, batch_var = tf.nn.moments(matmul_fc1,[0])
-         scale = tf.Variable(tf.ones(number_of_fully_connected_layer_neurons))
-         beta = tf.Variable(tf.zeros(number_of_fully_connected_layer_neurons))
-         batch_normalization_fc1 = tf.nn.batch_normalization(matmul_fc1,batch_mean,batch_var,beta,scale,epsilon)
-         self.logger.info("batch_normalization_fc-"+str(fcLayerNo)+".shape="+str(batch_normalization_fc1.shape))
-
-       with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normalized_relu'):    
-         h_fc1 = tf.nn.relu( batch_normalization_fc1 )
-         self.logger.info("h_fc-"+str(fcLayerNo)+".shape="+str(h_fc1.shape))
-
-       # Dropout - controls the complexity of the model, prevents co-adaptation of features.
-       with tf.name_scope('fc-'+str(fcLayerNo)+'_dropout'):    
-         h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
-         self.logger.info("h_fc-"+str(fcLayerNo)+"_drop.shape="+str(h_fc1_drop.shape))
-         last_layer_output=h_fc1_drop
-
-   ### OUTPUT
-   with tf.name_scope('output_decoder'):
-     W_fc2 =  tf.Variable( tf.truncated_normal([int(last_layer_output.shape[1]), self.input_size], stddev=0.1))
-     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.input_size]))
-     self.y_output =tf.matmul(last_layer_output, W_fc2) + b_fc2
-     self.logger.info("self.y_output.shape="+str(self.y_output.shape))
-      
-    ## HERE NETWORK DEFINITION IS FINISHED
-     
-   ##
-   ## CALCULATE LOSS
-   ##
-   with tf.name_scope('calculate_loss'):
-     self.loss=tf.losses.mean_squared_error(self.x_input,self.y_output)
-
-   ##
-   ## SET OPTIMIZER
-   ##
-   with tf.name_scope('optimizer'):
-    self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate).minimize(self.loss)
-
-   ##
-   ## SAVE NETWORK GRAPH TO A DIRECTORY
-   ##
-   with tf.name_scope('save_graph'):
-    self.logger.info('Saving graph to: %s-autoencoder' % LOG_DIR_FOR_TF_SUMMARY)
-    graph_writer = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"-autoencoder")
-    graph_writer.add_graph(tf.get_default_graph())
-
- def prepareData(self,data,generated_data):
-  x_data=augment_random(data[:,:4*SOUND_RECORD_SAMPLING_RATE])
-  concat_data=np.concatenate((x_data,generated_data),axis=0)
-  x_data=np.random.permutation(concat_data)
-  return x_data
-
- def train(self,data,generated_data):
+ def train(self,data):
   prepareDataTimeStart = int(round(time.time())) 
   x_data=self.prepareData(data,generated_data)
   prepareDataTimeStop = int(round(time.time())) 
@@ -335,7 +261,7 @@ with tf.Session() as sess:
     plt.figure(figsize=(n, n))
     plt.imshow(canvas_recon, origin="upper", cmap="gray")
     plt.show()
-'''
+
 def buildAlexNet(inputShape,activationFn,learningRateAdjustmentType,denseNodeCount,removeThirdLayerFromOutput,removeFourthLayerFromOutput):
     #denseNodeCount=4096
     #activationFn='relu'

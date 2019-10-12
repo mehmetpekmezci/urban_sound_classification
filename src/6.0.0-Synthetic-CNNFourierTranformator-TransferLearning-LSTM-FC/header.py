@@ -36,10 +36,12 @@ from keras import backend as K
 
 
 SCRIPT_DIR  = os.path.dirname(os.path.realpath(__file__))
-uscLogger   = USCLogger(SCRIPT_DIR)
-tfSummary   = TFSummary(SCRIPT_DIR)
-dataObject  = Data(uscLogger.logger,SCRIPT_DIR)
-SAVE_DIR    = SCRIPT_DIR+"/../../save/"+uscLogger.SCRIPT_NAME
+SCRIPT_NAME = os.path.basename(SCRIPT_DIR)
+
+uscLogger   = USCLogger(SCRIPT_DIR,SCRIPT_NAME)
+tfSummary   = TFSummary(SCRIPT_DIR,SCRIPT_NAME)
+dataObject  = Data(uscLogger.logger,SCRIPT_DIR,SCRIPT_NAME)
+SAVE_DIR    = SCRIPT_DIR+"/../../save/"+SCRIPT_NAME
 config = tf.ConfigProto()
 config.gpu_options.allow_growth=True
 ##

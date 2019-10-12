@@ -264,6 +264,93 @@ def play_sound(sound_data):
   logger.info("Finished To Play Sound")
 
 
+def findListOfYoutubeDataFiles():
+    youtube_data_max_category_data_file_count=0
+    youtube_data_file_dictionary=dict()
+    logger.info ("Crawling Youtube Data Files From Directory ../../youtube/downloads/ ...")
+    if not os.path.exists('../../youtube/raw/'):
+        logger.info("../../youtube/raw/ directory does not exist.")
+        logger.info("Please do the following :")
+        logger.info(" 1. cd ../../youtube/")
+        logger.info(" 2. ./download.sh")
+        logger.info(" 3. ./convertAll.sh")
+        logger.info(" 4. ./splitAll.sh")
+        logger.info(" 5. python3 prepareNPYDataFiles.py")
+        exit(1);
+    if len(glob.glob('../../youtube/raw/*/*.npy')) == 0:
+        logger.info("../../youtube/raw/*/*.npy data files do not exist , first go to ../../youtube directory and run 'python3 prepareNPYDataFiles.py' ")
+        exit(1);
+
+    for category in glob.glob('../../youtube/raw/*/'):
+      dataFileList=glob.glob(category+'/*.npy')
+      if len(dataFileList) > youtube_data_max_category_data_file_count :
+          youtube_data_max_category_data_file_count=len(dataFileList)
+      youtube_data_file_dictionary[category]=random.sample(dataFileList,len(dataFileList))
+    return youtube_data_max_category_data_file_count,youtube_data_file_dictionary
+
+def loadNextYoutubeData(youtube_data_file_dictionary,sound_record_sampling_rate,current_data_file_number,youtube_data_max_category_data_file_count):
+     current_youtube_data=np.empty([0,4*sound_record_sampling_rate])
+     for category in  youtube_data_file_dictionary :
+         dataFileList= youtube_data_file_dictionary[category]
+         if len(dataFileList) > current_data_file_number :
+             logger.info("loading"+ category+'/data.'+str(current_data_file_number)+'.npy')
+             loadedData=np.load(category+'/data.'+str(current_data_file_number)+'.npy')
+             loadedData=loadedData[:,:4*sound_record_sampling_rate]
+             #listOf4SecondRecords=loadedData.tolist()
+             #logger.info(len(listOf4SecondRecords))
+             current_youtube_data=np.vstack((current_youtube_data,loadedData)) ## this appends listOf4SecondRecords to current_youtube_data
+     current_data_file_number= (current_data_file_number+1)%youtube_data_max_category_data_file_count  
+     np.random.shuffle(current_youtube_data)
+     logger.info(current_youtube_data.shape)
+     return current_youtube_data,current_data_file_number
+
+
+def overlapping_slice(x_data,mini_batch_size,number_of_time_slices,time_slice_length,hanning=False):
+    sliced_and_overlapped_data=np.zeros([mini_batch_size,number_of_time_slices,time_slice_length])
+    step=time_slice_length-time_slice_overlap_length
+    hanning_window=np.hanning(time_slice_length)
+    for i in range(mini_batch_size):
+        for j in range(number_of_time_slices):
+            step_index=j*step
+            if step_index+time_slice_length>x_data.shape[1]:
+                overlapped_time_slice=np.zeros(time_slice_length)
+                overlapped_time_slice[0:int(x_data.shape[1]-step_index)]=x_data[i,step_index:x_data.shape[1]]
+            else :
+                overlapped_time_slice=x_data[i,step_index:step_index+time_slice_length]
+            sliced_and_overlapped_data[i,j]=overlapped_time_slice
+            if hanning :
+                 sliced_and_overlapped_data[i,j]*=hanning_window
+                 
+    #logger.info(sliced_and_overlapped_data.shape)
+    #logger.info(sliced_and_overlapped_data[0][100][step])
+    #logger.info(sliced_and_overlapped_data[0][101][0])
+    return sliced_and_overlapped_data
+    #x_input_list = tf.unstack(x_input_reshaped, number_of_time_slices, 1)
+
+def fft(x_data):
+    #deneme_data=x_data[15][25]
+    #logger.info("deneme_datae[18]="+str(deneme_data[18]))
+    #fft_deneme_data=np.abs(np.fft.fft(deneme_data))
+    #logger.info("fft_deneme_data[18]="+str(fft_deneme_data[18]))
+    x_data = np.abs(np.fft.fft(x_data))
+    #logger.info("x_data[15][25][18]="+str(x_data[15][25][18]))
+    return x_data
+
+def convert_to_list_of_word2vec_window_sized_data(mini_batch_size,number_of_time_slices,time_slice_length,word2vec_window_size,x_data):
+     #print(x_data.shape)
+     result=[]
+     # Mehmet Pekmezci. : make combination 
+     for i in range(word2vec_window_size):
+      row_i=x_data[:,i,:]
+      x_data[:,i,:]=x_data[:,int((i+1)%word2vec_window_size),:]
+      x_data[:,int((i+1)%word2vec_window_size),:]=row_i
+      x_data_window=np.reshape(x_data,(mini_batch_size,int(number_of_time_slices/word2vec_window_size),word2vec_window_size,time_slice_length))
+      ## switch axes of batch_size and parallel_lstms, then convert it to list according to first axis. --> this will give us list of matrices of shape (mini_batch_size,lstm_time_steps,time_slice_lentgh)
+      x_list=np.swapaxes(x_data_window,0,1).tolist()
+      result=result+x_list
+     return np.random.permutation(result)
+
+
 # generate samples, note conversion to float32 array
 # for paFloat32 sample values must be in range [-1.0, 1.0]
 

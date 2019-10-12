@@ -50,6 +50,69 @@ class AutoEncoder :
 
 
 
+   ##
+   ## FOURIER  CNN LAYERS
+   ##
+   with tf.name_scope('fourier_CNN'):
+    for fourierCNNLayerNo in range(3) :
+     self.logger.info("auto encoder fourier layers previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
+     cnnLayerName    = "ae fourier-cnn-"+str(fourierCNNLayerNo)     
+     cnnKernelCount  = self.fourier_cnn_layers[fourierCNNLayerNo]   
+     # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
+     cnnKernelSizeX  = 1
+     cnnKernelSizeY  = 3        
+     cnnStrideSizeX  = 1 
+     cnnStrideSizeY  = 1                     
+     cnnPoolSizeX    = 1
+     cnnPoolSizeY    = 2
+     cnnOutputChannel= cnnKernelCount   
+     if fourierCNNLayerNo == 0 :
+       cnnInputChannel = 1
+     else :
+       cnnInputChannel = self.fourier_cnn_layers[int(fourierCNNLayerNo-1)]   
+
+
+     with tf.name_scope(cnnLayerName+"-convolution"):
+       W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
+       B = tf.Variable(tf.constant(0.1, shape=[cnnOutputChannel]))
+       C = tf.nn.conv2d(previous_level_convolution_output,W,strides=[1,cnnStrideSizeX, cnnStrideSizeY, 1], padding='SAME')+B
+
+       self.logger.info(cnnLayerName+"_C.shape="+str(C.shape)+"  W.shape="+str(W.shape)+ "  cnnStrideSizeX="+str(cnnStrideSizeX)+" cnnStrideSizeY="+str(cnnStrideSizeY))
+     
+     ## no relu,  fourier transformation is linear.
+     H=C
+     
+     #with tf.name_scope(cnnLayerName+"-relu"):  
+     #  H = tf.nn.relu(C)
+     #  self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
+
+     if cnnPoolSizeY != 1 :
+      with tf.name_scope(cnnLayerName+"-pool"):
+       P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
+       ## put the output of this layer to the next layer's input layer.
+       previous_level_convolution_output=P
+       self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
+     else :
+       ## no residual for layer liner CNN as fourier transform.
+       previous_level_convolution_output=H
+
+     previous_level_kernel_count=cnnKernelCount
+     fourierCNNOutput=previous_level_convolution_output
+
+
+
+
+
+   ##
+   ## CNN LAYERS
+   ##
+
+    for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
+     self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
+     cnnLayerName    = "cnn-"+str(cnnLayerNo)     
+
+
+----------------------------
 
    last_layer_output=self.x_input
    with tf.name_scope('input_reshape'):
@@ -198,3 +261,120 @@ class AutoEncoder :
   encodeTime=encodeTimeStop-encodeTimeStart
   return encodedValue,encodeTime
   
+  
+  
+  
+--------------------------------------------  
+  
+  
+  
+   def prepareData(self,data,augment):
+  x_data=data[:,:4*self.uscData.sound_record_sampling_rate]
+  if augment==True :
+    x_data=self.uscData.augment_random(x_data)
+  x_data=self.uscData.normalize(x_data)
+  x_data=self.uscData.overlapping_slice(x_data)
+  ## returns -> (batch_size, number_of_time_slices, time_slice_length)
+  #x_data=self.uscData.fft(x_data)
+  x_data_list = self.uscData.convert_to_list_of_word2vec_window_sized_data(x_data)
+  ## returns -> list of (mini_batch_size,word2vec_window_size,time_slice_lentgh), this list has self.number_of_time_slices/self.word2vec_window_size elements
+  return x_data_list
+
+
+ def train(self,data):
+  augment=True
+  prepareDataTimeStart = int(round(time.time())) 
+  x_data_list=self.prepareData(data,augment)
+  prepareDataTimeStop = int(round(time.time())) 
+  prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
+  trainingTimeStart = int(round(time.time())) 
+  for x_data in x_data_list :
+   ## x_data of size (mini_batch_size,word2vec_window_size,time_slice_lentgh)
+  ## pull the data in the middle
+   #y_data=np.concatenate((x_data[:,:int(len(x_data)/2+1),:],x_data[:,int(len(x_data)/2+1):,:]))
+   y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
+   y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2],1)
+   x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
+   self.model.fit(x_data, y_data, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
+  trainingTimeStop = int(round(time.time())) 
+  trainingTime=trainingTimeStop-trainingTimeStart
+  trainingLossTotal=0
+  for x_data in x_data_list :
+   y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
+   y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2],1)
+   x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
+   evaluation = self.model.evaluate(x_data, y_data, batch_size = self.uscData.mini_batch_size,verbose=0)
+   #trainingLossTotal+=evaluation[0]
+   trainingLossTotal+=evaluation
+  trainingLoss=trainingLossTotal/len(x_data_list)
+  #print(self.model.metrics_names) 
+  #print(evaluation) 
+  self.trainCount+=1
+  
+  if self.trainCount % 100 :
+     self.save_weights()
+  
+  return trainingTime,trainingLoss,prepareDataTime
+     
+
+ def buildModel(self):
+   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.time_slice_length,1))
+#   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.word2vec_window_size,self.uscData.time_slice_length))
+   x = keras.layers.Convolution1D(16, 3,activation='relu', border_mode='same')(layer_input) #nb_filter, nb_row, nb_col
+   x = keras.layers.MaxPooling1D((5), border_mode='same')(x)
+   x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(x)
+   x = keras.layers.MaxPooling1D((5), border_mode='same')(x)
+   x = keras.layers.Convolution1D(1, 3, activation='relu', border_mode='same')(x)
+   encoded = keras.layers.MaxPooling1D((5), border_mode='same')(x)  # (self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length)
+   self.uscLogger.logger.info("shape of encoder"+str(encoded.shape))
+   self.uscData.latent_space_presentation_data_length=int(encoded.shape[1])
+   
+   x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(encoded)
+   x = keras.layers.UpSampling1D((5))(x)
+   x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(x)
+   x = keras.layers.UpSampling1D((5))(x)
+
+   # In original tutorial, border_mode='same' was used. 
+   # then the shape of 'decoded' will be 32 x 32, instead of 28 x 28
+   # x = Convolution2D(16, 3, 3, activation='relu', border_mode='same')(x) 
+   x = keras.layers.Convolution1D(16, 3, activation='relu', border_mode='same')(x) 
+   x = keras.layers.UpSampling1D((int(5*(self.uscData.word2vec_window_size-1))))(x)
+   
+   decoded = keras.layers.Convolution1D(1,3, activation='sigmoid', border_mode='same')(x)
+   self.uscLogger.logger.info("shape of decoded "+str( decoded.shape))
+
+   autoencoder = keras.models.Model(layer_input,decoded)
+   flattennedEncoded=keras.layers.Flatten()(encoded)
+   encoder = keras.models.Model(layer_input,flattennedEncoded)
+   selectedOptimizer=keras.optimizers.Adam(lr=0.0001)
+   #autoencoder.compile(optimizer=selectedOptimizer, loss='binary_crossentropy')
+   #autoencoder.compile(optimizer=selectedOptimizer, loss='categorical_crossentropy',metrics=['accuracy'])
+   autoencoder.compile(optimizer=selectedOptimizer, loss='mse')
+   return autoencoder,encoder
+
+#   out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
+#   model = keras.models.Model(inputs=inputs, outputs=[out])
+
+ def encode(self,x_data):
+   encodeTimeStart = int(round(time.time()))
+   x_data_swapped=np.swapaxes(x_data,0,1)
+   x_data_list=[]
+   for i in range(x_data_swapped.shape[0]):
+       x_data_list.append(x_data_swapped[i])
+   x_encoded_data_list=[]
+   ##  (self.mini_batch_size      ,self.number_of_time_slices,self.time_slice_length)  to
+   ##  (self.number_of_time_slices,self.mini_batch_size      ,self.time_slice_length)
+   for x_data_item in x_data_list :
+       #self.uscLogger.logger.info("len(x_data_item)="+str( len(x_data_item)))
+       x_data_item=x_data_item.reshape(x_data_item.shape[0],x_data_item.shape[1],1)
+       encoded_x_data_item=self.encoder.predict(x_data_item)
+       #self.uscLogger.logger.info("encoded_x_data_item.shape="+str( encoded_x_data_item.shape))
+       x_encoded_data_list.append(encoded_x_data_item)
+   encoded_x_data=np.asarray(x_encoded_data_list)
+   encodedValue=np.swapaxes(encoded_x_data,0,1)
+   #self.uscLogger.logger.info("encodedValue.shape="+str( encodedValue.shape))
+   encodeTimeStop = int(round(time.time()))
+   encodeTime=encodeTimeStop-encodeTimeStart
+   return encodedValue,encodeTime    
+
+
