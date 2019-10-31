@@ -29,7 +29,7 @@ class USCAutoEncoder :
    self.training_iterations   = 10
    config = tf.ConfigProto()
    config.gpu_options.allow_growth=True
-   self.model,self.encoder=self.buildModel()
+   self.buildModel()
    self.load_weights()
    self.trainCount=0
 
@@ -70,7 +70,8 @@ class USCAutoEncoder :
    y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
    y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2],1)
    x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
-   self.model.fit(x_data, y_data, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
+   self.optimizer.run(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob:0.5})
+ 
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
   trainingLossTotal=0
@@ -78,7 +79,7 @@ class USCAutoEncoder :
    y_data=np.delete(x_data,int(x_data.shape[1]/2),1)
    y_data=y_data.reshape(y_data.shape[0],y_data.shape[1]*y_data.shape[2],1)
    x_data=x_data[:,int(x_data.shape[1]/2),:].reshape(x_data.shape[0],x_data.shape[2],1)
-   evaluation = self.model.evaluate(x_data, y_data, batch_size = self.uscData.mini_batch_size,verbose=0)
+   evaluation = self.accuracy.eval(feed_dict={self.x_input: x_data, self.real_y_values:y_data, self.keep_prob: 1.0})
    #trainingLossTotal+=evaluation[0]
    trainingLossTotal+=evaluation
   trainingLoss=trainingLossTotal/len(x_data_list)
@@ -105,87 +106,88 @@ class USCAutoEncoder :
      W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
      B = tf.Variable(tf.constant(0.1, shape=[cnnOutputChannel]))
      C = tf.nn.conv2d(inputLayer,W,strides=[1,cnnStrideSizeX, cnnStrideSizeY, 1], padding='SAME')+B     
-     H=C  
-     R=H 
-     P=R
-
      ## APPLY ACTIVATION FN
+     H=C  
      if activation is not None :
        H = tf.nn.relu(C)
+
      ## APPLY RESIDUALS
+     R=H 
      if residuals and cnnInputChannel > 1 :
        if cnnInputChannel!=cnnOutputChannel :
-         W1 = tf.Variable(tf.truncated_normal([1, 1, cnnInputChannel, int(H.shape[3])], stddev=0.1))
-         R=tf.nn.conv2d(inputLayer,W1,strides=[1,1, 1, 1], padding='SAME')
+         WR = tf.Variable(tf.truncated_normal([1, 1, int(H.shape[3]), cnnInputChannel], stddev=0.1))
+         R=tf.nn.conv2d(H,WR,strides=[1,1, 1, 1], padding='SAME')
        R=tf.concat((R,inputLayer),2)
+       ## while doubling output, to diminish the output size we appply max pooling
+       R = tf.nn.max_pool(R, ksize=[1,2,2,1],strides=[1,2,2,1], padding='SAME') 
+
      ## APPLY POOLING
+     P=R
      if poolSize is not None :
        P = tf.nn.max_pool(R, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
      
+     ## UPSAMPLE
+     U=P
      if upsampleSize is not None:
-         W1 = tf.Variable(tf.truncated_normal([1, 1, cnnInputChannel, int(H.shape[3])], stddev=0.1))
-         R=tf.nn.conv2d(inputLayer,W1,strides=[1,1, 1, 1], padding='SAME')
+         W1 = tf.Variable(tf.truncated_normal([1, 1,int(P.shape[3]), int(P.shape[3]) * upsampleFactor ], stddev=0.1))
+         U=tf.nn.conv2d(inputLayer,W1,strides=[1,1, 1, 1], padding='SAME')
 
-     return P
+     return U
 
 
 
      
  def buildModel(self):
- 
-   model_input=tf.placeholder(tf.float32, shape=(self.uscData.mini_batch_size, self.uscData.time_slice_length,1))
 
+   self.real_y_values = tf.placeholder(tf.float32, shape=(self.mini_batch_size, self.output_size), name="real_y_values")
+ 
+   ## x_data
+   self.model_input=tf.placeholder(tf.float32, shape=(self.uscData.mini_batch_size, self.uscData.time_slice_length,1))
+
+   ## buildCNNLayer(inputLayer,filterSize,kernelSize,strideSize,poolSize,activation,upsampleFactor,residuals=False)
+   
+   
    ## fourier cnn layers
-   e=buildCNNLayer(self.model_input,50,3,1,4,None)
-   e=buildCNNLayer(e,50,3,1,4,None)
-   e=buildCNNLayer(e,50,3,1,4,None)
+   e=buildCNNLayer(self.model_input,64,3,1,4,None,None)
+   e=buildCNNLayer(e,64,3,1,4,None,None)
+   e=buildCNNLayer(e,64,3,1,4,None,None)
 
    ## normal cnn layers   
-   e=buildCNNLayer(e,32,3,1,None,'relu')
-   e=buildCNNLayer(e,32,3,1,None,'relu')
-   e=buildCNNLayer(e,16,3,1,None,'relu')
-   e=buildCNNLayer(e,16,3,1,None,'relu')
-   e=buildCNNLayer(e,8,3,1,None,'relu')
+   e=buildCNNLayer(e,32,3,1,None,'relu',None)
+   e=buildCNNLayer(e,32,3,1,None,'relu',None)
+   e=buildCNNLayer(e,16,3,1,None,'relu',None)
+   e=buildCNNLayer(e,16,3,1,None,'relu',None)
+   e=buildCNNLayer(e,8,3,1,None,'relu',None)
 
    self.encoder=e
+   self.uscLogger.logger.info("shape of encoder = "+str(self.encoder.shape))
+   self.uscData.latent_space_presentation_data_length=int(self.encoder.shape[1])
    
-   
-   self.loss=tf.losses.mean_squared_error(self.x_input,self.y_output)
-   
-   
-   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.time_slice_length,1))
-#   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.word2vec_window_size,self.uscData.time_slice_length))
-   x = keras.layers.Convolution1D(16, 3,activation='relu', border_mode='same')(layer_input) #nb_filter, nb_row, nb_col
-   x = keras.layers.MaxPooling1D((5), border_mode='same')(x)
-   x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(x)
-   x = keras.layers.MaxPooling1D((5), border_mode='same')(x)
-   x = keras.layers.Convolution1D(1, 3, activation='relu', border_mode='same')(x)
-   encoded = keras.layers.MaxPooling1D((5), border_mode='same')(x)  # (self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length)
-   self.uscLogger.logger.info("shape of encoder"+str(encoded.shape))
-   self.uscData.latent_space_presentation_data_length=int(encoded.shape[1])
-   
-   x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(encoded)
-   x = keras.layers.UpSampling1D((5))(x)
-   x = keras.layers.Convolution1D(8, 3, activation='relu', border_mode='same')(x)
-   x = keras.layers.UpSampling1D((5))(x)
+   ae=buildCNNLayer(e,8,3,1,None,'relu',2)
+   e=buildCNNLayer(e,16,3,1,None,'relu',None)
+   e=buildCNNLayer(e,16,3,1,None,'relu',2)
+   e=buildCNNLayer(e,32,3,1,None,'relu',None)
+   e=buildCNNLayer(e,32,3,1,None,'relu',None)
 
-   # In original tutorial, border_mode='same' was used. 
-   # then the shape of 'decoded' will be 32 x 32, instead of 28 x 28
-   # x = Convolution2D(16, 3, 3, activation='relu', border_mode='same')(x) 
-   x = keras.layers.Convolution1D(16, 3, activation='relu', border_mode='same')(x) 
-   x = keras.layers.UpSampling1D((int(5*(self.uscData.word2vec_window_size-1))))(x)
-   
-   decoded = keras.layers.Convolution1D(1,3, activation='sigmoid', border_mode='same')(x)
-   self.uscLogger.logger.info("shape of decoded "+str( decoded.shape))
+   ## fourier cnn layers
+   e=buildCNNLayer(model_input,64,3,1,None,None,4)
+   e=buildCNNLayer(e,64,3,1,None,None,4)
+   e=buildCNNLayer(e,64,3,1,None,None,4)
 
-   autoencoder = keras.models.Model(layer_input,decoded)
-   flattennedEncoded=keras.layers.Flatten()(encoded)
-   encoder = keras.models.Model(layer_input,flattennedEncoded)
-   selectedOptimizer=keras.optimizers.Adam(lr=0.0001)
-   #autoencoder.compile(optimizer=selectedOptimizer, loss='binary_crossentropy')
-   #autoencoder.compile(optimizer=selectedOptimizer, loss='categorical_crossentropy',metrics=['accuracy'])
-   autoencoder.compile(optimizer=selectedOptimizer, loss='mse')
-   return autoencoder,encoder
+
+   # output is of size (word2vec_window_size-1) like skipgram
+   e=buildCNNLayer(e,int(5*(self.uscData.word2vec_window_size-1)),3,1,None,None,None)
+   self.uscLogger.logger.info("shape of model_output = "+str( e.shape))
+   
+   
+   e_flat = tf.reshape( e, [-1, int(e.shape[1]*e.shape[2])] )
+   self.logger.info("e_flat="+str( e_flat))
+
+
+   self.loss=tf.losses.mean_squared_error(self.real_y_values,self.model_output)
+   self.optimizer = tf.train.AdamOptimizer(learning_rate=0.0001).minimize(self.loss)
+   
+
 
 #   out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
 #   model = keras.models.Model(inputs=inputs, outputs=[out])
