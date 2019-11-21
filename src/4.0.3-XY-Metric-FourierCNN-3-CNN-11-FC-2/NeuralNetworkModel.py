@@ -474,8 +474,8 @@ class NeuralNetworkModel :
     W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons, metric_y_output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[metric_y_output_size]))
     #h_fc2 =tf.nn.relu( tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
-    self.outputs_metric_x =tf.matmul(last_layer_output, W_fc2) + b_fc2
-    self.logger.info("self.y_outputs_metric_x.shape="+str(self.y_outputs_metric_x.shape))
+    self.x_outputs_metric_x =tf.matmul(last_layer_output, W_fc2) + b_fc2
+    self.logger.info("self.x_outputs_metric_x.shape="+str(self.x_outputs_metric_x.shape))
     
 
 
