@@ -129,8 +129,8 @@ CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
 CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([  3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2])
-CNN_FLATTEN             = np.array([  0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0])
+CNN_POOL_Y_SIZES        = np.array([  3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+CNN_FLATTEN             = np.array([  0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 
 
 ##
