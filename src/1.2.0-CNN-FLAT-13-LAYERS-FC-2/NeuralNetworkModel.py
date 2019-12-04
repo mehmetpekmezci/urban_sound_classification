@@ -81,7 +81,6 @@ class NeuralNetworkModel :
    ##
 
    for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
-     self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
      cnnLayerName    = "cnn-"+str(cnnLayerNo)     
      cnnKernelCount  = self.cnn_kernel_counts[cnnLayerNo]   # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
      cnnKernelSizeX  = self.cnn_kernel_x_sizes[cnnLayerNo]
@@ -91,14 +90,10 @@ class NeuralNetworkModel :
      cnnPoolSizeX    = self.cnn_pool_x_sizes[cnnLayerNo]          
      cnnPoolSizeY    = self.cnn_pool_y_sizes[cnnLayerNo]      
      cnnFlatten      = self.cnn_flatten[cnnLayerNo]      
+
+     self.logger.info(cnnLayerName+".cnnFlatten="+str(cnnFlatten))
      cnnOutputChannel= cnnKernelCount   
-     if cnnLayerNo == 0 :
-       cnnInputChannel = 1
-     else :
-         if  self.cnn_flatten[cnnLayerNo-1] == 1 :
-              cnnInputChannel = 1
-         else :
-              cnnInputChannel = self.cnn_kernel_counts[int(cnnLayerNo-1)]
+     cnnInputChannel = int(previous_level_convolution_output.shape[3])
      with tf.name_scope(cnnLayerName+"-convolution"):
        W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
        B = tf.Variable(tf.constant(0.1, shape=[cnnOutputChannel]))
@@ -112,21 +107,24 @@ class NeuralNetworkModel :
        P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME')
        ## put the output of this layer to the next layer's input layer.
        previous_level_convolution_output=P
+       self.logger.info(cnnLayerName+".H_pooled.cnnPoolSizeY="+str(cnnPoolSizeX))
+       self.logger.info(cnnLayerName+".H_pooled.cnnPoolSizeY="+str(cnnPoolSizeY))
        self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
      else :
-      if previous_level_kernel_count==cnnKernelCount :
-       with tf.name_scope(cnnLayerName+"-residual"):
-         previous_level_convolution_output=H+previous_level_convolution_output
-         ## put the output of this layer to the next layer's input layer.
-         self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
-      else :
-         ## put the output of this layer to the next layer's input layer.
+#      if previous_level_kernel_count==cnnKernelCount :
+#       with tf.name_scope(cnnLayerName+"-residual"):
+#         previous_level_convolution_output=H+previous_level_convolution_output
+#         ## put the output of this layer to the next layer's input layer.
+#         self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
+#      else :
+#         ## put the output of this layer to the next layer's input layer.
          previous_level_convolution_output=H
 
-     previous_level_kernel_count=cnnKernelCount
+#     previous_level_kernel_count=cnnKernelCount
      if cnnFlatten == 1 :
-       previous_level_convolution_output = tf.reshape(P, [P.shape[0], int(P.shape[1]*P.shape[2]*P.shape[3]), 1, 1])
-       previous_level_kernel_count=1
+       previous_level_convolution_output = tf.reshape(previous_level_convolution_output, [-1, int(previous_level_convolution_output.shape[1]*previous_level_convolution_output.shape[2]*previous_level_convolution_output.shape[3]), 1, 1])
+       self.logger.info(cnnLayerName+".previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
+#       previous_level_kernel_count=1
      cnn_last_layer_output=previous_level_convolution_output
    
    ##
