@@ -111,18 +111,19 @@ class NeuralNetworkModel :
        self.logger.info(cnnLayerName+".H_pooled.cnnPoolSizeY="+str(cnnPoolSizeY))
        self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
      else :
-#      if previous_level_kernel_count==cnnKernelCount :
-#       with tf.name_scope(cnnLayerName+"-residual"):
-#         previous_level_convolution_output=H+previous_level_convolution_output
-#         ## put the output of this layer to the next layer's input layer.
-#         self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
-#      else :
-#         ## put the output of this layer to the next layer's input layer.
+      if previous_level_kernel_count==cnnKernelCount :
+       with tf.name_scope(cnnLayerName+"-residual"):
+         previous_level_convolution_output=H+previous_level_convolution_output
+         ## put the output of this layer to the next layer's input layer.
+         self.logger.info(cnnLayerName+"_previous_level_convolution_output_residual.shape="+str(previous_level_convolution_output.shape))
+      else :
+         ## put the output of this layer to the next layer's input layer.
          previous_level_convolution_output=H
 
-#     previous_level_kernel_count=cnnKernelCount
+     previous_level_kernel_count=cnnKernelCount
      if cnnFlatten == 1 :
-       previous_level_convolution_output = tf.reshape(previous_level_convolution_output, [-1, int(previous_level_convolution_output.shape[1]*previous_level_convolution_output.shape[2]*previous_level_convolution_output.shape[3]), 1, 1])
+       #previous_level_convolution_output = tf.reshape(previous_level_convolution_output, [-1, int(previous_level_convolution_output.shape[1]*previous_level_convolution_output.shape[2]*previous_level_convolution_output.shape[3]), 1, 1])
+       previous_level_convolution_output = tf.reshape(previous_level_convolution_output, [-1, 1, int(previous_level_convolution_output.shape[1]*previous_level_convolution_output.shape[2]*previous_level_convolution_output.shape[3]), 1])
        self.logger.info(cnnLayerName+".previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
 #       previous_level_kernel_count=1
      cnn_last_layer_output=previous_level_convolution_output
@@ -255,35 +256,6 @@ class NeuralNetworkModel :
   testTime=testTimeStop-testTimeStart
   return testTime,testAccuracy
   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
