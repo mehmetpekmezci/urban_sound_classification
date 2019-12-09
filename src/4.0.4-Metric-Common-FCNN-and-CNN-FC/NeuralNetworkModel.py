@@ -366,6 +366,10 @@ class NeuralNetworkModel :
    ## CALCULATE ACCURACY
    ##
    with tf.name_scope('calculate_accuracy'):
+    ## take into account also second side's results
+    self.y_outputs_1[:,1] += self.y_outputs_2[:,1]
+    self.y_outputs_1[:,1] /= 2
+
     correct_prediction = tf.equal(tf.argmax(self.y_outputs_1, 1),tf.argmax(self.real_y_values_1, 1))
     correct_prediction = tf.cast(correct_prediction, tf.float32)
     self.accuracy = tf.reduce_mean(correct_prediction)
