@@ -298,7 +298,7 @@ class NeuralNetworkModel :
     W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons, self.output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.output_size]))
     #h_fc2 =tf.nn.relu( tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
-    self.y_outputs_2 =tf.nn.relu(tf.matmul(last_layer_output, W_fc2) + b_fc2))
+    self.y_outputs_2 =tf.nn.relu(tf.matmul(last_layer_output, W_fc2) + b_fc2)
     self.logger.info("self.y_outputs_1.shape="+str(self.y_outputs_1.shape))
       
    #metric output=0/1  yes or no, meaning that these two outputs are the same or not
@@ -407,9 +407,9 @@ class NeuralNetworkModel :
 
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
-  trainingAccuracy_1 = self.accuracy_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data_1,self.x_input_2: x_data_2, self.real_y_values_2:y_data_2,self.real_y_values_adverserial:y_values_adverserial, self.keep_prob: 1.0})
-  trainingAccuracy_2 = self.accuracy_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data_1,self.x_input_2: x_data_2, self.real_y_values_2:y_data_2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
-  trainingAccuracy_adverserial= self.accuracy_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data_1,self.x_input_2: x_data2, self.real_y_values_2:y_data_2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+  trainingAccuracy_1 = self.accuracy_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial, self.keep_prob: 1.0})
+  trainingAccuracy_2 = self.accuracy_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+  trainingAccuracy_adverserial= self.accuracy_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,prepareDataTime
      
  def test(self,data):
