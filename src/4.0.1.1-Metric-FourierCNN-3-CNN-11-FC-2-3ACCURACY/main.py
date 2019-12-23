@@ -114,7 +114,7 @@ def main(_):
     logger.info("Max Training Accuracy_metric : "+str(np.max(trainingAccuracies_metric)))
     logger.info("Min Training Accuracy_metric : "+str(np.min(trainingAccuracies_metric)))
     logger.info("Test Time : "+str(np.sum(testTimes)))
-    if len(testAccuracies) > 0 :
+    if len(testAccuracies_1) > 0 :
       logger.info("Mean Test Accuracy_1 : "+str(np.mean(testAccuracies_1)))
       logger.info("Max Test Accuracy_1 : "+str(np.max(testAccuracies_1)))
       logger.info("Min Test Accuracy_1 : "+str(np.min(testAccuracies_1)))
@@ -126,11 +126,19 @@ def main(_):
       logger.info("Min Test Accuracy_metric : "+str(np.min(testAccuracies_metric)))
     
     ## GRAPH (FOR LOGGING)
-    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies)})
+    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies_1)})
     trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
     trainingAccuracyWriter.flush()
 
-    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var:np.mean(testAccuracies)})
+    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies_2)})
+    trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
+    trainingAccuracyWriter.flush()
+
+    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var:np.mean(testAccuracies_1)})
+    testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
+    testAccuracyWriter.flush()
+
+    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var:np.mean(testAccuracies_2)})
     testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
     testAccuracyWriter.flush()
 
