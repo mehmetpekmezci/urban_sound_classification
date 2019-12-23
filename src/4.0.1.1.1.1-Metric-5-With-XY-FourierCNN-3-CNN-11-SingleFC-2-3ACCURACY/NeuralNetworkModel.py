@@ -290,7 +290,7 @@ class NeuralNetworkModel :
     W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons, self.output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.output_size]))
     #h_fc2 =tf.nn.relu( tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
-    self.y_outputs_1 =tf.matmul(last_layer_output, W_fc2) + b_fc2
+    self.y_outputs_1 =tf.nn.relu(tf.matmul(last_layer_output, W_fc2) + b_fc2)
     self.logger.info("self.y_outputs_1.shape="+str(self.y_outputs_1.shape))
       
    # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS features to OUTPUT_SIZE=NUMBER_OF_CLASSES(10) classes, one for each class
@@ -298,7 +298,7 @@ class NeuralNetworkModel :
     W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons, self.output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.output_size]))
     #h_fc2 =tf.nn.relu( tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
-    self.y_outputs_2 =tf.matmul(last_layer_output, W_fc2) + b_fc2
+    self.y_outputs_2 =tf.nn.relu(tf.matmul(last_layer_output, W_fc2) + b_fc2))
     self.logger.info("self.y_outputs_1.shape="+str(self.y_outputs_1.shape))
       
    #metric output=0/1  yes or no, meaning that these two outputs are the same or not
@@ -308,7 +308,7 @@ class NeuralNetworkModel :
     W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons, adverserial_output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[adverserial_output_size]))
     #h_fc2 =tf.nn.relu( tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
-    self.y_outputs_adverserial =tf.matmul(last_layer_output, W_fc2) + b_fc2
+    self.y_outputs_adverserial =tf.nn.relu(tf.matmul(last_layer_output, W_fc2) + b_fc2)
     self.logger.info("self.y_outputs_adverserial.shape="+str(self.y_outputs_adverserial.shape))
     
     
