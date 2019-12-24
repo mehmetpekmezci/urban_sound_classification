@@ -410,6 +410,14 @@ class NeuralNetworkModel :
   trainingAccuracy_1 = self.accuracy_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial, self.keep_prob: 1.0})
   trainingAccuracy_2 = self.accuracy_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   trainingAccuracy_adverserial= self.accuracy_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+
+  print('------------------------------------------')
+  print('y_values_adverserial:')
+  print(*y_values_adverserial)
+  print('predicted_y_values_adverserial')
+  print( self.y_outputs_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0}) )
+  print('trainingAccuracy_adverserial')
+  print(trainingAccuracy_adverserial)
   return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,prepareDataTime
      
  def test(self,data):
