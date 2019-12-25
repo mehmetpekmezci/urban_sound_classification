@@ -426,9 +426,9 @@ class NeuralNetworkModel :
     correct_prediction_2 = tf.equal(tf.argmax(self.y_outputs_2, 1),tf.argmax(self.real_y_values_2, 1))
     correct_prediction_2 = tf.cast(correct_prediction_2, tf.float32)
     self.accuracy_2 = tf.reduce_mean(correct_prediction_2)
-    correct_prediction_adverserial = tf.equal(tf.argmax(self.y_outputs_adverserial, 1),tf.argmax(self.real_y_values_adverserial, 1))
-    correct_prediction_adverserial = tf.cast(correct_prediction_adverserial, tf.float32)
-    self.accuracy_adverserial = tf.reduce_mean(correct_prediction_adverserial)
+    self.correct_prediction_adverserial = tf.equal(tf.argmax(self.y_outputs_adverserial, 1),tf.argmax(self.real_y_values_adverserial, 1))
+    self.correct_prediction_adverserial = tf.cast(self.correct_prediction_adverserial, tf.float32)
+    self.accuracy_adverserial = tf.reduce_mean(self.correct_prediction_adverserial)
 
 
    ##
@@ -482,6 +482,22 @@ class NeuralNetworkModel :
   trainingAccuracy_1 = self.accuracy_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial, self.keep_prob: 1.0})
   trainingAccuracy_2 = self.accuracy_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   trainingAccuracy_adverserial= self.accuracy_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+  y_outputs_adverserial = self.y_outputs_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+  correct_prediction_adverserial = self.correct_prediction_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+
+
+  print("---------------------------------------------")
+  print("trainingAccuracy_adverserial:")
+  print(trainingAccuracy_adverserial)
+  print("correct_prediction_adverserial:")
+  print(*correct_prediction_adverserial)
+  print("real values:")
+  print(*y_values_adverserial)
+  print("predictions:")
+  print(*y_outputs_adverserial)
+  print("")
+  print("")
+
   return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,prepareDataTime
      
  def test(self,data):
