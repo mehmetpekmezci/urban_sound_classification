@@ -436,7 +436,6 @@ class NeuralNetworkModel :
     #self.accuracy_adverserial = tf.reduce_mean(self.correct_prediction_adverserial)
     self.accuracy_adverserial = tf.metrics.mean_squared_error(labels=self.real_y_values_adverserial, predictions=self.y_outputs_adverserial)
 
-1
    ##
    ## SAVE NETWORK GRAPH TO A DIRECTORY
    ##
