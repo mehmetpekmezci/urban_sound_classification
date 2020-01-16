@@ -434,7 +434,8 @@ class NeuralNetworkModel :
     #self.correct_prediction_adverserial = tf.equal(tf.argmax(self.y_outputs_adverserial, 1),tf.argmax(self.real_y_values_adverserial, 1))
     #self.correct_prediction_adverserial = tf.cast(self.correct_prediction_adverserial, tf.float32)
     #self.accuracy_adverserial = tf.reduce_mean(self.correct_prediction_adverserial)
-    self.accuracy_adverserial = tf.metrics.mean_squared_error(labels=self.real_y_values_adverserial, predictions=self.y_outputs_adverserial)
+    self.correct_prediction_adverserial  = tf.metrics.mean_squared_error(labels=self.real_y_values_adverserial, predictions=self.y_outputs_adverserial)
+    self.accuracy_adverserial = tf.reduce_mean(correct_prediction_adverserial )
 
    ##
    ## SAVE NETWORK GRAPH TO A DIRECTORY
