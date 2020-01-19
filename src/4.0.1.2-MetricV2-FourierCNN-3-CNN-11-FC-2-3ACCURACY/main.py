@@ -75,6 +75,7 @@ def main(_):
     testAccuracies_1=[ ]
     testAccuracies_2=[ ]
     testAccuracies_metric=[ ]
+    tainingLosses_metric=[]
     for fold in np.random.permutation(FOLD_DIRS):
        current_fold_data=get_fold_data(fold)
        for current_batch_counter in range(int(current_fold_data.shape[0]/MINI_BATCH_SIZE)) :
@@ -91,12 +92,17 @@ def main(_):
               testAccuracies_metric.append(testAccuracy_metric)
          else:
               batch_data_1=batch_data
-              batch_data_2=np.random.permutation(batch_data)
-              trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_metric,prepareDataTime=neuralNetworkModel.train(batch_data_1,batch_data_2)
+              #batch_data_2=np.random.permutation(batch_data)
+              batch_data_2=np.copy(batch_data)
+              for i in range(int(batch_data_2.shape[0]/2)):
+                 batch_data_2[i]=batch_data_2[i+1]
+              trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_metric,loss_adverserial,prepareDataTime=neuralNetworkModel.train(batch_data_1,batch_data_2)
               trainingTimes.append(trainingTime)
               trainingAccuracies_1.append(trainingAccuracy_1)
               trainingAccuracies_2.append(trainingAccuracy_2)
               trainingAccuracies_metric.append(trainingAccuracy_metric)
+              tainingLosses_metric.append(loss_adverserial)
+              
               prepareDataTimes.append(prepareDataTime)
 
 
@@ -113,6 +119,9 @@ def main(_):
     logger.info("Mean Training Accuracy_metric : "+str(np.mean(trainingAccuracies_metric)))
     logger.info("Max Training Accuracy_metric : "+str(np.max(trainingAccuracies_metric)))
     logger.info("Min Training Accuracy_metric : "+str(np.min(trainingAccuracies_metric)))
+    logger.info("Mean Training Loss Metric : "+str(np.mean(tainingLosses_metric)))
+    logger.info("Max Training  Loss Metric : "+str(np.max(tainingLosses_metric)))
+    logger.info("Min Training  Loss Metric : "+str(np.min(tainingLosses_metric)))
     logger.info("Test Time : "+str(np.sum(testTimes)))
     if len(testAccuracies_1) > 0 :
       logger.info("Mean Test Accuracy_1 : "+str(np.mean(testAccuracies_1)))

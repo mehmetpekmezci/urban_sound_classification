@@ -381,8 +381,7 @@ class NeuralNetworkModel :
    with tf.name_scope('last_fc'):
     W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons, adverserial_output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[adverserial_output_size]))
-    #h_fc2 =tf.nn.relu( tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
-    self.y_outputs_adverserial =tf.matmul(last_layer_output, W_fc2) + b_fc2
+    self.y_outputs_adverserial =tf.nn.sigmoid(tf.matmul(last_layer_output, W_fc2) + b_fc2)
     self.logger.info("self.y_outputs_adverserial.shape="+str(self.y_outputs_adverserial.shape))
     
     
@@ -431,11 +430,11 @@ class NeuralNetworkModel :
     correct_prediction_2 = tf.equal(tf.argmax(self.y_outputs_2, 1),tf.argmax(self.real_y_values_2, 1))
     correct_prediction_2 = tf.cast(correct_prediction_2, tf.float32)
     self.accuracy_2 = tf.reduce_mean(correct_prediction_2)
+
     #self.correct_prediction_adverserial = tf.equal(tf.argmax(self.y_outputs_adverserial, 1),tf.argmax(self.real_y_values_adverserial, 1))
     #self.correct_prediction_adverserial = tf.cast(self.correct_prediction_adverserial, tf.float32)
     #self.accuracy_adverserial = tf.reduce_mean(self.correct_prediction_adverserial)
-    self.correct_prediction_adverserial  = tf.metrics.mean_squared_error(labels=self.real_y_values_adverserial, predictions=self.y_outputs_adverserial)
-    self.accuracy_adverserial = tf.reduce_mean(self.correct_prediction_adverserial )
+    #self.accuracy_adverserial  = tf.metrics.mean_squared_error(labels=self.real_y_values_adverserial, predictions=self.y_outputs_adverserial)
 
    ##
    ## SAVE NETWORK GRAPH TO A DIRECTORY
@@ -487,33 +486,38 @@ class NeuralNetworkModel :
   trainingTime=trainingTimeStop-trainingTimeStart
   trainingAccuracy_1 = self.accuracy_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial, self.keep_prob: 1.0})
   trainingAccuracy_2 = self.accuracy_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
-  trainingAccuracy_adverserial= self.accuracy_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   y_outputs_adverserial = self.y_outputs_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
-  correct_prediction_adverserial = self.correct_prediction_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+
+  
   loss_adverserial = self.loss_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   loss_1 = self.loss_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   loss_2 = self.loss_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+  
+  trainingAccuracy_adverserial=0
+  ADVERSERIAL_TRESHOLD=0.5
+  for i in range(y_outputs_adverserial.shape[0]):
+    if (y_values_adverserial[i] == 0 and y_outputs_adverserial[i] < ADVERSERIAL_TRESHOLD) or  (y_values_adverserial[i] == 1 and y_outputs_adverserial[i] > ADVERSERIAL_TRESHOLD):
+       trainingAccuracy_adverserial=trainingAccuracy_adverserial+1
+  trainingAccuracy_adverserial= trainingAccuracy_adverserial/y_outputs_adverserial.shape[0]    
+  
 
+#  print("---------------------------------------------")
+#  print("loss_1:")
+#  print(loss_1)
+#  print("loss_2:")
+#  print(loss_2)
+#  print("loss_adverserial:")
+#  print(loss_adverserial)
+#  print("trainingAccuracy_adverserial:")
+#  print(trainingAccuracy_adverserial)
+#  print("y_outputs_adverserial:")
+#  print(*y_outputs_adverserial)
+#  print("real values:")
+#  print(*y_values_adverserial)
+#  print("")
+#  print("")
 
-  print("---------------------------------------------")
-  print("loss_1:")
-  print(loss_1)
-  print("loss_2:")
-  print(loss_2)
-  print("loss_adverserial:")
-  print(loss_adverserial)
-  print("trainingAccuracy_adverserial:")
-  print(trainingAccuracy_adverserial)
-  print("correct_prediction_adverserial:")
-  print(*correct_prediction_adverserial)
-  print("real values:")
-  print(*y_values_adverserial)
-  print("predictions:")
-  print(*y_outputs_adverserial)
-  print("")
-  print("")
-
-  return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,prepareDataTime
+  return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,loss_adverserial,prepareDataTime
      
  def test(self,data):
   testTimeStart = int(round(time.time())) 
@@ -538,6 +542,3 @@ class NeuralNetworkModel :
   testTime=testTimeStop-testTimeStart
   return testTime,testAccuracy_1,testAccuracy_2,testAccuracy_adverserial
   
-
-
-
