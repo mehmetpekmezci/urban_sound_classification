@@ -1,4 +1,4 @@
-#v!/usr/bin/env python3
+#!/usr/bin/env python3
 from header import *
 from data import *
 
@@ -44,7 +44,7 @@ class NeuralNetworkModel :
    self.epsilon               = epsilon
    self.fully_connected_layers=fully_connected_layers
    self.fourier_cnn_layers=fourier_cnn_layers
-
+   self.ADVERSERIAL_TRESHOLD=0.5
 
    self.keep_prob = tf.placeholder(tf.float32)
 
@@ -494,9 +494,8 @@ class NeuralNetworkModel :
   loss_2 = self.loss_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   
   trainingAccuracy_adverserial=0
-  ADVERSERIAL_TRESHOLD=0.5
   for i in range(y_outputs_adverserial.shape[0]):
-    if (y_values_adverserial[i] == 0 and y_outputs_adverserial[i] < ADVERSERIAL_TRESHOLD) or  (y_values_adverserial[i] == 1 and y_outputs_adverserial[i] > ADVERSERIAL_TRESHOLD):
+    if (y_values_adverserial[i] == 0 and y_outputs_adverserial[i] < self.ADVERSERIAL_TRESHOLD) or  (y_values_adverserial[i] == 1 and y_outputs_adverserial[i] > self.ADVERSERIAL_TRESHOLD):
        trainingAccuracy_adverserial=trainingAccuracy_adverserial+1
   trainingAccuracy_adverserial= trainingAccuracy_adverserial/y_outputs_adverserial.shape[0]    
   
@@ -532,13 +531,21 @@ class NeuralNetworkModel :
     if  np.array_equal(y_data_1[i], y_data_2[i]) :
           y_values_adverserial[i][0]=1
 
+  y_outputs_adverserial = self.y_outputs_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+
   testAccuracy_1 = self.accuracy_1.eval(feed_dict={self.x_input_1: x_data_1, self.real_y_values_1:y_data,self.x_input_2: x_data_2, self.real_y_values_2:y_data,self.real_y_values_adverserial:y_values_adverserial, self.keep_prob: 1.0})
   testAccuracy_2 = self.accuracy_2.eval(feed_dict={self.x_input_1: x_data_1, self.real_y_values_1:y_data,self.x_input_2: x_data_2, self.real_y_values_2:y_data ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
-  testAccuracy_adverserial= self.accuracy_adverserial.eval(feed_dict={self.x_input_1: x_data_1, self.real_y_values_1:y_data,self.x_input_2: x_data_2, self.real_y_values_2:y_data ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
  
+  testAccuracy_adverserial=0
+  for i in range(y_outputs_adverserial.shape[0]):
+    if (y_values_adverserial[i] == 0 and y_outputs_adverserial[i] < self.ADVERSERIAL_TRESHOLD) or  (y_values_adverserial[i] == 1 and y_outputs_adverserial[i] > self.ADVERSERIAL_TRESHOLD):
+       testAccuracy_adverserial=testAccuracy_adverserial+1
+  testAccuracy_adverserial= testAccuracy_adverserial/y_outputs_adverserial.shape[0]    
+  
  
   #testAccuracy = self.accuracy.eval(feed_dict={self.x_input_1: x_data, self.real_y_values_1:y_data,self.x_input_2: x_data, self.real_y_values_2:y_data, self.keep_prob: 1.0})
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
   return testTime,testAccuracy_1,testAccuracy_2,testAccuracy_adverserial
   
+
