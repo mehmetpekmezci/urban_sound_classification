@@ -531,7 +531,7 @@ class NeuralNetworkModel :
     if  np.array_equal(y_data_1[i], y_data_2[i]) :
           y_values_adverserial[i][0]=1
 
-  y_outputs_adverserial = self.y_outputs_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+  y_outputs_adverserial = self.y_outputs_adverserial.eval(feed_dict={self.x_input_1: x_data_1, self.real_y_values_1:y_data_1,self.x_input_2: x_data_2, self.real_y_values_2:y_data_2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
 
   testAccuracy_1 = self.accuracy_1.eval(feed_dict={self.x_input_1: x_data_1, self.real_y_values_1:y_data,self.x_input_2: x_data_2, self.real_y_values_2:y_data,self.real_y_values_adverserial:y_values_adverserial, self.keep_prob: 1.0})
   testAccuracy_2 = self.accuracy_2.eval(feed_dict={self.x_input_1: x_data_1, self.real_y_values_1:y_data,self.x_input_2: x_data_2, self.real_y_values_2:y_data ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
