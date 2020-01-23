@@ -377,7 +377,7 @@ class NeuralNetworkModel :
 
    #adverserial output=0/1  yes or no, meaning that these two outputs are the same or not
    adverserial_output_size=1
-   # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS features to OUTPUT_SIZE=NUMBER_OF_CLASSES(10) classes, one for each class
+   # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS features to OUTPUT_SIZE=NUMBER_OF_CLASSES(1) classes, one for each class
    with tf.name_scope('last_fc'):
     W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons, adverserial_output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[adverserial_output_size]))
@@ -396,15 +396,16 @@ class NeuralNetworkModel :
    ## CALCULATE LOSS
    ##
     with tf.name_scope('calculate_loss'):
-     cross_entropy_1 = tf.nn.softmax_cross_entropy_with_logits(labels=self.real_y_values_1,logits=self.y_outputs_1)
-     self.loss_1 = tf.reduce_mean(cross_entropy_1)
+     self.cross_entropy_1 = tf.nn.softmax_cross_entropy_with_logits(labels=self.real_y_values_1,logits=self.y_outputs_1)
+     self.loss_1 = tf.reduce_mean(self.cross_entropy_1)
      cross_entropy_2 = tf.nn.softmax_cross_entropy_with_logits(labels=self.real_y_values_2,logits=self.y_outputs_2)
      self.loss_2 = tf.reduce_mean(cross_entropy_2)
 
-     ## M.P. UYARI : BURADA MSE yerine SOFTMAX kullaninca hep sifir cikiyor. Tabi su anda hala adverserial_accuracy 1 geliyor???? 
-     #cross_entropy_adverserial = tf.nn.softmax_cross_entropy_with_logits(labels=self.real_y_values_adverserial,logits=self.y_outputs_adverserial)
-     #self.loss_adverserial = tf.reduce_mean(cross_entropy_adverserial)
-     self.loss_adverserial = tf.losses.mean_squared_error(labels=self.real_y_values_adverserial,predictions=self.y_outputs_adverserial)
+     ## M.P. UYARI : BURADA MSE yerine SOFTMAX kullaninca hep sifir cikiyor. SIGMOID kullaninca oluyor http://dataaspirant.com/2017/03/07/difference-between-softmax-function-and-sigmoid-function/
+     # https://gombru.github.io/2018/05/23/cross_entropy_loss/
+     self.cross_entropy_adverserial = tf.nn.sigmoid_cross_entropy_with_logits(labels=self.real_y_values_adverserial,logits=self.y_outputs_adverserial)
+     self.loss_adverserial = tf.reduce_mean(self.cross_entropy_adverserial)
+     #self.loss_adverserial = tf.losses.mean_squared_error(labels=self.real_y_values_adverserial,predictions=self.y_outputs_adverserial)
 
 
 
@@ -479,8 +480,8 @@ class NeuralNetworkModel :
           y_values_adverserial[i][0]=1
 
   #number_of_training fot discriminator.
-  for i in range(100):
-    self.optimizer_adverserial.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
+  for i in range(5):
+#    self.optimizer_adverserial.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
     loss_adverserial = self.loss_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   
   self.optimizer_1.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
@@ -503,6 +504,9 @@ class NeuralNetworkModel :
   trainingAccuracy_adverserial= trainingAccuracy_adverserial/y_outputs_adverserial.shape[0]    
   
 
+  cross_entropy_1 = self.cross_entropy_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+  cross_entropy_adverserial = self.cross_entropy_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+
 #  print("---------------------------------------------")
 #  print("loss_1:")
 #  print(loss_1)
@@ -517,6 +521,10 @@ class NeuralNetworkModel :
 #  print("real values:")
 #  print(*y_values_adverserial)
 #  print("")
+#  print("cross_entropy_1:")
+#  print(*cross_entropy_1)
+#  print("cross_entropy_adverserial:")
+#  print(*cross_entropy_adverserial)
 #  print("")
 
   return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,loss_adverserial,prepareDataTime
