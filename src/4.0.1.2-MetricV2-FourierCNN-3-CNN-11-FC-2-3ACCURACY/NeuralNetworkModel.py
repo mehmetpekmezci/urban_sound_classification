@@ -341,7 +341,8 @@ class NeuralNetworkModel :
 
    # first_fc_output ve second_fc_output birlestir
    # Adverserial fully connected layer a ver
-   classifier_outputs=tf.concat((first_fc_output,second_fc_output),1)
+   #classifier_outputs=tf.concat((first_fc_output,second_fc_output),1)
+   classifier_outputs=cnn_last_layer_output_flat
    last_layer_output=classifier_outputs
 
    #for fcLayerNo in range(len(self.fully_connected_layers)) :
@@ -480,9 +481,9 @@ class NeuralNetworkModel :
           y_values_adverserial[i][0]=1
 
   #number_of_training fot discriminator.
-  for i in range(3):
-    self.optimizer_adverserial.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
-    loss_adverserial = self.loss_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+  #for i in range(10):
+  self.optimizer_adverserial.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
+  loss_adverserial = self.loss_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   
   self.optimizer_1.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
   self.optimizer_2.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
