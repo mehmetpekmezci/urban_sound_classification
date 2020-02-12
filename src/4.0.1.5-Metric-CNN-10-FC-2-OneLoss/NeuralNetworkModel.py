@@ -81,115 +81,14 @@ class NeuralNetworkModel :
      previous_level_convolution_output_1 = self.x_input_reshaped_1
      previous_level_convolution_output_2 = self.x_input_reshaped_2
 
-
-   ##
-   ## FOURIER  CNN LAYERS
-   ##
-   with tf.name_scope('fourier_CNN_1'):
-    for fourierCNNLayerNo in range(len(self.fourier_cnn_layers)) :
-     self.logger.info("previous_level_convolution_output_1.shape="+str(previous_level_convolution_output_1.shape))
-     cnnLayerName    = "fourier-cnn-"+str(fourierCNNLayerNo)     
-     cnnKernelCount  = self.fourier_cnn_layers[fourierCNNLayerNo]   
-     # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
-     cnnKernelSizeX  = 1
-     cnnKernelSizeY  = 3        
-     cnnStrideSizeX  = 1 
-     cnnStrideSizeY  = 1                     
-     cnnPoolSizeX    = 1
-     cnnPoolSizeY    = 2
-     cnnOutputChannel= cnnKernelCount   
-     if fourierCNNLayerNo == 0 :
-       cnnInputChannel = 1
-     else :
-       cnnInputChannel = self.fourier_cnn_layers[int(fourierCNNLayerNo-1)]   
-
-
-     with tf.name_scope(cnnLayerName+"-convolution"):
-       W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
-       B = tf.Variable(tf.constant(0.1, shape=[cnnOutputChannel]))
-       C = tf.nn.conv2d(previous_level_convolution_output_1,W,strides=[1,cnnStrideSizeX, cnnStrideSizeY, 1], padding='SAME')+B
-
-       self.logger.info(cnnLayerName+"_C.shape="+str(C.shape)+"  W.shape="+str(W.shape)+ "  cnnStrideSizeX="+str(cnnStrideSizeX)+" cnnStrideSizeY="+str(cnnStrideSizeY))
-     
-     ## no relu,  fourier transformation is linear.
-     H=C
-     
-     #with tf.name_scope(cnnLayerName+"-relu"):  
-     #  H = tf.nn.relu(C)
-     #  self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
-
-     if cnnPoolSizeY != 1 :
-      with tf.name_scope(cnnLayerName+"-pool"):
-       P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
-       ## put the output of this layer to the next layer's input layer.
-       previous_level_convolution_output_1=P
-       self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
-     else :
-       ## no residual for layer liner CNN as fourier transform.
-       previous_level_convolution_output_1=H
-
-     previous_level_kernel_count=cnnKernelCount
-     fourierCNNOutput_1=previous_level_convolution_output_1
-
-
-   ##
-   ## FOURIER  CNN LAYERS
-   ##
-   with tf.name_scope('fourier_CNN_2'):
-    for fourierCNNLayerNo in range(len(self.fourier_cnn_layers)) :
-     self.logger.info("previous_level_convolution_output_2.shape="+str(previous_level_convolution_output_2.shape))
-     cnnLayerName    = "fourier-cnn-"+str(fourierCNNLayerNo)     
-     cnnKernelCount  = self.fourier_cnn_layers[fourierCNNLayerNo]   
-     # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
-     cnnKernelSizeX  = 1
-     cnnKernelSizeY  = 3        
-     cnnStrideSizeX  = 1 
-     cnnStrideSizeY  = 1                     
-     cnnPoolSizeX    = 1
-     cnnPoolSizeY    = 2
-     cnnOutputChannel= cnnKernelCount   
-     if fourierCNNLayerNo == 0 :
-       cnnInputChannel = 1
-     else :
-       cnnInputChannel = self.fourier_cnn_layers[int(fourierCNNLayerNo-1)]   
-
-
-     with tf.name_scope(cnnLayerName+"-convolution"):
-       W = tf.Variable(tf.truncated_normal([cnnKernelSizeX, cnnKernelSizeY, cnnInputChannel, cnnOutputChannel], stddev=0.1))
-       B = tf.Variable(tf.constant(0.1, shape=[cnnOutputChannel]))
-       C = tf.nn.conv2d(previous_level_convolution_output_2,W,strides=[1,cnnStrideSizeX, cnnStrideSizeY, 1], padding='SAME')+B
-
-       self.logger.info(cnnLayerName+"_C.shape="+str(C.shape)+"  W.shape="+str(W.shape)+ "  cnnStrideSizeX="+str(cnnStrideSizeX)+" cnnStrideSizeY="+str(cnnStrideSizeY))
-     
-     ## no relu,  fourier transformation is linear.
-     H=C
-     
-     #with tf.name_scope(cnnLayerName+"-relu"):  
-     #  H = tf.nn.relu(C)
-     #  self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
-
-     if cnnPoolSizeY != 1 :
-      with tf.name_scope(cnnLayerName+"-pool"):
-       P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
-       ## put the output of this layer to the next layer's input layer.
-       previous_level_convolution_output_2=P
-       self.logger.info(cnnLayerName+".H_pooled.shape="+str(P.shape))
-     else :
-       ## no residual for layer liner CNN as fourier transform.
-       previous_level_convolution_output_2=H
-
-     previous_level_kernel_count=cnnKernelCount
-     fourierCNNOutput_2=previous_level_convolution_output_2
-
-
-    previous_level_convolution_output=tf.concat((previous_level_convolution_output_1,previous_level_convolution_output_2),1)
+   previous_level_convolution_output=tf.concat((previous_level_convolution_output_1,previous_level_convolution_output_2),2)
 
 
    ##
    ## CNN LAYERS
    ##
 
-    for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
+   for cnnLayerNo in range(len(self.cnn_kernel_counts)) :
      self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
      cnnLayerName    = "cnn-"+str(cnnLayerNo)     
      cnnKernelCount  = self.cnn_kernel_counts[cnnLayerNo]   # cnnKernelCount tane cnnKernelSizeX * cnnKernelSizeY lik convolution kernel uygulanacak , sonucta 64x1x88200 luk tensor cikacak.
@@ -341,8 +240,8 @@ class NeuralNetworkModel :
 
    # first_fc_output ve second_fc_output birlestir
    # Adverserial fully connected layer a ver
-   #classifier_outputs=tf.concat((first_fc_output,second_fc_output),1)
-   classifier_outputs=cnn_last_layer_output_flat
+   classifier_outputs=tf.concat((first_fc_output,second_fc_output),1)
+   #classifier_outputs=cnn_last_layer_output_flat
    last_layer_output=classifier_outputs
 
    #for fcLayerNo in range(len(self.fully_connected_layers)) :
@@ -407,7 +306,7 @@ class NeuralNetworkModel :
      self.cross_entropy_adverserial = tf.nn.sigmoid_cross_entropy_with_logits(labels=self.real_y_values_adverserial,logits=self.y_outputs_adverserial)
      self.loss_adverserial = tf.reduce_mean(self.cross_entropy_adverserial)
      #self.loss_adverserial = tf.losses.mean_squared_error(labels=self.real_y_values_adverserial,predictions=self.y_outputs_adverserial)
-
+     self.loss_single=1/5*self.loss_1+1/5*self.loss_2+3/5*self.loss_adverserial
 
 
   ## ADVERSERIAL FC iki ciktinin ayni olup olmadigini soyler 0/1
@@ -421,6 +320,7 @@ class NeuralNetworkModel :
     self.optimizer_1 = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss_1)
     self.optimizer_2 = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss_2)
     self.optimizer_adverserial = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss_adverserial)
+    self.optimizer_single = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss_single)
 
    ##
    ## CALCULATE ACCURACY
@@ -481,12 +381,13 @@ class NeuralNetworkModel :
           y_values_adverserial[i][0]=1
 
   #number_of_training fot discriminator.
-  for i in range(3):
-   self.optimizer_adverserial.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
-   loss_adverserial = self.loss_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+  #for i in range(1):
+  # self.optimizer_adverserial.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
+  # loss_adverserial = self.loss_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   
-  self.optimizer_1.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
-  self.optimizer_2.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
+  #self.optimizer_1.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
+  #self.optimizer_2.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
+  self.optimizer_single.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
 
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
@@ -495,8 +396,9 @@ class NeuralNetworkModel :
   y_outputs_adverserial = self.y_outputs_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
 
   
-  loss_1 = self.loss_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
-  loss_2 = self.loss_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+#  loss_1 = self.loss_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+#  loss_2 = self.loss_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+  loss_single = self.loss_single.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   
   trainingAccuracy_adverserial=0
   for i in range(y_outputs_adverserial.shape[0]):
@@ -528,7 +430,8 @@ class NeuralNetworkModel :
 #  print(*cross_entropy_adverserial)
 #  print("")
 
-  return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,loss_adverserial,prepareDataTime
+  #return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,loss_adverserial,prepareDataTime
+  return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,loss_single,prepareDataTime
      
  def test(self,data):
   testTimeStart = int(round(time.time())) 

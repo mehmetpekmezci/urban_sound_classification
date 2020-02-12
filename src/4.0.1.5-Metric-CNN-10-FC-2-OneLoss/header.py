@@ -126,13 +126,14 @@ FULLY_CONNECTED_LAYERS=[512]
 #CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 #CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-CNN_KERNEL_COUNTS       = np.array([ 32,32,64])
-CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([ 64,32,16])
-CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1])
-CNN_STRIDE_Y_SIZES      = np.array([  2, 2, 2])
-CNN_POOL_X_SIZES        = np.array([  1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([  8, 8, 8])
+CNN_KERNEL_COUNTS       = np.array([16,16,16,16,16,16,16,16,16,16])
+CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([64, 5, 5, 5, 5, 5, 5, 5, 5, 5])
+CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([ 8, 8, 8, 2, 2, 2, 2, 2, 2, 2])
+
 
 
 ##

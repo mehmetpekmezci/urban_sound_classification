@@ -81,7 +81,7 @@ class NeuralNetworkModel :
      previous_level_convolution_output_1 = self.x_input_reshaped_1
      previous_level_convolution_output_2 = self.x_input_reshaped_2
 
-   previous_level_convolution_output=tf.concat((previous_level_convolution_output_1,previous_level_convolution_output_2),1)
+   previous_level_convolution_output=tf.concat((previous_level_convolution_output_1,previous_level_convolution_output_2),2)
 
 
    ##
