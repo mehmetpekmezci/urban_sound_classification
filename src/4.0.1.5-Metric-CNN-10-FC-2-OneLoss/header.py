@@ -128,7 +128,7 @@ FULLY_CONNECTED_LAYERS=[512]
 
 CNN_KERNEL_COUNTS       = np.array([16,16,16,16,16,16,16,16,16,16])
 CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([64, 5, 5, 5, 5, 5, 5, 5, 5, 5])
+CNN_KERNEL_Y_SIZES      = np.array([64,16,64,32,16, 8, 3, 3, 3, 3])
 CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_STRIDE_Y_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
