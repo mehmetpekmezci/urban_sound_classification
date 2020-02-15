@@ -178,6 +178,9 @@ def augment_random(x_data):
   global LAST_AUGMENTATION_CHOICE;
 
   augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
+  randomValue=random.random()
+  np.random.seed(int(randomValue*100))
+  randomValues=np.random.rand(x_data.shape[0])
   for i in range(x_data.shape[0]) :
     LAST_AUGMENTATION_CHOICE=(LAST_AUGMENTATION_CHOICE+1)%20
     augmented_data[i]=x_data[i]
@@ -190,15 +193,14 @@ def augment_random(x_data):
        augmented_data[i]=-augmented_data[i]
       augmented_data[i]=augment_speedx(augmented_data[i],SPEED_FACTOR)
       augmented_data[i]=augment_translate(augmented_data[i],TRANSLATION_FACTOR)
-      augmented_data[i]=add_synthetic_noise(augmented_data[i])
+      augmented_data[i]=add_synthetic_noise(augmented_data[i],randomValues[i])
       #augmented_data[i]=augment_volume(augmented_data[i],VOLUME_FACTOR)
   
   return augmented_data
 
 
-def add_synthetic_noise(sound_array):
+def add_synthetic_noise(sound_array,randomValue):
     global MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE,SOUND_RECORD_SAMPLING_RATE,DURATION,MAX_HEARING_FREQUENCY
-    randomValue=random.random()
     generated_data=np.zeros(DURATION*SOUND_RECORD_SAMPLING_RATE,np.float32)
     number_of_frequencies=int(randomValue*MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE)
     #print(number_of_frequencies)
