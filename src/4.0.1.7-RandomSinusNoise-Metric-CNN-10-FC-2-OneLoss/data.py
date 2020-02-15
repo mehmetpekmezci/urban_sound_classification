@@ -124,6 +124,7 @@ def load_all_np_data_back_to_memory(fold_data_dictionary):
    MAX_VALUE_FOR_NORMALIZATION=minmax[1]
 
    logger.info ("load_all_np_data_back_to_memory function finished ...")
+   logger.info (str(MAX_VALUE_FOR_NORMALIZATION))
    return MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION
    
 
@@ -189,18 +190,19 @@ def augment_random(x_data):
        augmented_data[i]=-augmented_data[i]
       augmented_data[i]=augment_speedx(augmented_data[i],SPEED_FACTOR)
       augmented_data[i]=augment_translate(augmented_data[i],TRANSLATION_FACTOR)
-      augmented_data[i]=add_synthetic_noise(augmented_data[i],LAST_AUGMENTATION_CHOICE/20)
+      augmented_data[i]=add_synthetic_noise(augmented_data[i])
       #augmented_data[i]=augment_volume(augmented_data[i],VOLUME_FACTOR)
   
   return augmented_data
 
 
-def add_synthetic_noise(sound_array, randomValue):
-    # randomValue=random.random()
-    global MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE,SOUND_RECORD_SAMPLING_RATE,DURATION,MAX_HEARING_FREQUENCY,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION
+def add_synthetic_noise(sound_array):
+    global MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE,SOUND_RECORD_SAMPLING_RATE,DURATION,MAX_HEARING_FREQUENCY
+    randomValue=random.random()
     generated_data=np.zeros(DURATION*SOUND_RECORD_SAMPLING_RATE,np.float32)
     number_of_frequencies=int(randomValue*MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE)
-    for i in range(number_of_frequencies):
+    #print(number_of_frequencies)
+    for i in range(number_of_frequencies+1):
       randomValue=((1-randomValue)+0.9)/2
       frequency=randomValue*MAX_HEARING_FREQUENCY # this generates 0-10000 float number,  from uniform dist.
       duration=randomValue*DURATION # this generates 0-4 float number,  from uniform dist.
@@ -226,7 +228,8 @@ def add_synthetic_noise(sound_array, randomValue):
 
     #play_sound(generated_data)
     #logger.info("Generated Data Length :"+str(generated_data.shape[0])+")")
-    generated_data=normalize(generated_data,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION)
+    generated_data=normalize(generated_data,np.amax(generated_data),np.amin(generated_data))
+    #print(*generated_data)
     return generated_data+sound_array
 
 
