@@ -92,9 +92,20 @@ tfSummaryTimeMergedWriter = tf.summary.merge_all()
 ##
 # 1 RECORD is 4 seconds = 4 x sampling rate double values = 4 x 22050 = 88200 = (2^3) x ( 3^2) x (5^2) x (7^2)
 SOUND_RECORD_SAMPLING_RATE=22050
-TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
+DURATION=4
+TRACK_LENGTH=DURATION*SOUND_RECORD_SAMPLING_RATE
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
+
+MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=10
+MIN_HEARING_FREQUENCY=20
+#MAX_HEARING_FREQUENCY=20000
+MAX_HEARING_FREQUENCY=10000 #after 10000 to 20000 it is hardly heard.
+###        Humans can hear 20Hz to 20 000Hz
+###        Human  voice frq : 100 to 10000 Hz
+###        Human  talk voice frq : 100 to 8000 Hz
+
+
 
 
 ##
