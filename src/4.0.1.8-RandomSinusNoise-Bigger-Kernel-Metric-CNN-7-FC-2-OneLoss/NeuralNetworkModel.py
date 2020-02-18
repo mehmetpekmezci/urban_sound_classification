@@ -81,7 +81,7 @@ class NeuralNetworkModel :
      previous_level_convolution_output_1 = self.x_input_reshaped_1
      previous_level_convolution_output_2 = self.x_input_reshaped_2
 
-   previous_level_convolution_output=tf.concat((previous_level_convolution_output_1,previous_level_convolution_output_2),2)
+   previous_level_convolution_output=tf.concat((previous_level_convolution_output_1,previous_level_convolution_output_2),1)
 
 
    ##
@@ -144,8 +144,12 @@ class NeuralNetworkModel :
 
 
    with tf.name_scope('cnn_to_fc_reshape'):
-    cnn_last_layer_output_flat = tf.reshape( cnn_last_layer_output, [-1, int(cnn_last_layer_output.shape[1]*cnn_last_layer_output.shape[2]*cnn_last_layer_output.shape[3])] )
-    self.logger.info("cnn_last_layer_output_flat="+str( cnn_last_layer_output_flat))
+    cnn_last_layer_output_1 = cnn_last_layer_output[:,0,:,:]
+    cnn_last_layer_output_2 = cnn_last_layer_output[:,1,:,:]
+    cnn_last_layer_output_flat_1 = tf.reshape( cnn_last_layer_output_1, [-1, int(cnn_last_layer_output_1.shape[1]*cnn_last_layer_output_1.shape[2])] )
+    cnn_last_layer_output_flat_2 = tf.reshape( cnn_last_layer_output_2, [-1, int(cnn_last_layer_output_2.shape[1]*cnn_last_layer_output_2.shape[2])] )
+    self.logger.info("cnn_last_layer_output_flat_1="+str( cnn_last_layer_output_flat_1))
+    self.logger.info("cnn_last_layer_output_flat_2="+str( cnn_last_layer_output_flat_2))
 
 
    ##
@@ -154,7 +158,7 @@ class NeuralNetworkModel :
 
 
    ## FISRT FULLY CONNECTED 
-   last_layer_output=cnn_last_layer_output_flat
+   last_layer_output=cnn_last_layer_output_flat_1
    number_of_fully_connected_layer_neurons=self.fully_connected_layers[0]
 
    for fcLayerNo in range(len(self.fully_connected_layers)) :
@@ -200,7 +204,7 @@ class NeuralNetworkModel :
 
    ## SECOND FULLY CONNECTED 
 
-   last_layer_output=cnn_last_layer_output_flat
+   last_layer_output=cnn_last_layer_output_flat_2
    number_of_fully_connected_layer_neurons=self.fully_connected_layers[0]
 
    for fcLayerNo in range(len(self.fully_connected_layers)) :
