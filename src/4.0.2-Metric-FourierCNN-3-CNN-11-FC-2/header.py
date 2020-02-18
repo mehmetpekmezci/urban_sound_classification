@@ -29,7 +29,7 @@ datetime    = importlib.import_module("datetime")
 ## DATA DIRECTORY NAMES
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-FOLD_DIRS = ['fold1']
+#FOLD_DIRS = ['fold1']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 SCRIPT_NAME=os.path.basename(SCRIPT_DIR)
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
@@ -112,20 +112,20 @@ NUMBER_OF_INNER_HAIR_CELLS=64
 FOURIER_CNN_LAYERS=[NUMBER_OF_INNER_HAIR_CELLS,NUMBER_OF_INNER_HAIR_CELLS,NUMBER_OF_INNER_HAIR_CELLS]
 NUMBER_OF_HAIR_CELL_NEURONS=10*NUMBER_OF_INNER_HAIR_CELLS
 NUMBER_OF_SECOND_LEVEL_NEURONS=int(NUMBER_OF_HAIR_CELL_NEURONS/10)
-FULLY_CONNECTED_LAYERS=[2048]
+FULLY_CONNECTED_LAYERS=[2048,2048]
 
 
 ##
 ## CNN PARAMETERS
 ##
 ## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
-CNN_KERNEL_COUNTS       = np.array([64,64,64,64,64,64,64,64,64,64,64,64,64])
+CNN_KERNEL_COUNTS       = np.array([32,32,32,32,32,32,32,32,32,32,32,32,32])
 CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_KERNEL_Y_SIZES      = np.array([ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
 CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_STRIDE_Y_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1])
 
 #CNN_KERNEL_COUNTS       = np.array([256,16,16,16,16,16,16,16,16,16,16,16,16,16,16])
 #CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
@@ -141,12 +141,12 @@ CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1])
 ##
 #LEARNING_RATE = 0.00001
 #LEARNING_RATE = 0.000001
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.00001
 LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
 TRAINING_ITERATIONS=9000
-MINI_BATCH_SIZE=10
+MINI_BATCH_SIZE=5
 
 ##
 ## GLOBAL VARIABLES

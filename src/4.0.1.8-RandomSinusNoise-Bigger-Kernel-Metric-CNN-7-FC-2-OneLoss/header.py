@@ -29,7 +29,7 @@ datetime    = importlib.import_module("datetime")
 ## DATA DIRECTORY NAMES
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-#FOLD_DIRS = ['fold1']
+#FOLD_DIRS = ['fold1','fold10']
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 SCRIPT_NAME=os.path.basename(SCRIPT_DIR)
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
@@ -92,9 +92,20 @@ tfSummaryTimeMergedWriter = tf.summary.merge_all()
 ##
 # 1 RECORD is 4 seconds = 4 x sampling rate double values = 4 x 22050 = 88200 = (2^3) x ( 3^2) x (5^2) x (7^2)
 SOUND_RECORD_SAMPLING_RATE=22050
-TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
+DURATION=4
+TRACK_LENGTH=DURATION*SOUND_RECORD_SAMPLING_RATE
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
+
+MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=4
+MIN_HEARING_FREQUENCY=20
+#MAX_HEARING_FREQUENCY=20000
+MAX_HEARING_FREQUENCY=10000 #after 10000 to 20000 it is hardly heard.
+###        Humans can hear 20Hz to 20 000Hz
+###        Human  voice frq : 100 to 10000 Hz
+###        Human  talk voice frq : 100 to 8000 Hz
+
+
 
 
 ##
@@ -103,16 +114,15 @@ NUMBER_OF_CLASSES=10
 OUTPUT_SIZE=NUMBER_OF_CLASSES
 INPUT_SIZE=TRACK_LENGTH
 
+
+
 ##
 ## FULLY CONNECTED LAYER PARAMETERS
 ##
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
-NUMBER_OF_INNER_HAIR_CELLS=64
-FOURIER_CNN_LAYERS=[NUMBER_OF_INNER_HAIR_CELLS,NUMBER_OF_INNER_HAIR_CELLS,NUMBER_OF_INNER_HAIR_CELLS]
-NUMBER_OF_HAIR_CELL_NEURONS=10*NUMBER_OF_INNER_HAIR_CELLS
-NUMBER_OF_SECOND_LEVEL_NEURONS=int(NUMBER_OF_HAIR_CELL_NEURONS/10)
-FULLY_CONNECTED_LAYERS=[2048]
+FOURIER_CNN_LAYERS=[0]
+FULLY_CONNECTED_LAYERS=[128,256]
 
 
 ##
@@ -127,13 +137,14 @@ FULLY_CONNECTED_LAYERS=[2048]
 #CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 #CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-CNN_KERNEL_COUNTS       = np.array([ 64,16,16,16,16,16,16,16,16,16,16,16,16,16,16])
-CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1])
-CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_COUNTS       = np.array([ 16,32,64,128,128,128,128,128])
+CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([ 64,32,16, 3, 3, 3, 3, 3])
+CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([ 16, 8, 1, 1, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([  1, 2, 2, 2, 2, 2, 1, 1])
+
 
 
 ##
@@ -145,7 +156,12 @@ LEARNING_RATE = 0.0001
 LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
-TRAINING_ITERATIONS=9000
+LOSS_WEIGHT_1=5/20
+LOSS_WEIGHT_2=5/20
+LOSS_WEIGHT_3=10/20
+
+
+TRAINING_ITERATIONS=9999
 MINI_BATCH_SIZE=10
 
 ##

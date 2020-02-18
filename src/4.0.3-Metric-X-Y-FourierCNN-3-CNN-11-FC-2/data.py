@@ -124,7 +124,6 @@ def load_all_np_data_back_to_memory(fold_data_dictionary):
    MAX_VALUE_FOR_NORMALIZATION=minmax[1]
 
    logger.info ("load_all_np_data_back_to_memory function finished ...")
-   logger.info (str(MAX_VALUE_FOR_NORMALIZATION))
    return MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION
    
 
@@ -178,9 +177,6 @@ def augment_random(x_data):
   global LAST_AUGMENTATION_CHOICE;
 
   augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
-  randomValue=random.random()
-  np.random.seed(int(randomValue*100))
-  randomValues=np.random.rand(x_data.shape[0])
   for i in range(x_data.shape[0]) :
     LAST_AUGMENTATION_CHOICE=(LAST_AUGMENTATION_CHOICE+1)%20
     augmented_data[i]=x_data[i]
@@ -193,70 +189,6 @@ def augment_random(x_data):
        augmented_data[i]=-augmented_data[i]
       augmented_data[i]=augment_speedx(augmented_data[i],SPEED_FACTOR)
       augmented_data[i]=augment_translate(augmented_data[i],TRANSLATION_FACTOR)
-      augmented_data[i]=add_synthetic_noise(augmented_data[i],randomValues[i])
       #augmented_data[i]=augment_volume(augmented_data[i],VOLUME_FACTOR)
   
   return augmented_data
-
-
-def add_synthetic_noise(sound_array,randomValue):
-    global MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE,SOUND_RECORD_SAMPLING_RATE,DURATION,MAX_HEARING_FREQUENCY
-    generated_data=np.zeros(DURATION*SOUND_RECORD_SAMPLING_RATE,np.float32)
-    number_of_frequencies=int(randomValue*MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE)
-    #print(number_of_frequencies)
-    for i in range(number_of_frequencies+1):
-      randomValue=((1-randomValue)+0.9)/2
-      frequency=randomValue*MAX_HEARING_FREQUENCY # this generates 0-10000 float number,  from uniform dist.
-      duration=randomValue*DURATION/4 # this generates 0-4 float number,  from uniform dist.
-      volume=randomValue*5
-      frequency_data=2*np.pi*np.arange(SOUND_RECORD_SAMPLING_RATE*duration)*frequency/SOUND_RECORD_SAMPLING_RATE
-      wave_data = (np.sin(frequency_data)).astype(np.float32)
-      current_frequency_data=volume*wave_data
-      start_point=generated_data.shape[0]-current_frequency_data.shape[0]
-      #logger.info("Start point of this frequency within the sample :"+str(start_point)+")")
-      start_point=int(randomValue*start_point)
-      #logger.info("Start point of this frequency within the sample :"+str(start_point)+")")
-      generated_data[start_point:start_point+current_frequency_data.shape[0]]+=current_frequency_data
-    #play_sound(generated_data)
-    #logger.info("Generated Data Length :"+str(generated_data.shape[0])+")")
-    generated_data=normalize(generated_data,5,-5)
-    #print(*generated_data)
-    return generated_data+sound_array
-
-
-#def generate_normalized_synthetic_samples(fold):
-#    if fold not in GENERATED_DATA :
-#      if os.path.exists(MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy"):
-#        logger.info("Loading Already Generated Synthetic Sound Sample Data from "+MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy")
-#        GENERATED_DATA[fold]=np.load(MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy")
-#      else :
-#        logger.info("Starting to Generate Synthetic Sound Sample Data for fold "+str(fold))
-#        global NUMBER_OF_SYNTHETIC_TRAINNG_SAMPLES,MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE,SOUND_RECORD_SAMPLING_RATE,DURATION,MAX_HEARING_FREQUENCY
-#        samples=np.zeros((NUMBER_OF_SYNTHETIC_TRAINNG_SAMPLES,DURATION*SOUND_RECORD_SAMPLING_RATE),np.float32)
-#        for i in range(NUMBER_OF_SYNTHETIC_TRAINNG_SAMPLES):
-#          samples[i]=generate_single_synthetic_sample(MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE,SOUND_RECORD_SAMPLING_RATE,DURATION,MAX_HEARING_FREQUENCY)
-#        max_value=np.amax(samples)
-#        min_value=np.amin(samples)
-#        samples=normalize(samples,max_value,min_value)
-#        GENERATED_DATA[fold]=samples
-#        logger.info("Saving Generated Synthetic Sound Sample Data to "+MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy")
-#        np.save(MAIN_DATA_DIR+"/2.np/generated_data-"+fold+".npy", samples)
-#        logger.info("Finished to Generate Synthetic Sound Sample Data for fold "+str(fold))
-#    return  GENERATED_DATA[fold]
-#
-#def play_sound(sound_data):
-#  global SOUND_RECORD_SAMPLING_RATE
-#  logger.info("sound_data.shape="+str(sound_data.shape))
-#  logger.info("SOUND_RECORD_SAMPLING_RATE="+str(SOUND_RECORD_SAMPLING_RATE))
-#  p = pyaudio.PyAudio()
-#
-#  stream = p.open(format=pyaudio.paFloat32, channels=1, rate=SOUND_RECORD_SAMPLING_RATE, output=True)
-#  stream.write(sound_data[:22050],SOUND_RECORD_SAMPLING_RATE)
-#  stream.write(sound_data[22050:44100],SOUND_RECORD_SAMPLING_RATE)
-#  stream.write(sound_data[44100:66150],SOUND_RECORD_SAMPLING_RATE)
-#  stream.write(sound_data[66150:88200],SOUND_RECORD_SAMPLING_RATE)
-#  stream.stop_stream()
-#  stream.close()
-#  p.terminate()
-#  logger.info("Finished To Play Sound")
-

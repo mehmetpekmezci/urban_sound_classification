@@ -96,7 +96,7 @@ class NeuralNetworkModel :
      cnnStrideSizeX  = 1 
      cnnStrideSizeY  = 1                     
      cnnPoolSizeX    = 1
-     cnnPoolSizeY    = 2
+     cnnPoolSizeY    = 4
      cnnOutputChannel= cnnKernelCount   
      if fourierCNNLayerNo == 0 :
        cnnInputChannel = 1
@@ -146,7 +146,7 @@ class NeuralNetworkModel :
      cnnStrideSizeX  = 1 
      cnnStrideSizeY  = 1                     
      cnnPoolSizeX    = 1
-     cnnPoolSizeY    = 2
+     cnnPoolSizeY    = 4
      cnnOutputChannel= cnnKernelCount   
      if fourierCNNLayerNo == 0 :
        cnnInputChannel = 1

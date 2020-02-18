@@ -101,6 +101,7 @@ class NeuralNetworkModel :
      cnnOutputChannel= cnnKernelCount   
      if cnnLayerNo == 0 :
        cnnInputChannel = int (previous_level_convolution_output.shape[3])
+       previous_level_kernel_count=1
      else :
        cnnInputChannel = self.cnn_kernel_counts[int(cnnLayerNo-1)]   
 
@@ -112,10 +113,10 @@ class NeuralNetworkModel :
 
        self.logger.info(cnnLayerName+"_C.shape="+str(C.shape)+"  W.shape="+str(W.shape)+ "  cnnStrideSizeX="+str(cnnStrideSizeX)+" cnnStrideSizeY="+str(cnnStrideSizeY))
      with tf.name_scope(cnnLayerName+"-relu"):  
-       #if cnnLayerNo > 1 :
+       #if cnnLayerNo > 2 :
        H = tf.nn.relu(C)
        #else :
-       #  H=C ## first two layers linear like fourier
+       # H=C ## first two layers linear like fourier
        self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
 
      if cnnPoolSizeY != 1 :
@@ -314,7 +315,8 @@ class NeuralNetworkModel :
      self.cross_entropy_adverserial = tf.nn.sigmoid_cross_entropy_with_logits(labels=self.real_y_values_adverserial,logits=self.y_outputs_adverserial)
      self.loss_adverserial = tf.reduce_mean(self.cross_entropy_adverserial)
      #self.loss_adverserial = tf.losses.mean_squared_error(labels=self.real_y_values_adverserial,predictions=self.y_outputs_adverserial)
-     self.loss_single=2/10*self.loss_1+2/10*self.loss_2+6/10*self.loss_adverserial
+     global LOSS_WEIGHT_1,LOSS_WEIGHT_2,LOSS_WEIGHT_3
+     self.loss_single=LOSS_WEIGHT_1*self.loss_1+LOSS_WEIGHT_2*self.loss_2+LOSS_WEIGHT_3*self.loss_adverserial
 
 
   ## ADVERSERIAL FC iki ciktinin ayni olup olmadigini soyler 0/1

@@ -97,7 +97,7 @@ TRACK_LENGTH=DURATION*SOUND_RECORD_SAMPLING_RATE
 # 10 types of sounds exist (car horn, ambulence, street music, children playing ...)
 NUMBER_OF_CLASSES=10
 
-MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=5
+MAX_NUMBER_OF_SYNTHETIC_FREQUENCY_PER_SAMPLE=4
 MIN_HEARING_FREQUENCY=20
 #MAX_HEARING_FREQUENCY=20000
 MAX_HEARING_FREQUENCY=10000 #after 10000 to 20000 it is hardly heard.
@@ -122,7 +122,7 @@ INPUT_SIZE=TRACK_LENGTH
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
 FOURIER_CNN_LAYERS=[0]
-FULLY_CONNECTED_LAYERS=[64,128]
+FULLY_CONNECTED_LAYERS=[128,128]
 
 
 ##
@@ -137,13 +137,13 @@ FULLY_CONNECTED_LAYERS=[64,128]
 #CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 #CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-CNN_KERNEL_COUNTS       = np.array([16,16,16,16,16,16,16,16])
-CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([64,32,16, 8, 4, 3, 3, 3])
-CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_STRIDE_Y_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([ 8, 8, 8, 2, 2, 2, 2, 1])
+CNN_KERNEL_COUNTS       = np.array([32,32,32,32,32,32,32])
+CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([64,32,16, 8, 4, 3, 3])
+CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([ 8, 8, 8, 2, 2, 2, 2])
 
 
 

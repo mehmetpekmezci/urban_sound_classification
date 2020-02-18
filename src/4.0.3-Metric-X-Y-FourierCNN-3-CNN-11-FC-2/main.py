@@ -68,47 +68,27 @@ def main(_):
         
     prepareDataTimes=[ ]
     trainingTimes=[ ]
-    trainingAccuracies_1=[ ]
-    trainingAccuracies_2=[ ]
-    trainingAccuracies_metric=[ ]
+    trainingAccuracies=[ ]
     testTimes=[ ]
-    testAccuracies_1=[ ]
-    testAccuracies_2=[ ]
-    testAccuracies_metric=[ ]
-    tainingLosses_metric=[]
+    testAccuracies=[ ]
     for fold in np.random.permutation(FOLD_DIRS):
-       if fold == "fold10":
-         logger.info(" Starting Fold Testing : "+fold)
-       else :
-         logger.info(" Starting Fold Training : "+fold)
        current_fold_data=get_fold_data(fold)
        for current_batch_counter in range(int(current_fold_data.shape[0]/MINI_BATCH_SIZE)) :
-         #if current_batch_counter % 10 == 0 :
-         #  logger.info(" Batch Counter : "+str(current_batch_counter))
          if (current_batch_counter+1)*MINI_BATCH_SIZE <= current_fold_data.shape[0] :
            batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:(current_batch_counter+1)*MINI_BATCH_SIZE,:]
          else:
            batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:,:]
          if fold == "fold10":
              ## FOLD10 is reserved for testing
-              testTime,testAccuracy_1,testAccuracy_2,testAccuracy_metric=neuralNetworkModel.test(batch_data)
+              testTime,testAccuracy=neuralNetworkModel.test(batch_data)
               testTimes.append(testTime)
-              testAccuracies_1.append(testAccuracy_1)
-              testAccuracies_2.append(testAccuracy_2)
-              testAccuracies_metric.append(testAccuracy_metric)
+              testAccuracies.append(testAccuracy)
          else:
               batch_data_1=batch_data
-              #batch_data_2=np.random.permutation(batch_data)
-              batch_data_2=np.copy(batch_data)
-              for i in range(int(batch_data_2.shape[0]/2)):
-                 batch_data_2[i]=batch_data_2[i+1]
-              trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_metric,loss_adverserial,prepareDataTime=neuralNetworkModel.train(batch_data_1,batch_data_2)
+              batch_data_2=np.random.permutation(batch_data)
+              trainingTime,trainingAccuracy,prepareDataTime=neuralNetworkModel.train(batch_data_1,batch_data_2)
               trainingTimes.append(trainingTime)
-              trainingAccuracies_1.append(trainingAccuracy_1)
-              trainingAccuracies_2.append(trainingAccuracy_2)
-              trainingAccuracies_metric.append(trainingAccuracy_metric)
-              tainingLosses_metric.append(loss_adverserial)
-              
+              trainingAccuracies.append(trainingAccuracy)
               prepareDataTimes.append(prepareDataTime)
 
 
@@ -116,44 +96,21 @@ def main(_):
     ## LOGGING            
     logger.info("Prepare Data Time : "+str(np.sum(prepareDataTimes)))
     logger.info("Training Time : "+str(np.sum(trainingTimes)))
-    logger.info("Mean Training Accuracy_1 : "+str(np.mean(trainingAccuracies_1)))
-    logger.info("Max Training Accuracy_1 : "+str(np.max(trainingAccuracies_1)))
-    logger.info("Min Training Accuracy_1 : "+str(np.min(trainingAccuracies_1)))
-    logger.info("Mean Training Accuracy_2 : "+str(np.mean(trainingAccuracies_2)))
-    logger.info("Max Training Accuracy_2 : "+str(np.max(trainingAccuracies_2)))
-    logger.info("Min Training Accuracy_2 : "+str(np.min(trainingAccuracies_2)))
-    logger.info("Mean Training Accuracy_metric : "+str(np.mean(trainingAccuracies_metric)))
-    logger.info("Max Training Accuracy_metric : "+str(np.max(trainingAccuracies_metric)))
-    logger.info("Min Training Accuracy_metric : "+str(np.min(trainingAccuracies_metric)))
-    logger.info("Mean Training Loss Metric : "+str(np.mean(tainingLosses_metric)))
-    logger.info("Max Training  Loss Metric : "+str(np.max(tainingLosses_metric)))
-    logger.info("Min Training  Loss Metric : "+str(np.min(tainingLosses_metric)))
+    logger.info("Mean Training Accuracy : "+str(np.mean(trainingAccuracies)))
+    logger.info("Max Training Accuracy : "+str(np.max(trainingAccuracies)))
+    logger.info("Min Training Accuracy : "+str(np.min(trainingAccuracies)))
     logger.info("Test Time : "+str(np.sum(testTimes)))
-    if len(testAccuracies_1) > 0 :
-      logger.info("Mean Test Accuracy_1 : "+str(np.mean(testAccuracies_1)))
-      logger.info("Max Test Accuracy_1 : "+str(np.max(testAccuracies_1)))
-      logger.info("Min Test Accuracy_1 : "+str(np.min(testAccuracies_1)))
-      logger.info("Mean Test Accuracy_2 : "+str(np.mean(testAccuracies_2)))
-      logger.info("Max Test Accuracy_2 : "+str(np.max(testAccuracies_2)))
-      logger.info("Min Test Accuracy_2 : "+str(np.min(testAccuracies_2)))
-      logger.info("Mean Test Accuracy_metric : "+str(np.mean(testAccuracies_metric)))
-      logger.info("Max Test Accuracy_metric : "+str(np.max(testAccuracies_metric)))
-      logger.info("Min Test Accuracy_metric : "+str(np.min(testAccuracies_metric)))
+    if len(testAccuracies) > 0 :
+      logger.info("Mean Test Accuracy : "+str(np.mean(testAccuracies)))
+      logger.info("Max Test Accuracy : "+str(np.max(testAccuracies)))
+      logger.info("Min Test Accuracy : "+str(np.min(testAccuracies)))
     
     ## GRAPH (FOR LOGGING)
-    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies_1)})
+    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies)})
     trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
     trainingAccuracyWriter.flush()
 
-    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies_2)})
-    trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
-    trainingAccuracyWriter.flush()
-
-    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var:np.mean(testAccuracies_1)})
-    testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
-    testAccuracyWriter.flush()
-
-    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var:np.mean(testAccuracies_2)})
+    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var:np.mean(testAccuracies)})
     testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
     testAccuracyWriter.flush()
 

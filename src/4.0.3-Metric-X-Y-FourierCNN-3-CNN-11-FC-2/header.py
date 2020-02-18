@@ -108,32 +108,32 @@ INPUT_SIZE=TRACK_LENGTH
 ##
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
-NUMBER_OF_INNER_HAIR_CELLS=64
+NUMBER_OF_INNER_HAIR_CELLS=32
 FOURIER_CNN_LAYERS=[NUMBER_OF_INNER_HAIR_CELLS,NUMBER_OF_INNER_HAIR_CELLS,NUMBER_OF_INNER_HAIR_CELLS]
 NUMBER_OF_HAIR_CELL_NEURONS=10*NUMBER_OF_INNER_HAIR_CELLS
 NUMBER_OF_SECOND_LEVEL_NEURONS=int(NUMBER_OF_HAIR_CELL_NEURONS/10)
-FULLY_CONNECTED_LAYERS=[2048]
+FULLY_CONNECTED_LAYERS=[1024]
 
 
 ##
 ## CNN PARAMETERS
 ##
 ## AUDIO DATA IS ONE DIMENSIONAL  ( that is why *x* is 1)
-#CNN_KERNEL_COUNTS       = np.array([128,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32])
-#CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-#CNN_KERNEL_Y_SIZES      = np.array([ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
-#CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-#CNN_STRIDE_Y_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-#CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-#CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_COUNTS       = np.array([64,32,32,32,32,32,32,32,32,32,32,32,32])
+CNN_KERNEL_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([ 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3])
+CNN_STRIDE_X_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1])
 
-CNN_KERNEL_COUNTS       = np.array([ 64,16,16,16,16,16,16,16,16,16,16,16,16,16,16])
-CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1])
-CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1])
+#CNN_KERNEL_COUNTS       = np.array([256,16,16,16,16,16,16,16,16,16,16,16,16,16,16])
+#CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_KERNEL_Y_SIZES      = np.array([  3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1])
+#CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+#CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1])
 
 
 ##
@@ -146,7 +146,7 @@ LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
 TRAINING_ITERATIONS=9000
-MINI_BATCH_SIZE=10
+MINI_BATCH_SIZE=5
 
 ##
 ## GLOBAL VARIABLES

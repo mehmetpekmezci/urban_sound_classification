@@ -207,7 +207,7 @@ def add_synthetic_noise(sound_array,randomValue):
     for i in range(number_of_frequencies+1):
       randomValue=((1-randomValue)+0.9)/2
       frequency=randomValue*MAX_HEARING_FREQUENCY # this generates 0-10000 float number,  from uniform dist.
-      duration=randomValue*DURATION/4 # this generates 0-4 float number,  from uniform dist.
+      duration=randomValue*DURATION/8 # this generates 0-1/2 float number,  from uniform dist.
       volume=randomValue*5
       frequency_data=2*np.pi*np.arange(SOUND_RECORD_SAMPLING_RATE*duration)*frequency/SOUND_RECORD_SAMPLING_RATE
       wave_data = (np.sin(frequency_data)).astype(np.float32)
