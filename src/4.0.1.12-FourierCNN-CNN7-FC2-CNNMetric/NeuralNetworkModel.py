@@ -329,6 +329,7 @@ class NeuralNetworkModel :
    ## METRIC  CNN LAYERS
    ##
    previous_level_convolution_output=cnn_last_layer_output
+
    with tf.name_scope('metric_CNN'):
     for metricCNNLayerNo in range(len(self.metric_cnn_kernel_counts)) :
      self.logger.info("previous_level_convolution_output.shape="+str(previous_level_convolution_output.shape))
@@ -344,7 +345,9 @@ class NeuralNetworkModel :
      
      cnnOutputChannel= cnnKernelCount   
      if metricCNNLayerNo == 0 :
-       cnnInputChannel = 1
+       cnnInputChannel = int (previous_level_convolution_output.shape[3])
+       previous_level_kernel_count=1
+       #cnnInputChannel = 1
      else :
        cnnInputChannel = self.metric_cnn_kernel_counts[int(metricCNNLayerNo-1)]   
 
