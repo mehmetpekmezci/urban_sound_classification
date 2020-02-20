@@ -30,6 +30,7 @@ datetime    = importlib.import_module("datetime")
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
 #FOLD_DIRS = ['fold1','fold10']
+#FOLD_DIRS = []
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 SCRIPT_NAME=os.path.basename(SCRIPT_DIR)
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
@@ -121,8 +122,16 @@ INPUT_SIZE=TRACK_LENGTH
 ##
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
-FOURIER_CNN_LAYERS=[0]
-FULLY_CONNECTED_LAYERS=[128,256]
+
+FOURIER_CNN_KERNEL_COUNTS       = np.array([ 16,16,16])
+FOURIER_CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1])
+FOURIER_CNN_KERNEL_Y_SIZES      = np.array([ 64,32,16])
+FOURIER_CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1])
+FOURIER_CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1])
+FOURIER_CNN_POOL_X_SIZES        = np.array([  1, 1, 1])
+FOURIER_CNN_POOL_Y_SIZES        = np.array([ 16, 8, 4])
+
+FULLY_CONNECTED_LAYERS=[256,256]
 
 
 ##
@@ -137,13 +146,13 @@ FULLY_CONNECTED_LAYERS=[128,256]
 #CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 #CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-CNN_KERNEL_COUNTS       = np.array([ 16,32,32,32,64,64,64])
+CNN_KERNEL_COUNTS       = np.array([128,16,16,16,16,16,16])
 CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([ 64,32,16, 4, 4, 4, 4])
+CNN_KERNEL_Y_SIZES      = np.array([  4, 4, 4, 4, 4, 4, 4])
 CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1])
 CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1])
 CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([ 16, 8, 4, 2, 2, 2, 2])
+CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 2, 2])
 
 
 
@@ -156,9 +165,12 @@ LEARNING_RATE = 0.0001
 LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
-LOSS_WEIGHT_1=2/20
-LOSS_WEIGHT_2=2/20
-LOSS_WEIGHT_3=16/20
+#LOSS_WEIGHT_1=2/20
+#LOSS_WEIGHT_2=2/20
+#LOSS_WEIGHT_3=16/20
+LOSS_WEIGHT_1=1/2
+LOSS_WEIGHT_2=1/2
+LOSS_WEIGHT_3=0
 
 
 TRAINING_ITERATIONS=9999

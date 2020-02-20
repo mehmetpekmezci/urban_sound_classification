@@ -123,7 +123,7 @@ INPUT_SIZE=TRACK_LENGTH
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
 
-FOURIER_CNN_KERNEL_COUNTS       = np.array([ 16,32,64])
+FOURIER_CNN_KERNEL_COUNTS       = np.array([ 16,16,16])
 FOURIER_CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1])
 FOURIER_CNN_KERNEL_Y_SIZES      = np.array([ 64,32,16])
 FOURIER_CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1])
@@ -131,7 +131,7 @@ FOURIER_CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1])
 FOURIER_CNN_POOL_X_SIZES        = np.array([  1, 1, 1])
 FOURIER_CNN_POOL_Y_SIZES        = np.array([ 16, 8, 4])
 
-FULLY_CONNECTED_LAYERS=[128,128]
+FULLY_CONNECTED_LAYERS=[256,256]
 
 
 ##
@@ -146,13 +146,13 @@ FULLY_CONNECTED_LAYERS=[128,128]
 #CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 #CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-CNN_KERNEL_COUNTS       = np.array([ 16,32,64,64,64,64,64])
+CNN_KERNEL_COUNTS       = np.array([128,16,16,16,16,16,16])
 CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([ 64,32,16, 4, 4, 4, 4])
+CNN_KERNEL_Y_SIZES      = np.array([  4, 4, 4, 4, 4, 4, 4])
 CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1])
 CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1])
 CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([ 16, 8, 4, 2, 2, 2, 2])
+CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 2, 2])
 
 
 
@@ -161,13 +161,13 @@ CNN_POOL_Y_SIZES        = np.array([ 16, 8, 4, 2, 2, 2, 2])
 ##
 #LEARNING_RATE = 0.00001
 #LEARNING_RATE = 0.000001
-LEARNING_RATE = 0.00001
+LEARNING_RATE = 0.0001
 LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
-LOSS_WEIGHT_1=5/20
-LOSS_WEIGHT_2=5/20
-LOSS_WEIGHT_3=10/20
+LOSS_WEIGHT_1=2/20
+LOSS_WEIGHT_2=2/20
+LOSS_WEIGHT_3=16/20
 
 
 TRAINING_ITERATIONS=9999
