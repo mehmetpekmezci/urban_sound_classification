@@ -112,7 +112,7 @@ class NeuralNetworkModel :
 
    ## RESHAPE TO 2x80
 
-   previous_level_convolution_output=tf.reshape(previous_level_convolution_output, [-1,int(int(previous_level_convolution_output.shape[1])*self.cut_into_parts_number),int(int(previous_level_convolution_output.shape[2])/self.cut_into_parts_number), -1])
+   previous_level_convolution_output=tf.reshape(previous_level_convolution_output, [-1,int(int(previous_level_convolution_output.shape[1])*self.cut_into_parts_number),int(int(previous_level_convolution_output.shape[2])/self.cut_into_parts_number), int(previous_level_convolution_output.shape[3])])
 
    ##
    ## FOURIER  CNN LAYERS

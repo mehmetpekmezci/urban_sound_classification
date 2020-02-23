@@ -30,7 +30,7 @@ datetime    = importlib.import_module("datetime")
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
 #FOLD_DIRS = ['fold1','fold10']
-FOLD_DIRS = []
+#FOLD_DIRS = []
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 SCRIPT_NAME=os.path.basename(SCRIPT_DIR)
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
@@ -123,7 +123,7 @@ INPUT_SIZE=TRACK_LENGTH
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
 
-FOURIER_CNN_KERNEL_COUNTS       = np.array([ 64,64,64])
+FOURIER_CNN_KERNEL_COUNTS       = np.array([ 16,16,16])
 FOURIER_CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1])
 FOURIER_CNN_KERNEL_Y_SIZES      = np.array([ 64,32,16])
 FOURIER_CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1])
@@ -131,8 +131,8 @@ FOURIER_CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1])
 FOURIER_CNN_POOL_X_SIZES        = np.array([  1, 1, 1])
 FOURIER_CNN_POOL_Y_SIZES        = np.array([ 16, 8, 4])
 
-FULLY_CONNECTED_LAYERS=[256,256]
-METRIC_FULLY_CONNECTED_LAYERS=[256] # DICRIMINATOR
+FULLY_CONNECTED_LAYERS=[1024,1024]
+METRIC_FULLY_CONNECTED_LAYERS=[2048] # DICRIMINATOR
 
 
 ##
@@ -147,7 +147,7 @@ METRIC_FULLY_CONNECTED_LAYERS=[256] # DICRIMINATOR
 #CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 #CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-CNN_KERNEL_COUNTS       = np.array([ 32,32,32,32,32,32,32,32,32,32,32,32])
+CNN_KERNEL_COUNTS       = np.array([ 16,16,16,16,16,16,16,16,16,16,16,16])
 CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 CNN_KERNEL_Y_SIZES      = np.array([  4, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2])
 CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
