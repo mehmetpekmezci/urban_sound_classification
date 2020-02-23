@@ -286,29 +286,101 @@ class NeuralNetworkModel :
 
 
    # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS features to OUTPUT_SIZE=NUMBER_OF_CLASSES(10) classes, one for each class
-   with tf.name_scope('last_fc1'):
+   with tf.name_scope('last_fc'):
     W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons, self.output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.output_size]))
     #h_fc2 =tf.nn.relu( tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
-    self.y_outputs_1 =tf.nn.relu(tf.matmul(last_layer_output, W_fc2) + b_fc2)
+    self.y_outputs_1 =tf.matmul(last_layer_output, W_fc2) + b_fc2
     self.logger.info("self.y_outputs_1.shape="+str(self.y_outputs_1.shape))
       
+
+
+   ## SECOND FULLY CONNECTED 
+
+   last_layer_output=cnn_last_layer_output_flat
+   number_of_fully_connected_layer_neurons=self.fully_connected_layers[0]
+
+   for fcLayerNo in range(len(self.fully_connected_layers)) :
+       
+    number_of_fully_connected_layer_neurons=self.fully_connected_layers[fcLayerNo]
+
+    with tf.name_scope('fc-'+str(fcLayerNo)):
+     W_fc1 =  tf.Variable( tf.truncated_normal([int(last_layer_output.shape[1]), number_of_fully_connected_layer_neurons], stddev=0.1))
+     self.logger.info("W_fc-"+str(fcLayerNo)+".shape="+str(W_fc1.shape))
+     B_fc1 = tf.Variable(tf.constant(0.1, shape=[number_of_fully_connected_layer_neurons]))
+     self.logger.info("B_fc-"+str(fcLayerNo)+".shape="+str(B_fc1.shape))
+     matmul_fc1=tf.matmul(last_layer_output, W_fc1)+B_fc1
+     self.logger.info("matmul_fc-"+str(fcLayerNo)+".shape="+str(matmul_fc1.shape))
+
+    with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normlalization'):    
+     batch_mean, batch_var = tf.nn.moments(matmul_fc1,[0])
+     scale = tf.Variable(tf.ones(number_of_fully_connected_layer_neurons))
+     beta = tf.Variable(tf.zeros(number_of_fully_connected_layer_neurons))
+     batch_normalization_fc1 = tf.nn.batch_normalization(matmul_fc1,batch_mean,batch_var,beta,scale,epsilon)
+     self.logger.info("batch_normalization_fc-"+str(fcLayerNo)+".shape="+str(batch_normalization_fc1.shape))
+
+    with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normalized_relu'):    
+     h_fc1 = tf.nn.relu( batch_normalization_fc1 )
+     self.logger.info("h_fc-"+str(fcLayerNo)+".shape="+str(h_fc1.shape))
+
+    # Dropout - controls the complexity of the model, prevents co-adaptation of features.
+    with tf.name_scope('fc-'+str(fcLayerNo)+'_dropout'):    
+     h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
+     self.logger.info("h_fc-"+str(fcLayerNo)+"_drop.shape="+str(h_fc1_drop.shape))
+     last_layer_output=h_fc1_drop
+     second_fc_output=last_layer_output
+
    # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS features to OUTPUT_SIZE=NUMBER_OF_CLASSES(10) classes, one for each class
-   with tf.name_scope('last_fc2'):
+   with tf.name_scope('last_fc'):
     W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons, self.output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[self.output_size]))
     #h_fc2 =tf.nn.relu( tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
-    self.y_outputs_2 =tf.nn.relu(tf.matmul(last_layer_output, W_fc2) + b_fc2)
-    self.logger.info("self.y_outputs_1.shape="+str(self.y_outputs_1.shape))
-      
-   #metric output=0/1  yes or no, meaning that these two outputs are the same or not
+    self.y_outputs_2 =tf.matmul(last_layer_output, W_fc2) + b_fc2
+    self.logger.info("self.y_outputs_2.shape="+str(self.y_outputs_2.shape))
+    
+
+   # first_fc_output ve second_fc_output birlestir
+   # Adverserial fully connected layer a ver
+   classifier_outputs=tf.concat((first_fc_output,second_fc_output),1)
+   last_layer_output=classifier_outputs
+
+   for fcLayerNo in range(len(self.fully_connected_layers)) :
+       
+    number_of_fully_connected_layer_neurons=self.fully_connected_layers[fcLayerNo]
+
+    with tf.name_scope('fc-'+str(fcLayerNo)):
+     W_fc1 =  tf.Variable( tf.truncated_normal([int(last_layer_output.shape[1]), number_of_fully_connected_layer_neurons], stddev=0.1))
+     self.logger.info("W_fc-"+str(fcLayerNo)+".shape="+str(W_fc1.shape))
+     B_fc1 = tf.Variable(tf.constant(0.1, shape=[number_of_fully_connected_layer_neurons]))
+     self.logger.info("B_fc-"+str(fcLayerNo)+".shape="+str(B_fc1.shape))
+     matmul_fc1=tf.matmul(last_layer_output, W_fc1)+B_fc1
+     self.logger.info("matmul_fc-"+str(fcLayerNo)+".shape="+str(matmul_fc1.shape))
+
+    with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normlalization'):    
+     batch_mean, batch_var = tf.nn.moments(matmul_fc1,[0])
+     scale = tf.Variable(tf.ones(number_of_fully_connected_layer_neurons))
+     beta = tf.Variable(tf.zeros(number_of_fully_connected_layer_neurons))
+     batch_normalization_fc1 = tf.nn.batch_normalization(matmul_fc1,batch_mean,batch_var,beta,scale,epsilon)
+     self.logger.info("batch_normalization_fc-"+str(fcLayerNo)+".shape="+str(batch_normalization_fc1.shape))
+
+    with tf.name_scope('fc-'+str(fcLayerNo)+'_batch_normalized_relu'):    
+     h_fc1 = tf.nn.relu( batch_normalization_fc1 )
+     self.logger.info("h_fc-"+str(fcLayerNo)+".shape="+str(h_fc1.shape))
+
+    # Dropout - controls the complexity of the model, prevents co-adaptation of features.
+    with tf.name_scope('fc-'+str(fcLayerNo)+'_dropout'):    
+     h_fc1_drop = tf.nn.dropout(h_fc1, self.keep_prob)
+     self.logger.info("h_fc-"+str(fcLayerNo)+"_drop.shape="+str(h_fc1_drop.shape))
+     last_layer_output=h_fc1_drop
+
+   #adverserial output=0/1  yes or no, meaning that these two outputs are the same or not
    adverserial_output_size=1
    # Map the NUMBER_OF_FULLY_CONNECTED_NEURONS features to OUTPUT_SIZE=NUMBER_OF_CLASSES(10) classes, one for each class
-   with tf.name_scope('last_fc3'):
+   with tf.name_scope('last_fc'):
     W_fc2 =  tf.Variable( tf.truncated_normal([number_of_fully_connected_layer_neurons, adverserial_output_size], stddev=0.1))
     b_fc2 =  tf.Variable(tf.constant(0.1, shape=[adverserial_output_size]))
     #h_fc2 =tf.nn.relu( tf.matmul(h_fc1_drop, W_fc2) + b_fc2)
-    self.y_outputs_adverserial =tf.nn.relu(tf.matmul(last_layer_output, W_fc2) + b_fc2)
+    self.y_outputs_adverserial =tf.matmul(last_layer_output, W_fc2) + b_fc2
     self.logger.info("self.y_outputs_adverserial.shape="+str(self.y_outputs_adverserial.shape))
     
     
@@ -354,10 +426,6 @@ class NeuralNetworkModel :
     correct_prediction_2 = tf.equal(tf.argmax(self.y_outputs_2, 1),tf.argmax(self.real_y_values_2, 1))
     correct_prediction_2 = tf.cast(correct_prediction_2, tf.float32)
     self.accuracy_2 = tf.reduce_mean(correct_prediction_2)
-
-
-
-
     correct_prediction_adverserial = tf.equal(tf.argmax(self.y_outputs_adverserial, 1),tf.argmax(self.real_y_values_adverserial, 1))
     correct_prediction_adverserial = tf.cast(correct_prediction_adverserial, tf.float32)
     self.accuracy_adverserial = tf.reduce_mean(correct_prediction_adverserial)
@@ -411,17 +479,9 @@ class NeuralNetworkModel :
 
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
-  trainingAccuracy_1 = self.accuracy_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial, self.keep_prob: 1.0})
-  trainingAccuracy_2 = self.accuracy_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
-  trainingAccuracy_adverserial= self.accuracy_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
-
-  print('------------------------------------------')
-  print('y_values_adverserial:')
-  print(*y_values_adverserial)
-  print('predicted_y_values_adverserial')
-  print( self.y_outputs_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0}) )
-  print('trainingAccuracy_adverserial')
-  print(trainingAccuracy_adverserial)
+  trainingAccuracy_1 = self.accuracy_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data_1,self.x_input_2: x_data_2, self.real_y_values_2:y_data_2,self.real_y_values_adverserial:y_values_adverserial, self.keep_prob: 1.0})
+  trainingAccuracy_2 = self.accuracy_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data_1,self.x_input_2: x_data_2, self.real_y_values_2:y_data_2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
+  trainingAccuracy_adverserial= self.accuracy_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data_1,self.x_input_2: x_data2, self.real_y_values_2:y_data_2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,prepareDataTime
      
  def test(self,data):
