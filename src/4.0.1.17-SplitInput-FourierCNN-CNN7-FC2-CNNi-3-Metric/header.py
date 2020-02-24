@@ -74,11 +74,41 @@ logger.addHandler(loggingConsoleHandler)
 ## CONFIGURE TF.SUMMARY
 ##
 ## ONE VARIABLE , TWO WRITERS TO OBTAIN TWO GRPAHS ON THE SAME IMAGE
-trainingAccuracyWriter = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/trainingAccuracyWriter")
-testAccuracyWriter =tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/testAccuracyWriter")
-tf_summary_accuracy_log_var = tf.Variable(0.0)
-tf.summary.scalar("Accuracy (Test/Train)", tf_summary_accuracy_log_var)
-tfSummaryAccuracyMergedWriter = tf.summary.merge_all()
+trainingAccuracyWriter1 = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/trainingAccuracyWriter1")
+testAccuracyWriter1 =tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/testAccuracyWriter1")
+tf_summary_accuracy_log_var1 = tf.Variable(0.0)
+tf.summary.scalar("Accuracy (Test/Train)", tf_summary_accuracy_log_var1)
+tfSummaryAccuracyMergedWriter1 = tf.summary.merge_all()
+
+trainingAccuracyWriter2 = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/trainingAccuracyWriter2")
+testAccuracyWriter2 =tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/testAccuracyWriter2")
+tf_summary_accuracy_log_var2 = tf.Variable(0.0)
+tf.summary.scalar("Accuracy (Test/Train)", tf_summary_accuracy_log_var2)
+tfSummaryAccuracyMergedWriter2 = tf.summary.merge_all()
+
+trainingAccuracyWriter3 = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/trainingAccuracyWriter3")
+testAccuracyWriter3 =tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/testAccuracyWriter3")
+tf_summary_accuracy_log_var3 = tf.Variable(0.0)
+tf.summary.scalar("Accuracy (Test/Train)", tf_summary_accuracy_log_var3)
+tfSummaryAccuracyMergedWriter3 = tf.summary.merge_all()
+
+trainingMetricAccuracyWriter1 = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/trainingAccuracyWriterMetric1")
+testMetricAccuracyWriter1 =tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/testAccuracyWriterMetric1")
+tf_summary_Metricaccuracy_log_var1 = tf.Variable(0.0)
+tf.summary.scalar("Accuracy (Test/Train)", tf_summary_Metricaccuracy_log_var1)
+tfSummaryMetricAccuracyMergedWriter1 = tf.summary.merge_all()
+
+trainingMetricAccuracyWriter2 = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/trainingAccuracyWriterMetric2")
+testMetricAccuracyWriter2 =tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/testAccuracyWriterMetric2")
+tf_summary_Metricaccuracy_log_var2 = tf.Variable(0.0)
+tf.summary.scalar("Accuracy (Test/Train)", tf_summary_Metricaccuracy_log_var2)
+tfSummaryMetricAccuracyMergedWriter2 = tf.summary.merge_all()
+
+trainingMetricAccuracyWriter3 = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/trainingAccuracyWriterMetric3")
+testMetricAccuracyWriter3 =tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/testAccuracyWriterMetric3")
+tf_summary_Metricaccuracy_log_var3 = tf.Variable(0.0)
+tf.summary.scalar("Accuracy (Test/Train)", tf_summary_Metricaccuracy_log_var3)
+tfSummaryMetricAccuracyMergedWriter3 = tf.summary.merge_all()
 
 trainingTimeWriter = tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/trainingTimeWriter")
 testTimeWriter =tf.summary.FileWriter(LOG_DIR_FOR_TF_SUMMARY+"/testTimeWriter")
@@ -123,7 +153,7 @@ INPUT_SIZE=TRACK_LENGTH
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
 
-FOURIER_CNN_KERNEL_COUNTS       = np.array([ 64,64,64])
+FOURIER_CNN_KERNEL_COUNTS       = np.array([ 32,32,32])
 FOURIER_CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1])
 FOURIER_CNN_KERNEL_Y_SIZES      = np.array([ 64,32,16])
 FOURIER_CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1])
@@ -131,8 +161,8 @@ FOURIER_CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1])
 FOURIER_CNN_POOL_X_SIZES        = np.array([  1, 1, 1])
 FOURIER_CNN_POOL_Y_SIZES        = np.array([ 16, 8, 4])
 
-FULLY_CONNECTED_LAYERS=[1024,1024]
-METRIC_FULLY_CONNECTED_LAYERS=[1024] # DICRIMINATOR
+FULLY_CONNECTED_LAYERS=[512,512]
+METRIC_FULLY_CONNECTED_LAYERS=[512] # DICRIMINATOR
 
 
 ##
@@ -174,12 +204,12 @@ LEARNING_RATE = 0.0005
 LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
-LOSS_WEIGHT_1=9/20
-LOSS_WEIGHT_2=9/20
-LOSS_WEIGHT_3=2/20
-LOSS_WEIGHT_ADVER_1_2=2/20
-LOSS_WEIGHT_ADVER_1_3=2/20
-LOSS_WEIGHT_ADVER_2_3=2/20
+LOSS_WEIGHT_1=10/40
+LOSS_WEIGHT_2=10/40
+LOSS_WEIGHT_3=10/40
+LOSS_WEIGHT_ADVER_1_2=3/40
+LOSS_WEIGHT_ADVER_1_3=3/40
+LOSS_WEIGHT_ADVER_2_3=3/40
 
 
 TRAINING_ITERATIONS=9999
