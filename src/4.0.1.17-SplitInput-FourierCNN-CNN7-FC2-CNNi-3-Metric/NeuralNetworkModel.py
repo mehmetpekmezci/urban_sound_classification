@@ -717,7 +717,7 @@ class NeuralNetworkModel :
 
 
      global LOSS_WEIGHT_1,LOSS_WEIGHT_2,LOSS_WEIGHT_3,LOSS_WEIGHT_ADVER_1_2,LOSS_WEIGHT_ADVER_1_3,LOSS_WEIGHT_ADVER_2_3
-     self.loss_single=LOSS_WEIGHT_1*self.loss_1+LOSS_WEIGHT_2*self.loss_2+LOSS_WEIGHT_3*self.loss_2+LOSS_WEIGHT_ADVER_1_2*self.loss_adverserial_1_2+LOSS_WEIGHT_ADVER_1_3*self.loss_adverserial_1_3+LOSS_WEIGHT_ADVER_2_3*self.loss_adverserial_2_3
+     self.loss_single=LOSS_WEIGHT_1*self.loss_1+LOSS_WEIGHT_2*self.loss_2+LOSS_WEIGHT_3*self.loss_3+LOSS_WEIGHT_ADVER_1_2*self.loss_adverserial_1_2+LOSS_WEIGHT_ADVER_1_3*self.loss_adverserial_1_3+LOSS_WEIGHT_ADVER_2_3*self.loss_adverserial_2_3
 
 
   ## ADVERSERIAL FC iki ciktinin ayni olup olmadigini soyler 0/1
