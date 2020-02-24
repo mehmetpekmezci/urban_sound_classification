@@ -30,7 +30,7 @@ datetime    = importlib.import_module("datetime")
 ##
 FOLD_DIRS = ['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
 #FOLD_DIRS = ['fold1','fold10']
-FOLD_DIRS = []
+#FOLD_DIRS = []
 SCRIPT_DIR=os.path.dirname(os.path.realpath(__file__))
 SCRIPT_NAME=os.path.basename(SCRIPT_DIR)
 MAIN_DATA_DIR = SCRIPT_DIR+'/../../data/'
@@ -131,8 +131,8 @@ FOURIER_CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1])
 FOURIER_CNN_POOL_X_SIZES        = np.array([  1, 1, 1])
 FOURIER_CNN_POOL_Y_SIZES        = np.array([ 16, 8, 4])
 
-FULLY_CONNECTED_LAYERS=[512,512]
-METRIC_FULLY_CONNECTED_LAYERS=[512] # DICRIMINATOR
+FULLY_CONNECTED_LAYERS=[1024,1024]
+METRIC_FULLY_CONNECTED_LAYERS=[1024] # DICRIMINATOR
 
 
 ##
@@ -163,7 +163,7 @@ METRIC_CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1])
 METRIC_CNN_POOL_X_SIZES        = np.array([  1, 1, 1])
 METRIC_CNN_POOL_Y_SIZES        = np.array([  1, 1, 1])
 
-CUT_INTO_PARTS_NUMBER=20
+CUT_INTO_PARTS_NUMBER=4
 
 ##
 ## TRAINING PARAMETERS
