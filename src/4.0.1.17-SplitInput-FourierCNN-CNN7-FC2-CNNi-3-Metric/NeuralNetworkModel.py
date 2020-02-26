@@ -120,7 +120,7 @@ class NeuralNetworkModel :
 
    ## RESHAPE TO 2 x cut_into_parts_number
 
-   previous_level_convolution_output=tf.reshape(previous_level_convolution_output, [-1,int(int(previous_level_convolution_output.shape[1])*self.cut_into_parts_number),int(int(previous_level_convolution_output.shape[2])/self.cut_into_parts_number), -1])
+   previous_level_convolution_output=tf.reshape(previous_level_convolution_output, [-1,int(int(previous_level_convolution_output.shape[1])*self.cut_into_parts_number),int(int(previous_level_convolution_output.shape[2])/self.cut_into_parts_number), int(previous_level_convolution_output.shape[3])])
 
    ##
    ## FOURIER  CNN LAYERS
@@ -717,7 +717,7 @@ class NeuralNetworkModel :
 
 
      global LOSS_WEIGHT_1,LOSS_WEIGHT_2,LOSS_WEIGHT_3,LOSS_WEIGHT_ADVER_1_2,LOSS_WEIGHT_ADVER_1_3,LOSS_WEIGHT_ADVER_2_3
-     self.loss_single=LOSS_WEIGHT_1*self.loss_1+LOSS_WEIGHT_2*self.loss_2+LOSS_WEIGHT_3*self.loss_2+LOSS_WEIGHT_ADVER_1_2*self.loss_adverserial_1_2+LOSS_WEIGHT_ADVER_1_3*self.loss_adverserial_1_3+LOSS_WEIGHT_ADVER_2_3*self.loss_adverserial_2_3
+     self.loss_single=LOSS_WEIGHT_1*self.loss_1+LOSS_WEIGHT_2*self.loss_2+LOSS_WEIGHT_3*self.loss_3+LOSS_WEIGHT_ADVER_1_2*self.loss_adverserial_1_2+LOSS_WEIGHT_ADVER_1_3*self.loss_adverserial_1_3+LOSS_WEIGHT_ADVER_2_3*self.loss_adverserial_2_3
 
 
   ## ADVERSERIAL FC iki ciktinin ayni olup olmadigini soyler 0/1
@@ -776,7 +776,7 @@ class NeuralNetworkModel :
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
   return x_data,y_data_one_hot_encoded
 
- def train(self,data1,data2,data_3):
+ def train(self,data1,data2,data3):
   augment=True
   prepareDataTimeStart = int(round(time.time())) 
   x_data1,y_data1=self.prepareData(data1,augment)
@@ -826,6 +826,12 @@ class NeuralNetworkModel :
     if (y_values_adverserial_1_3[i] == 0 and y_outputs_adverserial_1_3[i] < self.ADVERSERIAL_TRESHOLD) or  (y_values_adverserial_1_3[i] == 1 and y_outputs_adverserial_1_3[i] > self.ADVERSERIAL_TRESHOLD):
        trainingAccuracy_adverserial_1_3=trainingAccuracy_adverserial_1_3+1
   trainingAccuracy_adverserial_1_3= trainingAccuracy_adverserial_1_3/y_outputs_adverserial_1_3.shape[0]    
+  
+  trainingAccuracy_adverserial_2_3=0
+  for i in range(y_outputs_adverserial_2_3.shape[0]):
+    if (y_values_adverserial_2_3[i] == 0 and y_outputs_adverserial_2_3[i] < self.ADVERSERIAL_TRESHOLD) or  (y_values_adverserial_2_3[i] == 1 and y_outputs_adverserial_2_3[i] > self.ADVERSERIAL_TRESHOLD):
+       trainingAccuracy_adverserial_2_3=trainingAccuracy_adverserial_2_3+1
+  trainingAccuracy_adverserial_2_3= trainingAccuracy_adverserial_2_3/y_outputs_adverserial_2_3.shape[0]    
   
 
 #  cross_entropy_1 = self.cross_entropy_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})

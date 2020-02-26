@@ -156,58 +156,53 @@ def main(_):
       #logger.info("Min Test Accuracy_metric : "+str(np.min(testAccuracies_metric)))
     
     ## GRAPH (FOR LOGGING)
-    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies_1)})
-    trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
-    trainingAccuracyWriter.flush()
+    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter1, {tf_summary_accuracy_log_var1: np.mean(trainingAccuracies_1)})
+    trainingAccuracyWriter1.add_summary(tariningAcuracySummary, trainingIterationNo)
+    trainingAccuracyWriter1.flush()
 
-    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies_2)})
-    trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
-    trainingAccuracyWriter.flush()
+    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter2, {tf_summary_accuracy_log_var2: np.mean(trainingAccuracies_2)})
+    trainingAccuracyWriter2.add_summary(tariningAcuracySummary, trainingIterationNo)
+    trainingAccuracyWriter2.flush()
 
-    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies_3)})
-    trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
-    trainingAccuracyWriter.flush()
+    tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter3, {tf_summary_accuracy_log_var3: np.mean(trainingAccuracies_3)})
+    trainingAccuracyWriter3.add_summary(tariningAcuracySummary, trainingIterationNo)
+    trainingAccuracyWriter3.flush()
 
-    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var:np.mean(testAccuracies_1)})
-    testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
-    testAccuracyWriter.flush()
+    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter1, {tf_summary_accuracy_log_var1:np.mean(testAccuracies_1)})
+    testAccuracyWriter1.add_summary(testAcuracySummary, trainingIterationNo)
+    testAccuracyWriter1.flush()
 
-    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var:np.mean(testAccuracies_2)})
-    testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
-    testAccuracyWriter.flush()
+    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter2, {tf_summary_accuracy_log_var2:np.mean(testAccuracies_2)})
+    testAccuracyWriter2.add_summary(testAcuracySummary, trainingIterationNo)
+    testAccuracyWriter2.flush()
 
-    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var:np.mean(testAccuracies_3)})
-    testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
-    testAccuracyWriter.flush()
+    testAcuracySummary = session.run(tfSummaryAccuracyMergedWriter3, {tf_summary_accuracy_log_var3:np.mean(testAccuracies_3)})
+    testAccuracyWriter3.add_summary(testAcuracySummary, trainingIterationNo)
+    testAccuracyWriter3.flush()
 
+    tariningAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter1, {tf_summary_Metricaccuracy_log_var1: np.mean(trainingAccuracies_metric_1_2)})
+    trainingMetricAccuracyWriter1.add_summary(tariningAcuracySummary, trainingIterationNo)
+    trainingMetricAccuracyWriter1.flush()
 
+    tariningAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter2, {tf_summary_Metricaccuracy_log_var2: np.mean(trainingAccuracies_metric_1_3)})
+    trainingMetricAccuracyWriter2.add_summary(tariningAcuracySummary, trainingIterationNo)
+    trainingMetricAccuracyWriter2.flush()
 
-    tariningAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter, {tf_summary_Metricaccuracy_log_var: np.mean(trainingAccuracies_metric_1_2)})
-    trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
-    trainingAccuracyWriter.flush()
+    tariningAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter3, {tf_summary_Metricaccuracy_log_var3: np.mean(trainingAccuracies_metric_2_3)})
+    trainingMetricAccuracyWriter3.add_summary(tariningAcuracySummary, trainingIterationNo)
+    trainingMetricAccuracyWriter3.flush()
 
-    tariningAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter, {tf_summary_Metricaccuracy_log_var: np.mean(trainingAccuracies_metric_1_3)})
-    trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
-    trainingAccuracyWriter.flush()
+    testAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter1, {tf_summary_Metricaccuracy_log_var1:np.mean(testAccuracies_metric_1_2)})
+    testMetricAccuracyWriter1.add_summary(testAcuracySummary, trainingIterationNo)
+    testMetricAccuracyWriter1.flush()
 
-    tariningAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter, {tf_summary_Metricaccuracy_log_var: np.mean(trainingAccuracies_metric_2_3)})
-    trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
-    trainingAccuracyWriter.flush()
+    testAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter2, {tf_summary_Metricaccuracy_log_var2:np.mean(testAccuracies_metric_1_3)})
+    testMetricAccuracyWriter2.add_summary(testAcuracySummary, trainingIterationNo)
+    testMetricAccuracyWriter2.flush()
 
-    testAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter, {tf_summary_Metricaccuracy_log_var:np.mean(testAccuracies_metric_1_2)})
-    testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
-    testAccuracyWriter.flush()
-
-    testAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter, {tf_summary_Metricaccuracy_log_var:np.mean(testAccuracies_metric_1_3)})
-    testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
-    testAccuracyWriter.flush()
-
-    testAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter, {tf_summary_Metricaccuracy_log_var:np.mean(testAccuracies_metric_2_3)})
-    testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
-    testAccuracyWriter.flush()
-
-
-
+    testAcuracySummary = session.run(tfSummaryMetricAccuracyMergedWriter3, {tf_summary_Metricaccuracy_log_var3:np.mean(testAccuracies_metric_2_3)})
+    testMetricAccuracyWriter3.add_summary(testAcuracySummary, trainingIterationNo)
+    testMetricAccuracyWriter3.flush()
 
 
     tariningTimeSummary = session.run(tfSummaryTimeMergedWriter, {tf_summary_time_log_var: np.sum(trainingTimes)})
@@ -234,4 +229,3 @@ if __name__ == '__main__':
 
 
 
-  
