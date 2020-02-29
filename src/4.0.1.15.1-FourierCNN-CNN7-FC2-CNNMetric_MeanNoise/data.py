@@ -196,6 +196,7 @@ def augment_random(x_data):
       augmented_data[i]=add_synthetic_noise(augmented_data[i],randomValues[i])
       #augmented_data[i]=augment_volume(augmented_data[i],VOLUME_FACTOR)
   
+
   return augmented_data
 
 
@@ -222,21 +223,6 @@ def add_synthetic_noise(sound_array,randomValue):
     generated_data=normalize(generated_data,5,-5)
     #print(*generated_data)
     return generated_data+sound_array
-
-
-def generate_static_noise_from_data(fold_data_dictionary):
-     logger.info ("generate_static_noise_from_data function started ...")
-     NOISE_SCALE=100
-     static_noise=np.zeros(DURATION*SOUND_RECORD_SAMPLING_RATE+1)
-     total_number_of_data_rows=0
-     for fold in FOLD_DIRS:
-       for i in range(fold_data_dictionary[fold].shape[0]) :
-          loadedData=fold_data_dictionary[fold][i]
-          static_noise=static_noise+np.sum(loadedData, axis=0)
-          total_number_of_data_rows=total_number_of_data_rows+int(loadedData.shape[0])
-     static_noise=static_noise/( total_number_of_data_rows * NOISE_SCALE)
-     logger.info ("generate_static_noise_from_data function finished ...")
-     return static_noise[:DURATION*SOUND_RECORD_SAMPLING_RATE]
 
 
 #def generate_normalized_synthetic_samples(fold):

@@ -377,6 +377,8 @@ class NeuralNetworkModel :
 
 
 
+
+
    metric_cnn_last_layer_output=previous_level_convolution_output
    last_layer_output=tf.reshape( metric_cnn_last_layer_output, [-1, int(metric_cnn_last_layer_output.shape[1]*metric_cnn_last_layer_output.shape[2]*metric_cnn_last_layer_output.shape[3])] )
 
@@ -493,20 +495,19 @@ class NeuralNetworkModel :
   # else : 
   #  self.session.run(tf.global_variables_initializer())
 
- def prepareData(self,data,augment,noise_data):
+ def prepareData(self,data,augment):
   x_data=data[:,:4*SOUND_RECORD_SAMPLING_RATE]
   if augment==True :
-    x_data=augment_random(x_data)+noise_data
+    x_data=augment_random(x_data)
   y_data=data[:,4*SOUND_RECORD_SAMPLING_RATE]
   y_data_one_hot_encoded=one_hot_encode_array(y_data)
   return x_data,y_data_one_hot_encoded
 
- def train(self,data1,data2,noise_data):
+ def train(self,data1,data2):
   augment=True
-  #logger.info("Prepare Data  : ")
   prepareDataTimeStart = int(round(time.time())) 
-  x_data1,y_data1=self.prepareData(data1,augment,noise_data)
-  x_data2,y_data2=self.prepareData(data2,augment,noise_data)
+  x_data1,y_data1=self.prepareData(data1,augment)
+  x_data2,y_data2=self.prepareData(data2,augment)
   prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   trainingTimeStart = int(round(time.time())) 
@@ -526,14 +527,11 @@ class NeuralNetworkModel :
   #self.optimizer_2.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
   self.optimizer_single.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
 
-  #logger.info("Calculate Accuracy  : ")
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
   trainingAccuracy_1 = self.accuracy_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial, self.keep_prob: 1.0})
   trainingAccuracy_2 = self.accuracy_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
   y_outputs_adverserial = self.y_outputs_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
-  y_outputs_1 = self.y_outputs_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
-  y_outputs_2 = self.y_outputs_2.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
 
   
 #  loss_1 = self.loss_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
@@ -545,13 +543,8 @@ class NeuralNetworkModel :
     if (y_values_adverserial[i] == 0 and y_outputs_adverserial[i] < self.ADVERSERIAL_TRESHOLD) or  (y_values_adverserial[i] == 1 and y_outputs_adverserial[i] > self.ADVERSERIAL_TRESHOLD):
        trainingAccuracy_adverserial=trainingAccuracy_adverserial+1
   trainingAccuracy_adverserial= trainingAccuracy_adverserial/y_outputs_adverserial.shape[0]    
+  
 
-
-  #logger.info("Calculate Confusion Matrix  : ")
-  #confusion1 = tf.confusion_matrix(labels=tf.argmax(y_data1, axis=1), predictions=tf.argmax(y_outputs_1, axis=1), num_classes=self.output_size)
-  #confusion2 = tf.confusion_matrix(labels=tf.argmax(y_data2, axis=1), predictions=tf.argmax(y_outputs_2, axis=1), num_classes=self.output_size)
-  #confusion1 =np.zeros((NUMBER_OF_CLASSES,NUMBER_OF_CLASSES))
-  #confusion2 =np.zeros((NUMBER_OF_CLASSES,NUMBER_OF_CLASSES))
 #  cross_entropy_1 = self.cross_entropy_1.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
 #  cross_entropy_adverserial = self.cross_entropy_adverserial.eval(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
 
@@ -576,12 +569,12 @@ class NeuralNetworkModel :
 #  print("")
 
   #return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,loss_adverserial,prepareDataTime
-  return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,loss_single,prepareDataTime,y_data1,y_outputs_1,y_data2,y_outputs_2
+  return trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_adverserial,loss_single,prepareDataTime
      
  def test(self,data):
   testTimeStart = int(round(time.time())) 
   augment=False
-  x_data,y_data=self.prepareData(data,augment,None) 
+  x_data,y_data=self.prepareData(data,augment) 
   x_data_1=x_data
   x_data_2=x_data
   y_data_1=y_data
@@ -592,8 +585,6 @@ class NeuralNetworkModel :
           y_values_adverserial[i][0]=1
 
   y_outputs_adverserial = self.y_outputs_adverserial.eval(feed_dict={self.x_input_1: x_data_1, self.real_y_values_1:y_data_1,self.x_input_2: x_data_2, self.real_y_values_2:y_data_2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
-  y_outputs_1 = self.y_outputs_1.eval(feed_dict={self.x_input_1: x_data_1, self.real_y_values_1:y_data_1,self.x_input_2: x_data_2, self.real_y_values_2:y_data_2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
-  y_outputs_2 = self.y_outputs_2.eval(feed_dict={self.x_input_1: x_data_1, self.real_y_values_1:y_data_1,self.x_input_2: x_data_2, self.real_y_values_2:y_data_2 ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
 
   testAccuracy_1 = self.accuracy_1.eval(feed_dict={self.x_input_1: x_data_1, self.real_y_values_1:y_data,self.x_input_2: x_data_2, self.real_y_values_2:y_data,self.real_y_values_adverserial:y_values_adverserial, self.keep_prob: 1.0})
   testAccuracy_2 = self.accuracy_2.eval(feed_dict={self.x_input_1: x_data_1, self.real_y_values_1:y_data,self.x_input_2: x_data_2, self.real_y_values_2:y_data ,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob: 1.0})
@@ -604,12 +595,10 @@ class NeuralNetworkModel :
        testAccuracy_adverserial=testAccuracy_adverserial+1
   testAccuracy_adverserial= testAccuracy_adverserial/y_outputs_adverserial.shape[0]    
   
-  #confusion1 = tf.confusion_matrix(labels=tf.argmax(y_data_1, axis=1), predictions=tf.argmax(y_outputs_1, axis=1), num_classes=self.output_size)
-  #confusion2 = tf.confusion_matrix(labels=tf.argmax(y_data_2, axis=1), predictions=tf.argmax(y_outputs_2, axis=1), num_classes=self.output_size)
  
   #testAccuracy = self.accuracy.eval(feed_dict={self.x_input_1: x_data, self.real_y_values_1:y_data,self.x_input_2: x_data, self.real_y_values_2:y_data, self.keep_prob: 1.0})
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
-  return testTime,testAccuracy_1,testAccuracy_2,testAccuracy_adverserial,y_data_1,y_outputs_1,y_data_2,y_outputs_2
+  return testTime,testAccuracy_1,testAccuracy_2,testAccuracy_adverserial
   
 

@@ -108,10 +108,10 @@ def main(_):
          if fold == "fold10":
              ## FOLD10 is reserved for testing
               testTime,testAccuracy_1,testAccuracy_2,testAccuracy_metric,y_data_1,y_outputs_1,y_data_2,y_outputs_2=neuralNetworkModel.test(batch_data)
-              tf.concat((test_y_labels_1,y_data_1),0)
-              tf.concat((test_y_outputs_1,y_outputs_1),0)
-              tf.concat((test_y_labels_2,y_data_2),0)
-              tf.concat((test_y_outputs_2,y_outputs_2),0)
+              test_y_labels_1=tf.concat((test_y_labels_1,y_data_1),0)
+              test_y_outputs_1=tf.concat((test_y_outputs_1,y_outputs_1),0)
+              test_y_labels_2=tf.concat((test_y_labels_2,y_data_2),0)
+              test_y_outputs_2=tf.concat((test_y_outputs_2,y_outputs_2),0)
 
               
               testTimes.append(testTime)
@@ -130,12 +130,13 @@ def main(_):
               trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_metric,loss_adverserial,prepareDataTime,y_data_1,y_outputs_1,y_data_2,y_outputs_2=neuralNetworkModel.train(batch_data_1,batch_data_2,noise_data)
               #logger.info("neuralNetworkModel.train Ended. ")
 
-              tf.concat((training_y_labels_1,y_data_1),0)
-              tf.concat((training_y_outputs_1,y_outputs_1),0)
-              tf.concat((training_y_labels_2,y_data_2),0)
-              tf.concat((training_y_outputs_2,y_outputs_2),0)
+              training_y_labels_1=tf.concat((training_y_labels_1,y_data_1),0)
+              training_y_outputs_1=tf.concat((training_y_outputs_1,y_outputs_1),0)
+              training_y_labels_2=tf.concat((training_y_labels_2,y_data_2),0)
+              training_y_outputs_2=tf.concat((training_y_outputs_2,y_outputs_2),0)
               
-              logger.info(training_y_outputs_2.shape)
+              #logger.info(y_outputs_2.shape)
+              #logger.info(training_y_outputs_2.shape)
 
               trainingTimes.append(trainingTime)
               trainingAccuracies_1.append(trainingAccuracy_1)

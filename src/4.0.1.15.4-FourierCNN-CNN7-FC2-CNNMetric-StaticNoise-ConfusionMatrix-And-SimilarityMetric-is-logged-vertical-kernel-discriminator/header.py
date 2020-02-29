@@ -156,7 +156,7 @@ CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1])
 CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 1, 1])
 
 METRIC_CNN_KERNEL_COUNTS       = np.array([ 16,16,16])
-METRIC_CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1])
+METRIC_CNN_KERNEL_X_SIZES      = np.array([  2, 2, 2])
 METRIC_CNN_KERNEL_Y_SIZES      = np.array([  4, 4, 4])
 METRIC_CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1])
 METRIC_CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1])

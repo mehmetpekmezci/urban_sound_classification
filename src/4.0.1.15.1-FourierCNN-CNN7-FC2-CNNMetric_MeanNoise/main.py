@@ -4,12 +4,11 @@ from data import *
 from NeuralNetworkModel import *
 
 def main(_):
-  global fold_data_dictionary,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION,NUMBER_OF_CLASSES
+  global fold_data_dictionary,MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION
   # if not already done  : Download from internet , convert to  csv files.   
   prepareData()
   # load all data into the memory
   MAX_VALUE_FOR_NORMALIZATION,MIN_VALUE_FOR_NORMALIZATION=load_all_np_data_back_to_memory(fold_data_dictionary)
-  noise_data=generate_static_noise_from_data(fold_data_dictionary)
   # normalize all the data
 #  logger.info("##############################################################")
 #  logger.info("MIN_VALUE_FOR_NORMALIZATION : "+str(MIN_VALUE_FOR_NORMALIZATION))
@@ -77,21 +76,6 @@ def main(_):
     testAccuracies_2=[ ]
     testAccuracies_metric=[ ]
     tainingLosses_metric=[]
-    
-    
-    training_y_labels_1=tf.constant(0, shape=[0,NUMBER_OF_CLASSES])
-    training_y_outputs_1=tf.constant(0, shape=[0,NUMBER_OF_CLASSES])
-    training_y_labels_2=tf.constant(0, shape=[0,NUMBER_OF_CLASSES])
-    training_y_outputs_2=tf.constant(0, shape=[0,NUMBER_OF_CLASSES])
-    test_y_labels_1=tf.constant(0, shape=[0,NUMBER_OF_CLASSES])
-    test_y_outputs_1=tf.constant(0, shape=[0,NUMBER_OF_CLASSES])
-    test_y_labels_2=tf.constant(0, shape=[0,NUMBER_OF_CLASSES])
-    test_y_outputs_2=tf.constant(0, shape=[0,NUMBER_OF_CLASSES])
-    
-    
-    #confusion1 = 
-    #confusion2 = tf.confusion_matrix(labels=tf.argmax(y_data_2, axis=1), predictions=tf.argmax(y_outputs_2, axis=1), num_classes=self.output_size)
-
     for fold in np.random.permutation(FOLD_DIRS):
        if fold == "fold10":
          logger.info(" Starting Fold Testing : "+fold)
@@ -107,44 +91,24 @@ def main(_):
            batch_data=current_fold_data[current_batch_counter*MINI_BATCH_SIZE:,:]
          if fold == "fold10":
              ## FOLD10 is reserved for testing
-              testTime,testAccuracy_1,testAccuracy_2,testAccuracy_metric,y_data_1,y_outputs_1,y_data_2,y_outputs_2=neuralNetworkModel.test(batch_data)
-              tf.concat((test_y_labels_1,y_data_1),0)
-              tf.concat((test_y_outputs_1,y_outputs_1),0)
-              tf.concat((test_y_labels_2,y_data_2),0)
-              tf.concat((test_y_outputs_2,y_outputs_2),0)
-
-              
+              testTime,testAccuracy_1,testAccuracy_2,testAccuracy_metric=neuralNetworkModel.test(batch_data)
               testTimes.append(testTime)
               testAccuracies_1.append(testAccuracy_1)
               testAccuracies_2.append(testAccuracy_2)
               testAccuracies_metric.append(testAccuracy_metric)
          else:
-              #logger.info("Training Batch Started. ")
               batch_data_1=batch_data
               #batch_data_2=np.random.permutation(batch_data)
               batch_data_2=np.copy(batch_data)
-              #logger.info("np.copy(batch_data)")
               for i in range(int(batch_data_2.shape[0]/2)):
                  batch_data_2[i]=batch_data_2[i+1]
-              #logger.info("neuralNetworkModel.train Started. ")
-              trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_metric,loss_adverserial,prepareDataTime,y_data_1,y_outputs_1,y_data_2,y_outputs_2=neuralNetworkModel.train(batch_data_1,batch_data_2,noise_data)
-              #logger.info("neuralNetworkModel.train Ended. ")
-
-              tf.concat((training_y_labels_1,y_data_1),0)
-              tf.concat((training_y_outputs_1,y_outputs_1),0)
-              tf.concat((training_y_labels_2,y_data_2),0)
-              tf.concat((training_y_outputs_2,y_outputs_2),0)
-              
-              logger.info(training_y_outputs_2.shape)
-
+              trainingTime,trainingAccuracy_1,trainingAccuracy_2,trainingAccuracy_metric,loss_adverserial,prepareDataTime=neuralNetworkModel.train(batch_data_1,batch_data_2)
               trainingTimes.append(trainingTime)
               trainingAccuracies_1.append(trainingAccuracy_1)
               trainingAccuracies_2.append(trainingAccuracy_2)
               trainingAccuracies_metric.append(trainingAccuracy_metric)
               tainingLosses_metric.append(loss_adverserial)
               
-              #logger.info("trainingTimes.append(trainingTime)")
-
               prepareDataTimes.append(prepareDataTime)
 
 
@@ -175,23 +139,6 @@ def main(_):
       logger.info("Mean Test Accuracy_metric : "+str(np.mean(testAccuracies_metric)))
       logger.info("Max Test Accuracy_metric : "+str(np.max(testAccuracies_metric)))
       logger.info("Min Test Accuracy_metric : "+str(np.min(testAccuracies_metric)))
-      
-      
-    trainingConfusion1=tf.confusion_matrix(labels=tf.argmax(training_y_labels_1, axis=1), predictions=tf.argmax(training_y_outputs_1, axis=1), num_classes=NUMBER_OF_CLASSES)
-    trainingConfusion2=tf.confusion_matrix(labels=tf.argmax(training_y_labels_2, axis=1), predictions=tf.argmax(training_y_outputs_2, axis=1), num_classes=NUMBER_OF_CLASSES)
-    testConfusion1=tf.confusion_matrix(labels=tf.argmax(test_y_labels_1, axis=1), predictions=tf.argmax(test_y_outputs_1, axis=1), num_classes=NUMBER_OF_CLASSES)
-    testConfusion2=tf.confusion_matrix(labels=tf.argmax(test_y_labels_2, axis=1), predictions=tf.argmax(test_y_outputs_2, axis=1), num_classes=NUMBER_OF_CLASSES)
-
-   
-    logger.info("Training Confusion Matrix 1 : ")
-    logger.info(trainingConfusion1.eval())
-    logger.info("Training Confusion Matrix 2 : ")
-    logger.info(trainingConfusion2.eval())
-    logger.info("Test Confusion Matrix 1 : ")
-    logger.info(testConfusion1.eval())
-    logger.info("Test Confusion Matrix 2 : ")
-    logger.info(testConfusion2.eval())
-    
     
     ## GRAPH (FOR LOGGING)
     tariningAcuracySummary = session.run(tfSummaryAccuracyMergedWriter, {tf_summary_accuracy_log_var: np.mean(trainingAccuracies_1)})
