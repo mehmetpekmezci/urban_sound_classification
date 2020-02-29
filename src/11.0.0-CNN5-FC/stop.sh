@@ -16,3 +16,10 @@ else
 fi
 
 rm -f run.pid
+
+echo
+echo
+echo "The result of this command 'ps -ef | grep -i python3 main.py'  is  :"
+ps -ef | grep -i 'python3 main.py' | grep -v grep
+echo
+echo '---------------------------------------------------------'
