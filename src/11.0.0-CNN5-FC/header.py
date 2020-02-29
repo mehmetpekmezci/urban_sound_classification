@@ -115,15 +115,15 @@ INPUT_SIZE=TRACK_LENGTH
 DROP_OUT=0.5
 KEEP_PROB=DROP_OUT
 
-FOURIER_CNN_KERNEL_COUNTS       = np.array([256,64,64])
-FOURIER_CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1])
-FOURIER_CNN_KERNEL_Y_SIZES      = np.array([128,32,16])
-FOURIER_CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1])
-FOURIER_CNN_STRIDE_Y_SIZES      = np.array([ 64, 8, 4])
-FOURIER_CNN_POOL_X_SIZES        = np.array([  1, 1, 1])
-FOURIER_CNN_POOL_Y_SIZES        = np.array([  1, 1, 1])
+FOURIER_CNN_KERNEL_COUNTS       = np.array([])
+FOURIER_CNN_KERNEL_X_SIZES      = np.array([])
+FOURIER_CNN_KERNEL_Y_SIZES      = np.array([])
+FOURIER_CNN_STRIDE_X_SIZES      = np.array([])
+FOURIER_CNN_STRIDE_Y_SIZES      = np.array([])
+FOURIER_CNN_POOL_X_SIZES        = np.array([])
+FOURIER_CNN_POOL_Y_SIZES        = np.array([])
 
-FULLY_CONNECTED_LAYERS=[256,256,256]
+FULLY_CONNECTED_LAYERS=[512,512]
 
 
 ##
@@ -138,13 +138,13 @@ FULLY_CONNECTED_LAYERS=[256,256,256]
 #CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 #CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-CNN_KERNEL_COUNTS       = np.array([ 16,16,16,16,16,16,16,16,16])
-CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([  4, 4, 4, 4, 4, 4, 4, 4, 4])
-CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_COUNTS       = np.array([ 64,16,16,16,16,16,16])
+CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([ 64,32,16, 4, 4, 4, 4])
+CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([  8, 4, 4, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([  4, 2, 2, 1, 1, 1, 1])
 
 CUT_INTO_PARTS_NUMBER=1
 
@@ -153,7 +153,7 @@ CUT_INTO_PARTS_NUMBER=1
 ##
 #LEARNING_RATE = 0.00001
 #LEARNING_RATE = 0.000001
-LEARNING_RATE = 0.00001
+LEARNING_RATE = 0.0001
 LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
