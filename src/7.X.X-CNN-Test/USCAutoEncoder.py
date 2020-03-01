@@ -86,7 +86,7 @@ class USCAutoEncoder :
   #print(evaluation) 
   self.trainCount+=1
   
-  if self.trainCount % 100 :
+  if self.trainCount % 100 == 0 :
      self.save_weights()
   
   return trainingTime,trainingLoss,prepareDataTime
