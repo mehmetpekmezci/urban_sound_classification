@@ -8,7 +8,7 @@ class USCData :
    self.script_name=os.path.basename(self.script_dir)
    self.fold_dirs=['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
    #self.fold_dirs=['fold1','fold10']
-   self.fold_dirs=['fold1']
+   #self.fold_dirs=['fold1']
    self.main_data_dir=self.script_dir+'/../../data/'
    self.raw_data_dir=self.main_data_dir+'/0.raw/UrbanSound8K/audio'
    self.csv_data_dir=self.main_data_dir+'/1.csv'
