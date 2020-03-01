@@ -32,6 +32,8 @@ class USCAutoEncoder :
    self.model,self.encoder=self.buildModel()
    self.load_weights()
    self.trainCount=0
+   self.model.summary()
+
 
  def load_weights(self):
      if os.path.exists(self.model_save_dir+"/"+self.model_save_file):
