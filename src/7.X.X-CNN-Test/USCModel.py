@@ -124,8 +124,6 @@ class USCModel :
    out=keras.layers.Dense(units = 1024,activation='sigmoid')(out)
    out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Dense(units = 1024,activation='sigmoid')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Dense(units = 2048,activation='sigmoid')(out)
    out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
    self.model = keras.models.Model(inputs=[layer_input], outputs=[out])
