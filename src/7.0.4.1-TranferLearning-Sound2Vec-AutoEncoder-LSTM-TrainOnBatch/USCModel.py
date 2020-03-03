@@ -3,17 +3,12 @@ from USCHeader import *
 from USCLogger import *
 from USCData import *
 
-
-# https://github.com/guillaume-chevalier/LSTM-Human-Activity-Recognition
-
-
 ##
 ## NueralNetworkModel will be as :
 ## CNN LAYERS + LSTM LAYERS + FULLY CONNECTED LAYER + SOFTMAX
 ##
 class USCModel :
- def __init__(self, session, uscLogger,uscData,uscAutoEncoder): 
-   self.session               = session
+ def __init__(self,  uscLogger,uscData,uscAutoEncoder): 
    self.uscLogger             = uscLogger
    self.uscData               = uscData
    self.uscAutoEncoder        = uscAutoEncoder
@@ -57,7 +52,7 @@ class USCModel :
   prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   trainingTimeStart = int(round(time.time())) 
-  self.model.fit(x_data, y_data, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
+  self.model.train_on_batch(x_data, y_data)
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
   evaluation = self.model.evaluate(x_data, y_data, batch_size = self.uscData.mini_batch_size,verbose=0)
@@ -80,10 +75,10 @@ class USCModel :
    layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_time_slices,self.uscData.latent_space_presentation_data_length))
    out=keras.layers.LSTM(self.lstm_size,dropout=0.2,recurrent_dropout=0.2)(layer_input)
    out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Dense(units = 2048,activation='sigmoid')(out)
+   out=keras.layers.Dense(units = 2048,activation='relu')(out)
    out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Dense(units = 2048,activation='sigmoid')(out)
+   out=keras.layers.Dense(units = 2048,activation='relu')(out)
    out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Dropout(0.2)(out)
    out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)

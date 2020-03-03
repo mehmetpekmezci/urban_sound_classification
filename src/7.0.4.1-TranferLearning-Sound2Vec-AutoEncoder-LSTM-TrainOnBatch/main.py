@@ -7,21 +7,19 @@ from USCAutoEncoder import *
 
 
 def main(_):
- uscLogger=USCLogger()
- uscData=USCData(uscLogger.logger)
- uscData.findListOfYoutubeDataFiles()
+  uscLogger=USCLogger()
+  uscData=USCData(uscLogger.logger)
+  uscData.findListOfYoutubeDataFiles()
   
- config = tf.ConfigProto()
- config.gpu_options.allow_growth = True
+  
+   
+  uscAutoEncoder=USCAutoEncoder(uscLogger,uscData)
+  if not uscAutoEncoder.isAlreadyTrained() :
 
- with tf.Session(config=config) as session:
-   session.run(tf.global_variables_initializer())
-
-   uscAutoEncoder=USCAutoEncoder(session,uscLogger,uscData)
    for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count*2):
     uscLogger.logger.info("AutoEncoder Training Iteration No: "+str(trainingIterationNo))
     current_youtube_data_as_list=uscData.loadNextYoutubeData()
-    uscLogger.logAutoEncoderStepStart(session,trainingIterationNo)
+    uscLogger.logAutoEncoderStepStart(trainingIterationNo)
     prepareDataTimes=[ ]
     trainingTimes=[ ]
     trainingLosses=[ ]
@@ -33,12 +31,15 @@ def main(_):
          trainingLosses.append(trainingLoss)
          prepareDataTimes.append(prepareDataTime)
          
-   uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
+    uscLogger.logAutoEncoderStepEnd(prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
    
-   uscData.prepareData()
-   uscModel=USCModel(session,uscLogger,uscData,uscAutoEncoder)
-   for trainingIterationNo in range(uscModel.training_iterations):
-    uscLogger.logStepStart(session,trainingIterationNo)
+  else :
+     uscLogger.logger.info("No need to train AutoEncoder, already trained ... ")
+
+  uscData.prepareData()
+  uscModel=USCModel(uscLogger,uscData,uscAutoEncoder)
+  for trainingIterationNo in range(uscModel.training_iterations):
+    uscLogger.logStepStart(trainingIterationNo)
     prepareDataTimes=[ ]
     trainingTimes=[ ]
     trainingAccuracies=[ ]
@@ -64,7 +65,7 @@ def main(_):
               trainingTimes.append(trainingTime)
               trainingAccuracies.append(trainingAccuracy)
               prepareDataTimes.append(prepareDataTime)
-    uscLogger.logStepEnd(session,prepareDataTimes,trainingTimes,trainingAccuracies,testTimes,testAccuracies,trainingIterationNo)
+    uscLogger.logStepEnd(prepareDataTimes,trainingTimes,trainingAccuracies,testTimes,testAccuracies,trainingIterationNo)
 
 if __name__ == '__main__':
  tf.app.run(main=main)

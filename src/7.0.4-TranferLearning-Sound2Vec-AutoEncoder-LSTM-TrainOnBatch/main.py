@@ -7,16 +7,14 @@ from USCAutoEncoder import *
 
 
 def main(_):
- uscLogger=USCLogger()
- uscData=USCData(uscLogger.logger)
- uscData.findListOfYoutubeDataFiles()
+  uscLogger=USCLogger()
+  uscData=USCData(uscLogger.logger)
+  uscData.findListOfYoutubeDataFiles()
   
- config = tf.ConfigProto()
- config.gpu_options.allow_growth = True
-
- with tf.Session(config=config) as session:
+  
+  with tf.Session() as session:
    session.run(tf.global_variables_initializer())
-
+   
    uscAutoEncoder=USCAutoEncoder(session,uscLogger,uscData)
    for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count*2):
     uscLogger.logger.info("AutoEncoder Training Iteration No: "+str(trainingIterationNo))
@@ -33,7 +31,7 @@ def main(_):
          trainingLosses.append(trainingLoss)
          prepareDataTimes.append(prepareDataTime)
          
-   uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
+    uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
    
    uscData.prepareData()
    uscModel=USCModel(session,uscLogger,uscData,uscAutoEncoder)

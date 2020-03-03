@@ -7,33 +7,31 @@ from USCAutoEncoder import *
 
 
 def main(_):
- uscLogger=USCLogger()
- uscData=USCData(uscLogger.logger)
- uscData.findListOfYoutubeDataFiles()
+  uscLogger=USCLogger()
+  uscData=USCData(uscLogger.logger)
+  uscData.findListOfYoutubeDataFiles()
   
- config = tf.ConfigProto()
- config.gpu_options.allow_growth = True
-
- with tf.Session(config=config) as session:
+  
+  with tf.Session() as session:
    session.run(tf.global_variables_initializer())
-
+   
    uscAutoEncoder=USCAutoEncoder(session,uscLogger,uscData)
-   for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count*2):
-    uscLogger.logger.info("AutoEncoder Training Iteration No: "+str(trainingIterationNo))
-    current_youtube_data_as_list=uscData.loadNextYoutubeData()
-    uscLogger.logAutoEncoderStepStart(session,trainingIterationNo)
-    prepareDataTimes=[ ]
-    trainingTimes=[ ]
-    trainingLosses=[ ]
-    for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)) :
-         batch_data=current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size]
-         #uscLogger.logger.info("batch_data.shape: "+str(batch_data.shape))
-         trainingTime,trainingLoss,prepareDataTime=uscAutoEncoder.train(batch_data)
-         trainingTimes.append(trainingTime)
-         trainingLosses.append(trainingLoss)
-         prepareDataTimes.append(prepareDataTime)
-         
-   uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
+#   for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count*2):
+#    uscLogger.logger.info("AutoEncoder Training Iteration No: "+str(trainingIterationNo))
+#    current_youtube_data_as_list=uscData.loadNextYoutubeData()
+#    uscLogger.logAutoEncoderStepStart(session,trainingIterationNo)
+#    prepareDataTimes=[ ]
+#    trainingTimes=[ ]
+#    trainingLosses=[ ]
+#    for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)) :
+#         batch_data=current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size]
+#         #uscLogger.logger.info("batch_data.shape: "+str(batch_data.shape))
+#         trainingTime,trainingLoss,prepareDataTime=uscAutoEncoder.train(batch_data)
+#         trainingTimes.append(trainingTime)
+#         trainingLosses.append(trainingLoss)
+#         prepareDataTimes.append(prepareDataTime)
+#         
+#    uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
    
    uscData.prepareData()
    uscModel=USCModel(session,uscLogger,uscData,uscAutoEncoder)

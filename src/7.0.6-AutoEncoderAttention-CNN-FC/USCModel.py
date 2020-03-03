@@ -24,6 +24,8 @@ class USCModel :
    ## so we will have nearly 400 time steps in 4 secs record. (88200) (with %50 overlapping)
    self.lstm_time_steps       = self.uscData.number_of_time_slices
    self.training_iterations   = 10000
+   config = tf.ConfigProto()
+   config.gpu_options.allow_growth=True
    self.buildModel()
 
    self.load_weights()
@@ -59,9 +61,9 @@ class USCModel :
   #x_data=self.uscData.fft(x_data)
   #x_data_list = self.uscData.convert_to_list_for_parallel_lstms(x_data,self.num_of_paralel_lstms,self.lstm_time_steps)
   #self.uscLogger.logger.info("x_data.shape="+str(x_data.shape))
-  encodedValue,encodeTime=self.uscAutoEncoder.encode(x_data)  # (self.uscData.mini_batch_size,self.uscData.number_of_time_slices,self.latent_space_presentation_data_length)
-#  encodedValue=x_data.reshape(x_data.shape[0],x_data.shape[1],1)
-#  encodeTime=0
+#  encodedValue,encodeTime=self.uscAutoEncoder.encode(x_data)  # (self.uscData.mini_batch_size,self.uscData.number_of_time_slices,self.latent_space_presentation_data_length)
+  encodedValue=x_data.reshape(x_data.shape[0],x_data.shape[1],1)
+  encodeTime=0
 #  self.uscLogger.logger.info("encodedValue.shape="+str(encodedValue.shape))
   y_data=data[:,4*self.uscData.sound_record_sampling_rate]
   y_data_one_hot_encoded=self.uscData.one_hot_encode_array(y_data)
@@ -119,13 +121,35 @@ class USCModel :
  def buildModel(self):
    layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
    # Convolution1D(filters, kernel_size,...)
-   out=keras.layers.Convolution1D(16,64, strides=16,activation='relu', border_mode='same')(layer_input)
-   out=keras.layers.MaxPooling1D((2), border_mode='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Convolution1D(32,32, strides=8,activation='relu', border_mode='same')(out)
-   out=keras.layers.MaxPooling1D((2), border_mode='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
+
+   self.uscLogger.logger.info("layer_input.shape="+str(layer_input.shape))
+
+   ## 88200 = 2^3 x 3^2 x 5^2 x 7^2
+   #AutoEncoder
+   out=keras.layers.Convolution1D(16,64, strides=1,activation='relu', border_mode='same')(layer_input)
+   out=keras.layers.MaxPooling1D((4), border_mode='same')(out)
+   out=keras.layers.Convolution1D(32,32, strides=1,activation='relu', border_mode='same')(out)
+   out=keras.layers.MaxPooling1D((4), border_mode='same')(out)
+   encoded=out
+   self.uscLogger.logger.info("encoded.shape="+str(encoded.shape))
+
+   out=keras.layers.Convolution1D(32,32,strides=1,activation='relu', border_mode='same')(out)
+   out=keras.layers.UpSampling1D((4))(out)
+   #out=keras.layers.Convolution1D(16,64,strides=1,activation='relu', border_mode='same')(out)
+   out=keras.layers.Convolution1D(1,64,strides=1,activation='sigmoid', border_mode='same')(out)
+   out=keras.layers.UpSampling1D((4))(out)
+   decoded=keras.layers.Convolution1D(1,4,strides=1,activation='sigmoid', border_mode='same')(out)
+   self.uscLogger.logger.info("decoded.shape="+str(decoded.shape))
+ 
+
+
+   # Attention
+   #out=keras.layers.Concatenate([layer_input,out])
+   out=layer_input+out
+   self.uscLogger.logger.info("attention.shape="+str(out.shape))
+  
+
+
    out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Convolution1D(64,16, strides=4,activation='relu', border_mode='same')(out)
    out=keras.layers.MaxPooling1D((2), border_mode='same')(out)
