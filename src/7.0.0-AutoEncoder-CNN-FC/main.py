@@ -32,8 +32,7 @@ def main(_):
          trainingTimes.append(trainingTime)
          trainingLosses.append(trainingLoss)
          prepareDataTimes.append(prepareDataTime)
-         
-   uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
+    uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
    
    uscData.prepareData()
    uscModel=USCModel(session,uscLogger,uscData,uscAutoEncoder)

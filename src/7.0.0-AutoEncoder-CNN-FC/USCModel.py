@@ -117,7 +117,8 @@ class USCModel :
 
 
  def buildModel(self):
-   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
+   #layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
+   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length,1))
    # Convolution1D(filters, kernel_size,...)
    out=keras.layers.Convolution1D(16,64, strides=16,activation='relu', border_mode='same')(layer_input)
    out=keras.layers.MaxPooling1D((2), border_mode='same')(out)
