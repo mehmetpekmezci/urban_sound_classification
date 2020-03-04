@@ -16,6 +16,7 @@ class USCAutoEncoder :
    self.session               = session
    self.uscLogger             = uscLogger
    self.uscData               = uscData
+   self.alreadyTrained        = False
    self.time_window_size      = 10
    script_dir=os.path.dirname(os.path.realpath(__file__))
    script_name=os.path.basename(script_dir)
@@ -35,6 +36,7 @@ class USCAutoEncoder :
  def load_weights(self):
      if os.path.exists(self.model_save_dir+"/"+self.model_save_file):
          self.model.load_weights(self.model_save_dir+"/"+self.model_save_file)
+         self.alreadyTrained=True
 
  def save_weights(self):
      if not os.path.exists(self.model_save_dir):
@@ -100,7 +102,7 @@ class USCAutoEncoder :
    x = keras.layers.MaxPooling1D((3), border_mode='same')(x)  # (self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length)
    encoded=x
    self.uscLogger.logger.info("shape of encoder"+str(encoded.shape))
-   self.uscData.latent_space_presentation_data_length=int(encoded.shape[1])
+   self.uscData.latent_space_presentation_data_length=int(encoded.shape[1]*encoded.shape[2])
      
    x = keras.layers.Convolution1D(64,16, activation='relu', border_mode='same')(encoded)
    x = keras.layers.UpSampling1D((3))(x) 
