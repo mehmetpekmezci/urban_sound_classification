@@ -50,6 +50,11 @@ def main(_):
     testAccuracies=[ ]
     for fold in np.random.permutation(uscData.fold_dirs):
 
+       if fold == "fold10":
+              uscLogger.logger.info("Testing Fold : "+fold)
+       else :
+           uscLogger.logger.info("Training Fold : "+fold)
+
        #uscLogger.logger.info("  Fold : "+str(fold))
        current_fold_data=uscData.get_fold_data(fold)
        for current_batch_counter in range(int(current_fold_data.shape[0]/uscData.mini_batch_size)) :
@@ -58,14 +63,12 @@ def main(_):
          else:
            batch_data=current_fold_data[current_batch_counter*uscData.mini_batch_size:,:]
          if fold == "fold10":
-              uscLogger.logger.info("Testing Fold : "+fold)
              ## FOLD10 is reserved for testing
               #uscLogger.logger.info("  Testing Batch Counter : "+str(current_batch_counter))
               testTime,testAccuracy=uscModel.test(batch_data)
               testTimes.append(testTime)
               testAccuracies.append(testAccuracy)
          else:
-              uscLogger.logger.info("Training Fold : "+fold)
               #uscLogger.logger.info("  Training Batch Counter : "+str(current_batch_counter))
               trainingTime,trainingAccuracy,prepareDataTime=uscModel.train(batch_data)
               trainingTimes.append(trainingTime)
