@@ -131,7 +131,7 @@ class USCAutoEncoder :
    selectedOptimizer=keras.optimizers.Adam(lr=0.0001)
    #autoencoder.compile(optimizer=selectedOptimizer, loss='binary_crossentropy')
    #autoencoder.compile(optimizer=selectedOptimizer, loss='categorical_crossentropy',metrics=['accuracy'])
-   autoencoder.compile(optimizer=selectedOptimizer, loss='mse')
+   autoencoder.compile(optimizer=selectedOptimizer, loss='mse',metrics=['accuracy'])
    return autoencoder,encoder
 
 #   out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
