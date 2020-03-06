@@ -96,29 +96,33 @@ class USCAutoEncoder :
 
  def buildModel(self):
    layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
-#   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.word2vec_window_size,self.uscData.time_slice_length))
-   x = keras.layers.Convolution1D(16,64,activation='relu', border_mode='same')(layer_input) #nb_filter, nb_row, nb_col
-   x = keras.layers.MaxPooling1D((49), border_mode='same')(x)
-   x = keras.layers.Convolution1D(16,64,activation='relu', border_mode='same')(layer_input) #nb_filter, nb_row, nb_col
-   x = keras.layers.MaxPooling1D((25), border_mode='same')(x)
-   x = keras.layers.Convolution1D(16,32, activation='relu', border_mode='same')(x)
-   x = keras.layers.MaxPooling1D((3), border_mode='same')(x)
+   x = keras.layers.Convolution1D(16,32,activation='relu', padding='same')(layer_input) #nb_filter, nb_row, nb_col
+   x = keras.layers.MaxPooling1D(49, padding='same')(x)
+   x = keras.layers.Convolution1D(16,32,activation='relu', padding='same')(layer_input) #nb_filter, nb_row, nb_col
+   x = keras.layers.MaxPooling1D(25, padding='same')(x)
+   x = keras.layers.Convolution1D(16,(16), activation='relu', padding='same')(x)
+   x = keras.layers.MaxPooling1D((3), padding='same')(x)
+   x = keras.layers.Convolution1D(16,(8), activation='relu', padding='same')(x)
+   x = keras.layers.MaxPooling1D((2), padding='same')(x)
+   x = keras.layers.Convolution1D(16,(8), activation='relu', padding='same')(x)
+   x = keras.layers.MaxPooling1D((2), padding='same')(x)
+
    encoded=x
    self.uscLogger.logger.info("shape of encoder"+str(encoded.shape))
    self.uscData.latent_space_presentation_data_length=int(encoded.shape[1]*encoded.shape[2])
      
-   x = keras.layers.Convolution1D(16,32, activation='relu', border_mode='same')(x)
+   x = keras.layers.MaxPooling1D((2), padding='same')(x)
+   x = keras.layers.Convolution1D(16,(8), activation='relu', padding='same')(x)
+   x = keras.layers.MaxPooling1D((2), padding='same')(x)
+   x = keras.layers.Convolution1D(16,(8), activation='relu', padding='same')(x)
    x = keras.layers.UpSampling1D((3))(x)
-   self.uscLogger.logger.info("3. USCAutoEncoder build model "+str(x.shape))
-   x = keras.layers.Convolution1D(16,64, activation='relu', border_mode='same')(x) 
-   x = keras.layers.UpSampling1D((25))(x)
-   self.uscLogger.logger.info("4. USCAutoEncoder build model "+str(x.shape))
-   x = keras.layers.Convolution1D(16,64, activation='relu', border_mode='same')(x) 
-   self.uscLogger.logger.info("5. USCAutoEncoder build model "+str(x.shape))
-   x = keras.layers.UpSampling1D((49))(x)
-   self.uscLogger.logger.info("5.1 USCAutoEncoder build model "+str(x.shape))
+   x = keras.layers.Convolution1D(16,(16), activation='relu', padding='same')(x)
+   x = keras.layers.UpSampling1D(25)(x)
+   x = keras.layers.Convolution1D(16,32, activation='relu', padding='same')(x) 
+   x = keras.layers.UpSampling1D(49)(x)
+   x = keras.layers.Convolution1D(16,32, activation='relu', padding='same')(x) 
 
-   decoded = keras.layers.Convolution1D(1,4, activation='sigmoid', border_mode='same')(x)
+   decoded = keras.layers.Convolution1D(1,2, activation='sigmoid', padding='same')(x)
    self.uscLogger.logger.info("shape of decoded "+str( decoded.shape))
 
    autoencoder = keras.models.Model(layer_input,decoded)
