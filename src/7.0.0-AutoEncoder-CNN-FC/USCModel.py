@@ -29,7 +29,7 @@ class USCModel :
    self.load_weights()
    self.trainCount=0
 
-   self.model.summary()
+   self.model.summary(print_fn=uscLogger.logger.info)
 
 
 
@@ -120,11 +120,11 @@ class USCModel :
    #layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
    layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length,1))
    # Convolution1D(filters, kernel_size,...)
-   out=keras.layers.Convolution1D(16, 4,strides=2,activation='relu', border_mode='same')(layer_input)
+   out=keras.layers.Convolution1D(16, 4,activation='relu', border_mode='same')(layer_input)
    out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Convolution1D(16, 4,strides=2,activation='relu', border_mode='same')(out)
+   out=keras.layers.Convolution1D(16, 4,activation='relu', border_mode='same')(out)
    out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Convolution1D(16, 4,strides=2,activation='relu', border_mode='same')(out)
+   out=keras.layers.Convolution1D(16, 4,activation='relu', border_mode='same')(out)
    out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Convolution1D(16, 4,activation='relu', border_mode='same')(out)
    out=keras.layers.BatchNormalization()(out)
@@ -134,7 +134,7 @@ class USCModel :
    out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Flatten()(out)
    out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Dense(units = 32,activation='sigmoid')(out)
+   out=keras.layers.Dense(units = 128,activation='sigmoid')(out)
    out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Dense(units = 128,activation='sigmoid')(out)
    out=keras.layers.BatchNormalization()(out)

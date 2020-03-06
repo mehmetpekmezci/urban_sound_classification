@@ -21,21 +21,25 @@ def main(_):
    if uscAutoEncoder.alreadyTrained:
         uscLogger.logger.info("AutoEncoder is already trained by-passing this phase ... ")
    else:
-    for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count*2):
+    #youtube data also contains urban sound data , replicated 10 times
+    #for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count*2):
+    for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count):
      uscLogger.logger.info("AutoEncoder Training Iteration No: "+str(trainingIterationNo))
-     current_youtube_data_as_list=uscData.loadNextYoutubeData()
+     current_youtube_data_as_list=np.random.permutation(uscData.loadNextYoutubeData())
      uscLogger.logAutoEncoderStepStart(session,trainingIterationNo)
      prepareDataTimes=[ ]
      trainingTimes=[ ]
      trainingLosses=[ ]
+     trainingAccuracies=[ ]
      for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)) :
          batch_data=current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size]
          #uscLogger.logger.info("batch_data.shape: "+str(batch_data.shape))
-         trainingTime,trainingLoss,prepareDataTime=uscAutoEncoder.train(batch_data)
+         trainingTime,trainingLoss,accuracy,prepareDataTime=uscAutoEncoder.train(batch_data)
          trainingTimes.append(trainingTime)
          trainingLosses.append(trainingLoss)
          prepareDataTimes.append(prepareDataTime)
-     uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo)
+         trainingAccuracies.append(accuracy)
+     uscLogger.logAutoEncoderStepEnd(session,prepareDataTimes,trainingTimes,trainingLosses,trainingAccuracies,trainingIterationNo)
   
    ### AUTO ENCODER RAINING FINISHED, STARTING TO TRAIN MODEL
 

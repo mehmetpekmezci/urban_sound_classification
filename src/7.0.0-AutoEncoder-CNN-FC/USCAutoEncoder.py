@@ -31,7 +31,7 @@ class USCAutoEncoder :
    self.model,self.encoder=self.buildModel()
    self.load_weights()
    self.trainCount=0
-   self.model.summary()
+   self.model.summary(print_fn=uscLogger.logger.info)
 
  def load_weights(self):
      if os.path.exists(self.model_save_dir+"/"+self.model_save_file):
@@ -79,6 +79,9 @@ class USCAutoEncoder :
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
 
+  evaluation = self.model.evaluate(x_data, x_data, batch_size = self.uscData.mini_batch_size,verbose=0)
+  accuracy = evaluation[1]
+
   trainingLoss = self.model.evaluate(x_data, x_data, batch_size = self.uscData.mini_batch_size,verbose=0)
   #trainingLoss=trainingLossTotal/len(x_data_list)
   #print(self.model.metrics_names) 
@@ -88,30 +91,33 @@ class USCAutoEncoder :
   if self.trainCount % 100 == 0 :
      self.save_weights()
   
-  return trainingTime,trainingLoss,prepareDataTime
+  return trainingTime,trainingLoss,accuracy,prepareDataTime
      
 
  def buildModel(self):
    layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
 #   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.word2vec_window_size,self.uscData.time_slice_length))
-   x = keras.layers.Convolution1D(128,64,activation='relu', border_mode='same')(layer_input) #nb_filter, nb_row, nb_col
+   x = keras.layers.Convolution1D(16,64,activation='relu', border_mode='same')(layer_input) #nb_filter, nb_row, nb_col
    x = keras.layers.MaxPooling1D((49), border_mode='same')(x)
-   x = keras.layers.Convolution1D(64,32, activation='relu', border_mode='same')(x)
+   x = keras.layers.Convolution1D(16,64,activation='relu', border_mode='same')(layer_input) #nb_filter, nb_row, nb_col
    x = keras.layers.MaxPooling1D((25), border_mode='same')(x)
-   x = keras.layers.Convolution1D(64,16, activation='relu', border_mode='same')(x)
-   x = keras.layers.MaxPooling1D((3), border_mode='same')(x)  # (self.uscData.mini_batch_size,self.uscData.latent_space_presentation_data_length)
+   x = keras.layers.Convolution1D(16,32, activation='relu', border_mode='same')(x)
+   x = keras.layers.MaxPooling1D((3), border_mode='same')(x)
    encoded=x
    self.uscLogger.logger.info("shape of encoder"+str(encoded.shape))
    self.uscData.latent_space_presentation_data_length=int(encoded.shape[1]*encoded.shape[2])
      
-   x = keras.layers.Convolution1D(64,16, activation='relu', border_mode='same')(encoded)
-   x = keras.layers.UpSampling1D((3))(x) 
-   x = keras.layers.Convolution1D(64,32, activation='relu', border_mode='same')(x)
+   x = keras.layers.Convolution1D(16,32, activation='relu', border_mode='same')(x)
+   x = keras.layers.UpSampling1D((3))(x)
+   self.uscLogger.logger.info("3. USCAutoEncoder build model "+str(x.shape))
+   x = keras.layers.Convolution1D(16,64, activation='relu', border_mode='same')(x) 
    x = keras.layers.UpSampling1D((25))(x)
-   x = keras.layers.Convolution1D(128,64, activation='relu', border_mode='same')(x) 
-   self.uscLogger.logger.info("USCAutoEncoder build model 3.5 ")
+   self.uscLogger.logger.info("4. USCAutoEncoder build model "+str(x.shape))
+   x = keras.layers.Convolution1D(16,64, activation='relu', border_mode='same')(x) 
+   self.uscLogger.logger.info("5. USCAutoEncoder build model "+str(x.shape))
    x = keras.layers.UpSampling1D((49))(x)
-   self.uscLogger.logger.info("USCAutoEncoder build model 4 ")
+   self.uscLogger.logger.info("5.1 USCAutoEncoder build model "+str(x.shape))
+
    decoded = keras.layers.Convolution1D(1,4, activation='sigmoid', border_mode='same')(x)
    self.uscLogger.logger.info("shape of decoded "+str( decoded.shape))
 

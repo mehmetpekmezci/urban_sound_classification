@@ -81,9 +81,10 @@ class USCLogger :
     self.logger.info("##############################################################")
     self.logger.info("AutoEncoder Training Iteration : "+str(trainingIterationNo))
 
- def logAutoEncoderStepEnd(self,session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo):
+ def logAutoEncoderStepEnd(self,session,prepareDataTimes,trainingTimes,trainingLosses,accuracies,trainingIterationNo):
     self.logger.info("AutoEncoder Prepare Data Time : "+str(np.sum(prepareDataTimes)))
     self.logger.info("AutoEncoder Training Time : "+str(np.sum(trainingTimes)))
+    self.logger.info("AutoEncoder Mean Accuracies : "+str(np.mean(accuracies)))
     self.logger.info("AutoEncoder Mean Training Loss : "+str(np.mean(trainingLosses)))
     self.logger.info("AutoEncoder Max Training Loss : "+str(np.max(trainingLosses)))
     self.logger.info("AutoEncoder Min Training Loss : "+str(np.min(trainingLosses)))
