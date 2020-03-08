@@ -48,9 +48,12 @@ class USCLogger :
     self.logger.info("##############################################################")
     self.logger.info("Training Iteration : "+str(trainingIterationNo))
 
- def logStepEnd(self,session,prepareDataTimes,trainingTimes,trainingAccuracies,testTimes,testAccuracies,trainingIterationNo):
+ def logStepEnd(self,session,prepareDataTimes,trainingTimes,trainingAccuracies,trainingLosses,testTimes,testAccuracies,trainingIterationNo):
     self.logger.info("Prepare Data Time : "+str(np.sum(prepareDataTimes)))
     self.logger.info("Training Time : "+str(np.sum(trainingTimes)))
+    self.logger.info("Mean Training Loss : "+str(np.mean(trainingLosses)))
+    self.logger.info("Max Training Loss : "+str(np.max(trainingLosses)))
+    self.logger.info("Min Training Loss : "+str(np.min(trainingLosses)))
     self.logger.info("Mean Training Accuracy : "+str(np.mean(trainingAccuracies)))
     self.logger.info("Max Training Accuracy : "+str(np.max(trainingAccuracies)))
     self.logger.info("Min Training Accuracy : "+str(np.min(trainingAccuracies)))
@@ -76,17 +79,6 @@ class USCLogger :
     self.testTimeWriter.add_summary(testTimeSummary, trainingIterationNo)
     self.testTimeWriter.flush()
 
-
- def logAutoEncoderStepStart(self,session,trainingIterationNo):
-    self.logger.info("##############################################################")
-    self.logger.info("AutoEncoder Training Iteration : "+str(trainingIterationNo))
-
- def logAutoEncoderStepEnd(self,session,prepareDataTimes,trainingTimes,trainingLosses,trainingIterationNo):
-    self.logger.info("AutoEncoder Prepare Data Time : "+str(np.sum(prepareDataTimes)))
-    self.logger.info("AutoEncoder Training Time : "+str(np.sum(trainingTimes)))
-    self.logger.info("AutoEncoder Mean Training Loss : "+str(np.mean(trainingLosses)))
-    self.logger.info("AutoEncoder Max Training Loss : "+str(np.max(trainingLosses)))
-    self.logger.info("AutoEncoder Min Training Loss : "+str(np.min(trainingLosses)))
 
 
 

@@ -7,7 +7,7 @@ class USCData :
    self.script_dir=os.path.dirname(os.path.realpath(__file__))
    self.script_name=os.path.basename(self.script_dir)
    self.fold_dirs=['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-   #self.fold_dirs=['fold1','fold10']
+   self.fold_dirs=['fold1','fold10']
    #self.fold_dirs=['fold1']
    self.main_data_dir=self.script_dir+'/../../data/'
    self.raw_data_dir=self.main_data_dir+'/0.raw/UrbanSound8K/audio'
@@ -23,7 +23,7 @@ class USCData :
    #self.time_slice_overlap_length=30
    self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
-   self.mini_batch_size=5
+   self.mini_batch_size=10
    self.fold_data_dictionary=dict()
    self.youtube_data_file_dictionary=dict()
    self.youtube_data_file_category_enumeration=dict()
@@ -130,15 +130,28 @@ class USCData :
 
  def one_hot_encode_array(self,arrayOfYData):
     # arrayOfYData.shape[0]==batch_size
-    # +1 for unknown class youtube data
-    returnMatrix=np.zeros([arrayOfYData.shape[0],self.number_of_classes+1]);
+    # all-zero for unknown class youtube data
+    returnMatrix=np.zeros([arrayOfYData.shape[0],self.number_of_classes]);
     for i in range(arrayOfYData.shape[0]):
        classNumber=arrayOfYData[i]
        if classNumber<10 :
          one_hot_encoded_class_number[i,classNumber]=1
-       else :
-         one_hot_encoded_class_number[i,10]=1
+#       else :
+#         let the row be all 0 (M.P.)
     return returnMatrix
+
+ def similarity_array(self,arrayOfYData_1,arrayOfYData_2):
+    indices=np.where(np.equal(arrayOfYData_1, arrayOfYData_2))[1]
+    returnMatrix=np.zeros([arrayOfYData_1.shape[0]]);
+    returnMatrix[indices]=1
+    return returnMatrix
+
+ def is_all_data_labeled(self,arrayOfYData):
+    indices=np.where(arrayOfYData>=10)[1]
+    if len(indices) > 0 :
+      return 0
+    return 1
+
 
  def one_hot_encode(self,classNumber):
     one_hot_encoded_class_number = np.zeros(self.number_of_classes)
