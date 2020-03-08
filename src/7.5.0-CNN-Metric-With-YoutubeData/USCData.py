@@ -7,7 +7,7 @@ class USCData :
    self.script_dir=os.path.dirname(os.path.realpath(__file__))
    self.script_name=os.path.basename(self.script_dir)
    self.fold_dirs=['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-   #self.fold_dirs=['fold1','fold10']
+   self.fold_dirs=['fold1','fold10']
    #self.fold_dirs=['fold1']
    self.main_data_dir=self.script_dir+'/../../data/'
    self.raw_data_dir=self.main_data_dir+'/0.raw/UrbanSound8K/audio'
@@ -142,9 +142,16 @@ class USCData :
 
  def similarity_array(self,arrayOfYData_1,arrayOfYData_2):
     indices=np.where(np.equal(arrayOfYData_1, arrayOfYData_2))[1]
-    returnMatrix=np.zeros([arrayOfYData.shape[0]]);
+    returnMatrix=np.zeros([arrayOfYData_1.shape[0]]);
     returnMatrix[indices]=1
     return returnMatrix
+
+ def is_all_data_labeled(self,arrayOfYData):
+    indices=np.where(arrayOfYData>=10)[1]
+    if len(indices) > 0 :
+      return 0
+    return 1
+
 
  def one_hot_encode(self,classNumber):
     one_hot_encoded_class_number = np.zeros(self.number_of_classes)

@@ -62,19 +62,36 @@ class USCModel :
   y_data_2=data_2[:,4*self.uscData.sound_record_sampling_rate]
   y_data_one_hot_encoded_1=self.uscData.one_hot_encode_array(y_data_1)
   y_data_one_hot_encoded_2=self.uscData.one_hot_encode_array(y_data_2)
-  similarity=self.uscData.similarity_array(x_data)
-  return x_data_1,y_data_one_hot_encoded_1,x_data_2,y_data_one_hot_encoded_2,similarity
+  similarity=self.uscData.similarity_array(y_data_1,y_data_2)
+  
+  loss_weights=[]
+  
+  if  is_all_data_labeled(y_data_1) :
+     loss_weights[0] = 1/5 ## y_data_1 , label
+     loss_weights[1] = 1/5 ## y_data_2 , label
+     loss_weights[2] = 1/5 ## x_data_1 , autoencoder
+     loss_weights[3] = 1/5 ## x_data_2 , autoencoder
+     loss_weights[4] = 1/5 ## discriminator
+  else :
+     loss_weights[0] = 0/5 ## y_data_1 , label
+     loss_weights[1] = 0/5 ## y_data_2 , label
+     loss_weights[2] = 1/5 ## x_data_1 , autoencoder
+     loss_weights[3] = 1/5 ## x_data_2 , autoencoder
+     loss_weights[4] = 3/5 ## discriminator
+     
+  return x_data_1,y_data_one_hot_encoded_1,x_data_2,y_data_one_hot_encoded_2,similarity,loss_weights
 
 
  def train(self,data):
   augment=True
   prepareDataTimeStart = int(round(time.time())) 
-  x_data_1,x_data_2,y_data_1,y_data_2,similarity=self.prepareData(data,augment)
+  x_data_1,x_data_2,y_data_1,y_data_2,similarity,loss_weights=self.prepareData(data,augment)
   prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   trainingTimeStart = int(round(time.time())) 
 
-  self.model.fit([x_data_1,x_data_2], [y_data_1,y_data_2,x_data_1,x_data_2,similarity], epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
+  #self.model.fit([x_data_1,x_data_2,loss_weights,y_data_1,y_data_2], [y_data_1,y_data_2,x_data_1,x_data_2,similarity], epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
+  self.model.train_on_batch([x_data_1,x_data_2,loss_weights,y_data_1,y_data_2,similarity], y=None, batch_size = self.uscData.mini_batch_size,verbose=0)
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
   evaluation = self.model.evaluate(x_data, y_data, batch_size = self.uscData.mini_batch_size,verbose=0)
@@ -91,8 +108,8 @@ class USCModel :
  def test(self,data):
   testTimeStart = int(round(time.time())) 
   augment=False
-  x_data_1,x_data_2,y_data_1,y_data_2,similarity=self.prepareData(data,augment) 
-  evaluation = self.model.evaluate([x_data_1,x_data_2], [y_data_1,y_data_2,x_data_1,x_data_2,similarity],batch_size = self.uscData.mini_batch_size,verbose=0)
+  x_data_1,x_data_2,y_data_1,y_data_2,similarity,loss_weights=self.prepareData(data,augment) 
+  evaluation = self.model.evaluate([x_data_1,x_data_2,loss_weights,y_data_1,y_data_2,similarity], [y_data_1,y_data_2,x_data_1,x_data_2,similarity],batch_size = self.uscData.mini_batch_size,verbose=0)
   testAccuracy = evaluation[1]
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
@@ -116,25 +133,89 @@ class USCModel :
 
 
  def buildModel(self):
+   layer_input_loss_weights = keras.layers.Input(batch_shape=(5))
    layer_input_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
    layer_input_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
+   layer_input_target_label_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes,1))
+   layer_input_target_label_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes,1))
+   layer_input_similarity = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,1,1))
    layer_input=keras.layers.Concatenate(layer_input_1,layer_input_2)
    # Convolution1D(filters, kernel_size,...)
-   out=keras.layers.Convolution1D(16, 64,strides=16,activation='relu', border_mode='same')(layer_input)
+   out=keras.layers.Convolution1D(16, 64,strides=25,activation='relu', padding='same')(layer_input)
+   out=keras.layers.Convolution1D(32,32,strides=7,activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(64, 16,strides=7,activation='relu', padding='same')(out)
    out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Convolution1D(32,32,strides=8,activation='relu', border_mode='same')(out)
+   out=keras.layers.Convolution1D(16, 4,strides=2,activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(16, 4,strides=2,activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(16, 4,strides=2,activation='relu', padding='same')(out)
    out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Convolution1D(64, 16,strides=4,activation='relu', border_mode='same')(out)
-   out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Flatten()(out)
-   out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Dense(units = 512,activation='sigmoid')(out)
-   out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Dense(units = 512,activation='sigmoid')(out)
-   out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
-   self.model = keras.models.Model(inputs=[layer_input_1,layer_input_2], outputs=[classifier,autoencoder_1,autoencoder_2,discriminator])
+   
+   common_out=out
+   out=np.swapaxes(out,0,1)
+   classifier_cnn_out_1=out[0]
+   classifier_cnn_out_2=out[1]
+   
+   classifier_out_1=keras.layers.Flatten()(classifier_cnn_out_1)
+   classifier_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1)
+   classifier_out_1=keras.layers.BatchNormalization()(classifier_out_1)
+   classifier_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1)
+   classifier_out_1=keras.layers.BatchNormalization()(classifier_out_1)
+   classifier_out_1=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(classifier_out_1)
+
+   classifier_out_2=keras.layers.Flatten()(classifier_cnn_out_2)
+   classifier_out_2=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2)
+   classifier_out_2=keras.layers.BatchNormalization()(classifier_out_2)
+   classifier_out_2=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2)
+   classifier_out_2=keras.layers.BatchNormalization()(classifier_out_2)
+   classifier_out_2=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(classifier_out_2)
+   
+   autoencoder_common_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(common_out)
+   autoencoder_common_out=keras.layers.UpSampling1D(2)(autoencoder_common_out)
+   autoencoder_common_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(common_out)
+   autoencoder_common_out=keras.layers.UpSampling1D(2)(autoencoder_common_out)
+   autoencoder_common_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(common_out)
+   autoencoder_common_out=keras.layers.UpSampling1D(2)(autoencoder_common_out)
+   autoencoder_common_out=keras.layers.BatchNormalization()(autoencoder_common_out)
+   autoencoder_common_out=keras.layers.Convolution1D(64,16, activation='relu', padding='same')(common_out)
+   autoencoder_common_out=keras.layers.UpSampling1D(7)(autoencoder_common_out)
+   autoencoder_common_out=keras.layers.Convolution1D(32,32, activation='relu', padding='same')(common_out)
+   autoencoder_common_out=keras.layers.UpSampling1D(7)(autoencoder_common_out)
+   autoencoder_common_out=keras.layers.Convolution1D(16,64, activation='relu', padding='same')(common_out)
+   autoencoder_common_out=keras.layers.UpSampling1D(25)(autoencoder_common_out)
+   autoencoder_common_out=keras.layers.BatchNormalization()(autoencoder_common_out)
+
+   autoencoder_common_out=np.swapaxes(autoencoder_common_out,0,1)
+   autoencoder_common_cnn_out_1=autoencoder_common_out[0]
+   autoencoder_common_cnn_out_2=autoencoder_common_out[1]
+
+   
+   autoencoder_out_1=keras.layers.Flatten()(autoencoder_common_cnn_out_1)
+   autoencoder_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(autoencoder_out_1)
+   autoencoder_out_1=keras.layers.BatchNormalization()(autoencoder_out_1)
+
+   autoencoder_out_2=keras.layers.Flatten()(autoencoder_out_2)
+   autoencoder_out_2=keras.layers.Dense(units = 128,activation='sigmoid')(autoencoder_out_2)
+   autoencoder_out_2=keras.layers.BatchNormalization()(autoencoder_out_2)
+
+   discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(common_out)
+   discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(discriminator_out)
+   discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(discriminator_out)
+   discriminator_out=keras.layers.Flatten()(discriminator_out)
+   discriminator_out=keras.layers.Dense(units = 128,activation='sigmoid')(discriminator_out)
+   discriminator_out=keras.layers.BatchNormalization()(discriminator_out)
+   discriminator_out=keras.layers.Dense(units = 1,activation='softmax')(discriminator_out)
+   
+   loss=layer_input_loss_weights[0] * keras.losses.categorical_crossentropy(layer_input_target_label_1,classifier_out_1) + \
+        layer_input_loss_weights[1] * keras.losses.categorical_crossentropy(layer_input_target_label_2,classifier_out_2) + \
+        layer_input_loss_weights[2] * keras.losses.binary_crossentropy(layer_input_1,autoencoder_out_1) + \
+        layer_input_loss_weights[3] * keras.losses.binary_crossentropy(layer_input_2,autoencoder_out_2) + \
+        layer_input_loss_weights[4] * keras.losses.binary_crossentropy(layer_input_similarity,discriminator_out) 
+   
+    
+   self.model = keras.models.Model(inputs=[layer_input_1,layer_input_2,layer_input_loss_weights,layer_input_target_label_1,layer_input_target_label_2,layer_input_similarity], outputs=[classifier_out_1,classifier_out_2,autoencoder_out_1,autoencoder_out_2,discriminator_out])
+   self.model.add_loss(loss)
+   
    selectedOptimizer=keras.optimizers.Adam(lr=0.0001)
-   self.model.compile(optimizer=selectedOptimizer, loss='categorical_crossentropy',metrics=['accuracy'])
+   self.model.compile(optimizer=selectedOptimizer, loss=None,metrics=['accuracy'])
 
 
