@@ -7,6 +7,9 @@ from USCAutoEncoder import *
 
 
 def main(_):
+ continue_training=""
+ if len(sys.argv) > 1 :
+     continue_training=sys.argv[1]
  uscLogger=USCLogger()
  uscData=USCData(uscLogger.logger)
  uscData.findListOfYoutubeDataFiles()
@@ -16,14 +19,14 @@ def main(_):
 
  with tf.Session(config=config) as session:
    session.run(tf.global_variables_initializer())
-
+   
    uscAutoEncoder=USCAutoEncoder(session,uscLogger,uscData)
-   if uscAutoEncoder.alreadyTrained:
+   if uscAutoEncoder.alreadyTrained and continue_training!="contiune_training":
         uscLogger.logger.info("AutoEncoder is already trained by-passing this phase ... ")
    else:
     #youtube data also contains urban sound data , replicated 10 times
-    #for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count*2):
-    for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count):
+    for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count*10):
+    #for trainingIterationNo in range(uscData.youtube_data_max_category_data_file_count):
      uscLogger.logger.info("AutoEncoder Training Iteration No: "+str(trainingIterationNo))
      current_youtube_data_as_list=np.random.permutation(uscData.loadNextYoutubeData())
      uscLogger.logAutoEncoderStepStart(session,trainingIterationNo)
