@@ -186,15 +186,19 @@ class USCData :
 
 
  def loadNextYoutubeData(self):
-     self.current_youtube_data=np.empty([0,4*self.sound_record_sampling_rate])
+     self.current_youtube_data=np.empty([0,4*self.sound_record_sampling_rate+1])
      for category in  self.youtube_data_file_dictionary :
          dataFileList= self.youtube_data_file_dictionary[category]
          if len(dataFileList) > self.current_data_file_number :
              self.logger.info("loading"+ category+'/data.'+str(self.current_data_file_number)+'.npy')
              loadedData=np.load(category+'/data.'+str(self.current_data_file_number)+'.npy')
              loadedData=loadedData[:,:4*self.sound_record_sampling_rate]
+             newLoadedData=np.zeros((loadedData.shape[0],loadedData.shape[1]+1))
+             newLoadedData[:,:-1]=loadedData
+             loadedData=newLoadedData
              #SET out of range category of current data
-             loadedData[:,4*self.sound_record_sampling_rate]=self.youtube_data_file_category_enumeration[category]
+
+             loadedData[:,4*self.sound_record_sampling_rate]=np.full((loadedData.shape[0]),self.youtube_data_file_category_enumeration[category])
              #listOf4SecondRecords=loadedData.tolist()
              #self.logger.info(len(listOf4SecondRecords))
              self.current_youtube_data=np.vstack((self.current_youtube_data,loadedData)) ## this appends listOf4SecondRecords to self.current_youtube_data
