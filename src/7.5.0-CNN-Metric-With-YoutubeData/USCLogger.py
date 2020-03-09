@@ -32,17 +32,17 @@ class USCLogger :
      ## CONFIGURE TF.SUMMARY
      ##
      ## ONE VARIABLE , TWO WRITERS TO OBTAIN TWO GRPAHS ON THE SAME IMAGE
-     self.trainingAccuracyWriter = tf.summary.FileWriter(self.log_dir_for_tfsummary+"/trainingAccuracyWriter")
-     self.testAccuracyWriter =tf.summary.FileWriter(self.log_dir_for_tfsummary+"/testAccuracyWriter")
-     self.tf_summary_accuracy_log_var = tf.Variable(0.0)
-     tf.summary.scalar("Accuracy-Test-Train", self.tf_summary_accuracy_log_var)
-     self.tfSummaryAccuracyMergedWriter = tf.summary.merge_all()
+     #self.trainingAccuracyWriter = tf.compat.v1.summary.FileWriter(self.log_dir_for_tfsummary+"/trainingAccuracyWriter")
+     #self.testAccuracyWriter =tf.compat.v1.summary.FileWriter(self.log_dir_for_tfsummary+"/testAccuracyWriter")
+     #self.tf_summary_accuracy_log_var = tf.Variable(0.0)
+     #tf.compat.v1.summary.scalar("Accuracy-Test-Train", self.tf_summary_accuracy_log_var)
+     #self.tfSummaryAccuracyMergedWriter = tf.compat.v1.summary.merge_all()
 
-     self.trainingTimeWriter = tf.summary.FileWriter(self.log_dir_for_tfsummary+"/trainingTimeWriter")
-     self.testTimeWriter =tf.summary.FileWriter(self.log_dir_for_tfsummary+"/testTimeWriter")
-     self.tf_summary_time_log_var = tf.Variable(0.0)
-     tf.summary.scalar("Time-Test-Train", self.tf_summary_time_log_var)
-     self.tfSummaryTimeMergedWriter = tf.summary.merge_all()
+     #self.trainingTimeWriter = tf.compat.v1.summary.FileWriter(self.log_dir_for_tfsummary+"/trainingTimeWriter")
+     #self.testTimeWriter =tf.compat.v1.summary.FileWriter(self.log_dir_for_tfsummary+"/testTimeWriter")
+     #self.tf_summary_time_log_var = tf.Variable(0.0)
+     #tf.compat.v1.summary.scalar("Time-Test-Train", self.tf_summary_time_log_var)
+     #self.tfSummaryTimeMergedWriter = tf.compat.v1.summary.merge_all()
 
  def logStepStart(self,session,trainingIterationNo):
     self.logger.info("##############################################################")
@@ -63,21 +63,21 @@ class USCLogger :
      self.logger.info("Max Test Accuracy : "+str(np.max(testAccuracies)))
      self.logger.info("Min Test Accuracy : "+str(np.min(testAccuracies)))
     ## GRAPH (FOR LOGGING)
-    tariningAcuracySummary = session.run(self.tfSummaryAccuracyMergedWriter, {self.tf_summary_accuracy_log_var: np.mean(trainingAccuracies)})
-    self.trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
-    self.trainingAccuracyWriter.flush()
+    #tariningAcuracySummary = session.run(self.tfSummaryAccuracyMergedWriter, {self.tf_summary_accuracy_log_var: np.mean(trainingAccuracies)})
+    #self.trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)
+    #self.trainingAccuracyWriter.flush()
 
-    testAcuracySummary = session.run(self.tfSummaryAccuracyMergedWriter, {self.tf_summary_accuracy_log_var:np.mean(testAccuracies)})
-    self.testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
-    self.testAccuracyWriter.flush()
+    #testAcuracySummary = session.run(self.tfSummaryAccuracyMergedWriter, {self.tf_summary_accuracy_log_var:np.mean(testAccuracies)})
+    #self.testAccuracyWriter.add_summary(testAcuracySummary, trainingIterationNo)
+    #self.testAccuracyWriter.flush()
 
-    tariningTimeSummary = session.run(self.tfSummaryTimeMergedWriter, {self.tf_summary_time_log_var: np.sum(trainingTimes)})
-    self.trainingTimeWriter.add_summary(tariningTimeSummary, trainingIterationNo)
-    self.trainingTimeWriter.flush()
+    #tariningTimeSummary = session.run(self.tfSummaryTimeMergedWriter, {self.tf_summary_time_log_var: np.sum(trainingTimes)})
+    #self.trainingTimeWriter.add_summary(tariningTimeSummary, trainingIterationNo)
+    #self.trainingTimeWriter.flush()
 
-    testTimeSummary = session.run(self.tfSummaryTimeMergedWriter, {self.tf_summary_time_log_var:np.mean(testTimes)})
-    self.testTimeWriter.add_summary(testTimeSummary, trainingIterationNo)
-    self.testTimeWriter.flush()
+    #testTimeSummary = session.run(self.tfSummaryTimeMergedWriter, {self.tf_summary_time_log_var:np.mean(testTimes)})
+    #self.testTimeWriter.add_summary(testTimeSummary, trainingIterationNo)
+    #self.testTimeWriter.flush()
 
 
 

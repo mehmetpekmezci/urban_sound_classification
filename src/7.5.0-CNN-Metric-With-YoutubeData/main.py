@@ -11,11 +11,11 @@ def main(_):
  uscData.prepareData()
  uscData.findListOfYoutubeDataFiles()
   
- config = tf.ConfigProto()
+ config = tf.compat.v1.ConfigProto()
  config.gpu_options.allow_growth = True
 
- with tf.Session(config=config) as session:
-   session.run(tf.global_variables_initializer())
+ with tf.compat.v1.Session(config=config) as session:
+   session.run(tf.compat.v1.global_variables_initializer())
 
    uscModel=USCModel(session,uscLogger,uscData)
    for trainingIterationNo in range(uscModel.training_iterations):
@@ -70,5 +70,5 @@ def main(_):
     uscLogger.logStepEnd(session,prepareDataTimes,trainingTimes,trainingAccuracies,trainingLosses,testTimes,testAccuracies,trainingIterationNo)
 
 if __name__ == '__main__':
- tf.app.run(main=main)
+ tf.compat.v1.app.run(main=main)
 

@@ -198,31 +198,31 @@ class USCModel :
 
    loss=(
            tf.reduce_mean(
-                input_tensor=keras.utils.normalize(
+                keras.utils.normalize(
                      keras.losses.categorical_crossentropy(layer_input_target_label_1,classifier_out_1)
                 )
             )
            +
            tf.reduce_mean(
-                input_tensor=keras.utils.normalize(
+                keras.utils.normalize(
                       keras.losses.categorical_crossentropy(layer_input_target_label_2,classifier_out_2) 
                 )
             )
            + 
            tf.reduce_mean(
-                input_tensor=keras.utils.normalize(
+                keras.utils.normalize(
                       keras.losses.binary_crossentropy(layer_input_1,autoencoder_out_1) 
                 )
             )
            + 
            tf.reduce_mean(
-                input_tensor=keras.utils.normalize(
+                keras.utils.normalize(
                       keras.losses.binary_crossentropy(layer_input_2,autoencoder_out_2) 
                 )
             )
            +
            tf.reduce_mean(
-                input_tensor=keras.utils.normalize(
+                keras.utils.normalize(
                       keras.losses.binary_crossentropy(layer_input_similarity,discriminator_out) 
                 )
             )
