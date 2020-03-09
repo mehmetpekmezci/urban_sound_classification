@@ -133,13 +133,13 @@ class USCModel :
 
 
  def buildModel(self):
-   layer_input_loss_weights = keras.layers.Input(batch_shape=(5))
+   layer_input_loss_weights = keras.layers.Input(shape=(5,))
    layer_input_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
    layer_input_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
    layer_input_target_label_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes,1))
    layer_input_target_label_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes,1))
    layer_input_similarity = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,1,1))
-   layer_input=keras.layers.Concatenate(layer_input_1,layer_input_2)
+   layer_input=keras.layers.concatenate([layer_input_1,layer_input_2])
    # Convolution1D(filters, kernel_size,...)
    out=keras.layers.Convolution1D(16, 64,strides=25,activation='relu', padding='same')(layer_input)
    out=keras.layers.Convolution1D(32,32,strides=7,activation='relu', padding='same')(out)
@@ -151,9 +151,8 @@ class USCModel :
    out=keras.layers.BatchNormalization()(out)
    
    common_out=out
-   out=np.swapaxes(out,0,1)
-   classifier_cnn_out_1=out[0]
-   classifier_cnn_out_2=out[1]
+   classifier_cnn_out_1=keras.layers.Lambda(lambda x: x[:,0,:,:], name='slice')(common_out)
+   classifier_cnn_out_2=keras.layers.Lambda(lambda x: x[:,1,:,:], name='slice')(common_out)
    
    classifier_out_1=keras.layers.Flatten()(classifier_cnn_out_1)
    classifier_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1)
