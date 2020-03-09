@@ -141,7 +141,7 @@ class USCData :
     return returnMatrix
 
  def similarity_array(self,arrayOfYData_1,arrayOfYData_2):
-    indices=np.where(np.equal(arrayOfYData_1, arrayOfYData_2))[1]
+    indices=np.where(np.equal(arrayOfYData_1, arrayOfYData_2))[0]
     returnMatrix=np.zeros([arrayOfYData_1.shape[0]]);
     returnMatrix[indices]=1
     return returnMatrix

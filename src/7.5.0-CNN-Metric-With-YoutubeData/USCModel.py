@@ -58,11 +58,27 @@ class USCModel :
     x_data_2=self.uscData.augment_random(x_data_2)
   x_data_1=self.uscData.normalize(x_data_1)
   x_data_2=self.uscData.normalize(x_data_2)
+
   y_data_1=data_1[:,4*self.uscData.sound_record_sampling_rate]
   y_data_2=data_2[:,4*self.uscData.sound_record_sampling_rate]
   y_data_one_hot_encoded_1=self.uscData.one_hot_encode_array(y_data_1)
   y_data_one_hot_encoded_2=self.uscData.one_hot_encode_array(y_data_2)
   similarity=self.uscData.similarity_array(y_data_1,y_data_2)
+
+
+  x_data_1=x_data_1.reshape(x_data_1.shape[0],x_data_1.shape[1],1)
+  x_data_2=x_data_2.reshape(x_data_2.shape[0],x_data_2.shape[1],1)
+  #y_data_one_hot_encoded_1=y_data_one_hot_encoded_1.reshape(y_data_one_hot_encoded_1.shape[0],y_data_one_hot_encoded_1.shape[1],1)
+  #y_data_one_hot_encoded_2=y_data_one_hot_encoded_2.reshape(y_data_one_hot_encoded_2.shape[0],y_data_one_hot_encoded_2.shape[1],1)
+  similarity=similarity.reshape(similarity.shape[0],1)
+
+
+  self.uscLogger.logger.info("x_data_1.shape="+str(x_data_1.shape))
+  self.uscLogger.logger.info("x_data_2.shape="+str(x_data_2.shape))
+  self.uscLogger.logger.info("y_data_one_hot_encoded_1.shape="+str(y_data_one_hot_encoded_1.shape))
+  self.uscLogger.logger.info("y_data_one_hot_encoded_2.shape="+str(y_data_one_hot_encoded_2.shape))
+  self.uscLogger.logger.info("similarity.shape="+str(similarity.shape))
+
   return x_data_1,y_data_one_hot_encoded_1,x_data_2,y_data_one_hot_encoded_2,similarity
 
 
@@ -75,7 +91,9 @@ class USCModel :
   trainingTimeStart = int(round(time.time())) 
 
   #self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2], [y_data_1,y_data_2,x_data_1,x_data_2,similarity], epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
-  self.model.train_on_batch([x_data_1,x_data_2,y_data_1,y_data_2,similarity], y=None, batch_size = self.uscData.mini_batch_size,verbose=0)
+  #self.model.train_on_batch([x_data_1,x_data_2,y_data_1,y_data_2,similarity], y=None, batch_size = self.uscData.mini_batch_size,verbose=0)
+   
+  self.model.train_on_batch([x_data_1,x_data_2,y_data_1,y_data_2,similarity], y=None)
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
   evaluation = self.model.evaluate(x_data, y_data, batch_size = self.uscData.mini_batch_size,verbose=0)
@@ -120,7 +138,9 @@ class USCModel :
    layer_input_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
    self.uscLogger.logger.info("layer_input_1.shape="+str(layer_input_1.shape))
    layer_input_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
+   #layer_input_target_label_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes,1))
    layer_input_target_label_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes))
+   #layer_input_target_label_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes,1))
    layer_input_target_label_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes))
    layer_input_similarity = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,1))
    layer_input=keras.layers.concatenate([layer_input_1,layer_input_2])
