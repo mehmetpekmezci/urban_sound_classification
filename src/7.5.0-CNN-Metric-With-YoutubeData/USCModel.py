@@ -73,13 +73,13 @@ class USCModel :
   similarity=similarity.reshape(similarity.shape[0],1)
 
 
-  self.uscLogger.logger.info("x_data_1.shape="+str(x_data_1.shape))
-  self.uscLogger.logger.info("x_data_2.shape="+str(x_data_2.shape))
-  self.uscLogger.logger.info("y_data_one_hot_encoded_1.shape="+str(y_data_one_hot_encoded_1.shape))
-  self.uscLogger.logger.info("y_data_one_hot_encoded_2.shape="+str(y_data_one_hot_encoded_2.shape))
-  self.uscLogger.logger.info("similarity.shape="+str(similarity.shape))
+  #self.uscLogger.logger.info("x_data_1.shape="+str(x_data_1.shape))
+  #self.uscLogger.logger.info("x_data_2.shape="+str(x_data_2.shape))
+  #self.uscLogger.logger.info("y_data_one_hot_encoded_1.shape="+str(y_data_one_hot_encoded_1.shape))
+  #self.uscLogger.logger.info("y_data_one_hot_encoded_2.shape="+str(y_data_one_hot_encoded_2.shape))
+  #self.uscLogger.logger.info("similarity.shape="+str(similarity.shape))
 
-  return x_data_1,y_data_one_hot_encoded_1,x_data_2,y_data_one_hot_encoded_2,similarity
+  return x_data_1,x_data_2,y_data_one_hot_encoded_1,y_data_one_hot_encoded_2,similarity
 
 
  def train(self,data):
@@ -90,13 +90,16 @@ class USCModel :
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   trainingTimeStart = int(round(time.time())) 
 
-  #self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2], [y_data_1,y_data_2,x_data_1,x_data_2,similarity], epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
-  #self.model.train_on_batch([x_data_1,x_data_2,y_data_1,y_data_2,similarity], y=None, batch_size = self.uscData.mini_batch_size,verbose=0)
+  #self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2,similarity], [y_data_1,y_data_2,x_data_1,x_data_2,similarity], epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
+  
+  self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2,similarity], None, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
+
    
-  self.model.train_on_batch([x_data_1,x_data_2,y_data_1,y_data_2,similarity], y=None)
+  #self.model.train_on_batch([x_data_1,x_data_2,y_data_1,y_data_2,similarity],[y_data_1,y_data_2,x_data_1,x_data_2,similarity] )
+  #self.model.train_on_batch([x_data_1,x_data_2,y_data_1,y_data_2,similarity],None )
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
-  evaluation = self.model.evaluate(x_data, y_data, batch_size = self.uscData.mini_batch_size,verbose=0)
+  evaluation = self.model.evaluate([x_data_1,x_data_2,y_data_1,y_data_2,similarity], None, batch_size = self.uscData.mini_batch_size,verbose=0)
   trainingLoss = evaluation[0]
   trainingAccuracy = evaluation[1]
   #print(self.model.metrics_names) 
@@ -111,7 +114,7 @@ class USCModel :
   testTimeStart = int(round(time.time())) 
   augment=False
   x_data_1,x_data_2,y_data_1,y_data_2,similarity=self.prepareData(data,augment) 
-  evaluation = self.model.evaluate([x_data_1,x_data_2,y_data_1,y_data_2,similarity], [y_data_1,y_data_2,x_data_1,x_data_2,similarity],batch_size = self.uscData.mini_batch_size,verbose=0)
+  evaluation = self.model.evaluate([x_data_1,x_data_2,y_data_1,y_data_2,similarity], None,batch_size = self.uscData.mini_batch_size,verbose=0)
   testAccuracy = evaluation[1]
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
@@ -135,14 +138,16 @@ class USCModel :
 
 
  def buildModel(self):
-   layer_input_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
+   layer_input_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1),name="layer_input_1")
    self.uscLogger.logger.info("layer_input_1.shape="+str(layer_input_1.shape))
-   layer_input_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
-   #layer_input_target_label_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes,1))
-   layer_input_target_label_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes))
-   #layer_input_target_label_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes,1))
-   layer_input_target_label_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes))
-   layer_input_similarity = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,1))
+   layer_input_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1),name="layer_input_2")
+   self.uscLogger.logger.info("layer_input_2.shape="+str(layer_input_2.shape))
+   layer_input_target_label_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes),name="layer_input_target_label_1")
+   self.uscLogger.logger.info("layer_input_target_label_1.shape="+str(layer_input_target_label_1.shape))
+   layer_input_target_label_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes),name="layer_input_target_label_2")
+   self.uscLogger.logger.info("layer_input_target_label_2.shape="+str(layer_input_target_label_2.shape))
+   layer_input_similarity = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,1),name="layer_input_similarity")
+   self.uscLogger.logger.info("layer_input_similarity.shape="+str(layer_input_similarity.shape))
    layer_input=keras.layers.concatenate([layer_input_1,layer_input_2])
    self.uscLogger.logger.info("layer_input.shape="+str(layer_input.shape))
    # Convolution1D(filters, kernel_size,...)
@@ -158,8 +163,10 @@ class USCModel :
    common_cnn_out=out
    self.uscLogger.logger.info("encoder.shape="+str(out.shape))
    
-   classifier_out_1=keras.layers.Flatten()(common_cnn_out)
-   classifier_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1)
+   flat_common_cnn_out=keras.layers.Flatten()(common_cnn_out)
+   
+   
+   classifier_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(flat_common_cnn_out)
    classifier_out_1=keras.layers.BatchNormalization()(classifier_out_1)
    classifier_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1)
    classifier_out_1=keras.layers.BatchNormalization()(classifier_out_1)
@@ -167,8 +174,8 @@ class USCModel :
 
    self.uscLogger.logger.info("classifier_out_1.shape="+str(classifier_out_1.shape))
 
-   classifier_out_2=keras.layers.Flatten()(common_cnn_out)
-   classifier_out_2=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2)
+
+   classifier_out_2=keras.layers.Dense(units = 128,activation='sigmoid')(flat_common_cnn_out)
    classifier_out_2=keras.layers.BatchNormalization()(classifier_out_2)
    classifier_out_2=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2)
    classifier_out_2=keras.layers.BatchNormalization()(classifier_out_2)
@@ -216,21 +223,32 @@ class USCModel :
    ## categorical cross entropy = sum ( p_i * log(q_i))  , tum p_i ler  uscData.one_hot_encode_array icinde eger class number 10'u geciyorsa 0 olarak birakiliyor (class number > 10  =>  youtube data)
    ## dolayisiyla youtube data icin keras.losses.categorical_crossentropy otomatik olarak 0 gelecektir.
 
+
+   self.uscLogger.logger.info("layer_input_target_label_1.shape="+str(layer_input_target_label_1.shape))
+   self.uscLogger.logger.info("classifier_out_1.shape="+str(classifier_out_1.shape))
+   self.uscLogger.logger.info("layer_input_target_label_2.shape="+str(layer_input_target_label_2.shape))
+   self.uscLogger.logger.info("classifier_out_2.shape="+str(classifier_out_2.shape))
+   self.uscLogger.logger.info("layer_input_1.shape="+str(layer_input_1.shape))
+   self.uscLogger.logger.info("autoencoder_out_1.shape="+str(autoencoder_out_1.shape))
+   self.uscLogger.logger.info("layer_input_2.shape="+str(layer_input_2.shape))
+   self.uscLogger.logger.info("autoencoder_out_2.shape="+str(autoencoder_out_2.shape))
+   self.uscLogger.logger.info("layer_input_similarity.shape="+str(layer_input_similarity.shape))
+   self.uscLogger.logger.info("discriminator_out.shape="+str(discriminator_out.shape))
+   
+   
+   self.loss_classifier_out_1=keras.losses.categorical_crossentropy(layer_input_target_label_1,classifier_out_1)
+   self.loss_classifier_out_2=keras.losses.categorical_crossentropy(layer_input_target_label_2,classifier_out_2)
+   self.loss_autoencoder_out_1=keras.losses.binary_crossentropy(layer_input_1,autoencoder_out_1)
+   self.loss_autoencoder_out_2=keras.losses.binary_crossentropy(layer_input_2,autoencoder_out_2)
+   self.loss_discriminator_out=keras.losses.binary_crossentropy(layer_input_similarity,discriminator_out)
+   
    loss=(
-           tf.reduce_mean( keras.losses.categorical_crossentropy(layer_input_target_label_1,classifier_out_1)) /
-           tf.reduce_max( keras.losses.categorical_crossentropy(layer_input_target_label_1,classifier_out_1)) 
-           +
-           tf.reduce_mean( keras.losses.categorical_crossentropy(layer_input_target_label_2,classifier_out_2) ) /
-           tf.reduce_max( keras.losses.categorical_crossentropy(layer_input_target_label_2,classifier_out_2) ) 
-           + 
-           tf.reduce_mean( keras.losses.binary_crossentropy(layer_input_1,autoencoder_out_1) )/
-           tf.reduce_max( keras.losses.binary_crossentropy(layer_input_1,autoencoder_out_1) )
-           + 
-           tf.reduce_mean( keras.losses.binary_crossentropy(layer_input_2,autoencoder_out_2) ) /
-           tf.reduce_max( keras.losses.binary_crossentropy(layer_input_2,autoencoder_out_2) )
-           +
-           tf.reduce_mean( keras.losses.binary_crossentropy(layer_input_similarity,discriminator_out) ) /
-           tf.reduce_max( keras.losses.binary_crossentropy(layer_input_similarity,discriminator_out) )
+           tf.reduce_mean( self.loss_classifier_out_1) /  tf.reduce_max( self.loss_classifier_out_1) +
+           tf.reduce_mean( self.loss_classifier_out_2) /  tf.reduce_max( self.loss_classifier_out_2) +
+           tf.reduce_mean( self.loss_autoencoder_out_1) /  tf.reduce_max( self.loss_autoencoder_out_1) +
+           tf.reduce_mean( self.loss_autoencoder_out_2) /  tf.reduce_max( self.loss_autoencoder_out_2) +
+           tf.reduce_mean( self.loss_discriminator_out) /  tf.reduce_max( self.loss_discriminator_out) 
+          
         )/5
    self.uscLogger.logger.info("loss="+str(loss))
    

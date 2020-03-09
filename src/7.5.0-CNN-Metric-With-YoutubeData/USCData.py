@@ -204,7 +204,7 @@ class USCData :
              self.current_youtube_data=np.vstack((self.current_youtube_data,loadedData)) ## this appends listOf4SecondRecords to self.current_youtube_data
      self.current_data_file_number= (self.current_data_file_number+1)%self.youtube_data_max_category_data_file_count  
      np.random.shuffle(self.current_youtube_data)
-     self.logger.info(self.current_youtube_data.shape)
+     #self.logger.info(self.current_youtube_data.shape)
      return self.current_youtube_data
 
 
