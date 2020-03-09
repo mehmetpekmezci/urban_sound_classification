@@ -120,8 +120,8 @@ class USCModel :
    layer_input_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
    self.uscLogger.logger.info("layer_input_1.shape="+str(layer_input_1.shape))
    layer_input_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1))
-   layer_input_target_label_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes,1))
-   layer_input_target_label_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes,1))
+   layer_input_target_label_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes))
+   layer_input_target_label_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_classes))
    layer_input_similarity = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,1))
    layer_input=keras.layers.concatenate([layer_input_1,layer_input_2])
    self.uscLogger.logger.info("layer_input.shape="+str(layer_input.shape))
@@ -197,35 +197,20 @@ class USCModel :
    ## dolayisiyla youtube data icin keras.losses.categorical_crossentropy otomatik olarak 0 gelecektir.
 
    loss=(
-           tf.reduce_mean(
-                input_tensor=keras.utils.normalize(
-                     keras.losses.categorical_crossentropy(layer_input_target_label_1,classifier_out_1)
-                )
-            )
+           tf.reduce_mean( keras.losses.categorical_crossentropy(layer_input_target_label_1,classifier_out_1)) /
+           tf.reduce_max( keras.losses.categorical_crossentropy(layer_input_target_label_1,classifier_out_1)) 
            +
-           tf.reduce_mean(
-                input_tensor=keras.utils.normalize(
-                      keras.losses.categorical_crossentropy(layer_input_target_label_2,classifier_out_2) 
-                )
-            )
+           tf.reduce_mean( keras.losses.categorical_crossentropy(layer_input_target_label_2,classifier_out_2) ) /
+           tf.reduce_max( keras.losses.categorical_crossentropy(layer_input_target_label_2,classifier_out_2) ) 
            + 
-           tf.reduce_mean(
-                input_tensor=keras.utils.normalize(
-                      keras.losses.binary_crossentropy(layer_input_1,autoencoder_out_1) 
-                )
-            )
+           tf.reduce_mean( keras.losses.binary_crossentropy(layer_input_1,autoencoder_out_1) )/
+           tf.reduce_max( keras.losses.binary_crossentropy(layer_input_1,autoencoder_out_1) )
            + 
-           tf.reduce_mean(
-                input_tensor=keras.utils.normalize(
-                      keras.losses.binary_crossentropy(layer_input_2,autoencoder_out_2) 
-                )
-            )
+           tf.reduce_mean( keras.losses.binary_crossentropy(layer_input_2,autoencoder_out_2) ) /
+           tf.reduce_max( keras.losses.binary_crossentropy(layer_input_2,autoencoder_out_2) )
            +
-           tf.reduce_mean(
-                input_tensor=keras.utils.normalize(
-                      keras.losses.binary_crossentropy(layer_input_similarity,discriminator_out) 
-                )
-            )
+           tf.reduce_mean( keras.losses.binary_crossentropy(layer_input_similarity,discriminator_out) ) /
+           tf.reduce_max( keras.losses.binary_crossentropy(layer_input_similarity,discriminator_out) )
         )/5
    self.uscLogger.logger.info("loss="+str(loss))
    
