@@ -29,7 +29,7 @@ def main(_):
     ## youtube dta also contain fold1-9 of urban sound data 
     current_youtube_data_as_list=np.random.permutation(uscData.loadNextYoutubeData())
     for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)) :
-         if current_batch_counter % 100 == 0:
+         if current_batch_counter % 1 == 0:
            uscLogger.logger.info("Training Batch No : "+str(current_batch_counter))
          batch_data=current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size]
          #uscLogger.logger.info("batch_data.shape: "+str(batch_data.shape))

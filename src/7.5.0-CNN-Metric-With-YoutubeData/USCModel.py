@@ -91,8 +91,11 @@ class USCModel :
   trainingTimeStart = int(round(time.time())) 
 
   #self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2,similarity], [y_data_1,y_data_2,x_data_1,x_data_2,similarity], epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
+  #self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2,similarity], None, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   
-  self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2,similarity], None, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
+  self.uscLogger.logger.info("model.train_on_batch started")
+  self.model.train_on_batch([x_data_1,x_data_2,y_data_1,y_data_2,similarity],None )
+  self.uscLogger.logger.info("model.train_on_batch ended")
 
    
   #self.model.train_on_batch([x_data_1,x_data_2,y_data_1,y_data_2,similarity],[y_data_1,y_data_2,x_data_1,x_data_2,similarity] )
@@ -198,6 +201,7 @@ class USCModel :
    autoencoder_common_out=keras.layers.UpSampling1D(25)(autoencoder_common_out)
    autoencoder_common_out=keras.layers.BatchNormalization()(autoencoder_common_out)
 
+
    self.uscLogger.logger.info("autoencoder_common_out.shape="+str(autoencoder_common_out.shape))
 
    autoencoder_out_1=keras.layers.Convolution1D(1,128,activation='sigmoid', padding='same')(autoencoder_common_out)
@@ -209,6 +213,11 @@ class USCModel :
    autoencoder_out_2=keras.layers.BatchNormalization()(autoencoder_out_2)
 
    self.uscLogger.logger.info("autoencoder_out_2.shape="+str(autoencoder_out_2.shape))
+
+
+
+
+
 
    discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(common_cnn_out)
    discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(discriminator_out)

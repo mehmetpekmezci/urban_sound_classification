@@ -7,7 +7,7 @@ class USCData :
    self.script_dir=os.path.dirname(os.path.realpath(__file__))
    self.script_name=os.path.basename(self.script_dir)
    self.fold_dirs=['fold1','fold2','fold3','fold4','fold5','fold6','fold7','fold8','fold9','fold10']
-   self.fold_dirs=['fold1','fold10']
+   #self.fold_dirs=['fold1','fold10']
    #self.fold_dirs=['fold1']
    self.main_data_dir=self.script_dir+'/../../data/'
    self.raw_data_dir=self.main_data_dir+'/0.raw/UrbanSound8K/audio'
@@ -23,7 +23,7 @@ class USCData :
    #self.time_slice_overlap_length=30
    self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
-   self.mini_batch_size=10
+   self.mini_batch_size=40
    self.fold_data_dictionary=dict()
    self.youtube_data_file_dictionary=dict()
    self.youtube_data_file_category_enumeration=dict()
