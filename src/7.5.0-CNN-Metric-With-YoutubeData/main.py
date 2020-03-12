@@ -5,21 +5,18 @@ from USCData import *
 from USCModel import *
 
 
+
 def main(_):
  uscLogger=USCLogger()
  uscData=USCData(uscLogger.logger)
+ uscModel=USCModel(uscLogger,uscData)
+
  uscData.prepareData()
  uscData.findListOfYoutubeDataFiles()
   
- config = tf.compat.v1.ConfigProto()
- config.gpu_options.allow_growth = True
 
- with tf.compat.v1.Session(config=config) as session:
-   session.run(tf.compat.v1.global_variables_initializer())
-
-   uscModel=USCModel(session,uscLogger,uscData)
-   for trainingIterationNo in range(uscModel.training_iterations):
-    uscLogger.logStepStart(session,trainingIterationNo)
+ for trainingIterationNo in range(uscModel.training_iterations):
+    uscLogger.logStepStart(trainingIterationNo)
     prepareDataTimes=[ ]
     trainingTimes=[ ]
     trainingAccuracies=[ ]
@@ -67,7 +64,7 @@ def main(_):
               prepareDataTimes.append(prepareDataTime)
               trainingLosses.append(trainingLoss)
 
-    uscLogger.logStepEnd(session,prepareDataTimes,trainingTimes,trainingAccuracies,trainingLosses,testTimes,testAccuracies,trainingIterationNo)
+    uscLogger.logStepEnd(prepareDataTimes,trainingTimes,trainingAccuracies,trainingLosses,testTimes,testAccuracies,trainingIterationNo)
 
 if __name__ == '__main__':
  tf.compat.v1.app.run(main=main)

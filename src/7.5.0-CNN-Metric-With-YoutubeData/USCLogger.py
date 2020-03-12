@@ -44,11 +44,11 @@ class USCLogger :
      #tf.compat.v1.summary.scalar("Time-Test-Train", self.tf_summary_time_log_var)
      #self.tfSummaryTimeMergedWriter = tf.compat.v1.summary.merge_all()
 
- def logStepStart(self,session,trainingIterationNo):
+ def logStepStart(self,trainingIterationNo):
     self.logger.info("##############################################################")
     self.logger.info("Training Iteration : "+str(trainingIterationNo))
 
- def logStepEnd(self,session,prepareDataTimes,trainingTimes,trainingAccuracies,trainingLosses,testTimes,testAccuracies,trainingIterationNo):
+ def logStepEnd(self,prepareDataTimes,trainingTimes,trainingAccuracies,trainingLosses,testTimes,testAccuracies,trainingIterationNo):
     self.logger.info("Prepare Data Time : "+str(np.sum(prepareDataTimes)))
     self.logger.info("Training Time : "+str(np.sum(trainingTimes)))
     self.logger.info("Mean Training Loss : "+str(np.mean(trainingLosses)))
