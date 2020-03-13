@@ -21,7 +21,8 @@ class USCLogger :
      loggingFileHandler.setLevel(logging.DEBUG)
      loggingConsoleHandler = logging.StreamHandler()
      loggingConsoleHandler.setLevel(logging.DEBUG)
-     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+     #formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+     formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
      loggingFileHandler.setFormatter(formatter)
      loggingConsoleHandler.setFormatter(formatter)
      self.logger.addHandler(loggingFileHandler)
@@ -45,23 +46,104 @@ class USCLogger :
      #self.tfSummaryTimeMergedWriter = tf.compat.v1.summary.merge_all()
 
  def logStepStart(self,trainingIterationNo):
-    self.logger.info("##############################################################")
-    self.logger.info("Training Iteration : "+str(trainingIterationNo))
+    self.logger.info("###########################################################################################")
+    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s " % 
+                       ('Epoch','Stage','Test/Train','Mean/Max/Min','Data Prep. Time','Duration',
+                        'Total Loss', 
+                        'Class. 1 Loss','Class. 1 Acc.',
+                        'Class. 2 Loss','Class. 2 Acc.',
+                        'AutoEnc. 1 Loss','AutoEnc. 1 Acc.',
+                        'AutoEnc. 2 Loss','AutoEnc. 2 Acc.',
+                        'Discrim. Loss','Discrim. Acc.'
+                        )
+                      )
+    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s " % 
+                       ('---------------','---------------','---------------','---------------','---------------','---------------',
+                        '---------------', 
+                        '---------------','---------------',
+                        '---------------','---------------',
+                        '---------------','---------------',
+                        '---------------','---------------',
+                        '---------------','---------------'
+                        )
+                      )
 
- def logStepEnd(self,prepareDataTimes,trainingTimes,trainingAccuracies,trainingLosses,testTimes,testAccuracies,trainingIterationNo):
-    self.logger.info("Prepare Data Time : "+str(np.sum(prepareDataTimes)))
-    self.logger.info("Training Time : "+str(np.sum(trainingTimes)))
-    self.logger.info("Mean Training Loss : "+str(np.mean(trainingLosses)))
-    self.logger.info("Max Training Loss : "+str(np.max(trainingLosses)))
-    self.logger.info("Min Training Loss : "+str(np.min(trainingLosses)))
-    self.logger.info("Mean Training Accuracy : "+str(np.mean(trainingAccuracies)))
-    self.logger.info("Max Training Accuracy : "+str(np.max(trainingAccuracies)))
-    self.logger.info("Min Training Accuracy : "+str(np.min(trainingAccuracies)))
-    if len(testAccuracies) > 0 :
-     self.logger.info("Test Time : "+str(np.sum(testTimes)))
-     self.logger.info("Mean Test Accuracy : "+str(np.mean(testAccuracies)))
-     self.logger.info("Max Test Accuracy : "+str(np.max(testAccuracies)))
-     self.logger.info("Min Test Accuracy : "+str(np.min(testAccuracies)))
+
+
+ def logStepEnd(self,stage,logs,trainingIterationNo):
+ 
+   if len(logs['testTimes'])>0 :
+
+    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s " % 
+                       (trainingIterationNo,stage,'Training','Mean',np.sum(logs['trainingPrepareDataTimes']),np.sum(logs['trainingTimes']),
+                        np.mean(logs['trainingLosses_total']), 
+                        np.mean(logs['trainingLosses_classifier_1']),np.mean(logs['trainingAccuracies_classifier_1']),
+                        np.mean(logs['trainingLosses_classifier_2']),np.mean(logs['trainingAccuracies_classifier_2']),
+                        np.mean(logs['trainingLosses_autoencoder_1']),np.mean(logs['trainingAccuracies_autoencoder_1']),
+                        np.mean(logs['trainingLosses_autoencoder_2']),np.mean(logs['trainingAccuracies_autoencoder_2']),
+                        np.mean(logs['trainingLosses_discriminator']),np.mean(logs['trainingAccuracies_discriminator'])
+                        )
+                      )
+ 
+    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s" % 
+                       (trainingIterationNo,stage,'Training','Max',np.sum(logs['trainingPrepareDataTimes']),np.sum(logs['trainingTimes']),
+                        np.max(logs['trainingLosses_total']), 
+                        np.max(logs['trainingLosses_classifier_1']),np.max(logs['trainingAccuracies_classifier_1']),
+                        np.max(logs['trainingLosses_classifier_2']),np.max(logs['trainingAccuracies_classifier_2']),
+                        np.max(logs['trainingLosses_autoencoder_1']),np.max(logs['trainingAccuracies_autoencoder_1']),
+                        np.max(logs['trainingLosses_autoencoder_2']),np.max(logs['trainingAccuracies_autoencoder_2']),
+                        np.max(logs['trainingLosses_discriminator']),np.max(logs['trainingAccuracies_discriminator'])
+                        )
+                      )
+ 
+    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s" % 
+                       (trainingIterationNo,stage,'Training','Min',np.sum(logs['trainingPrepareDataTimes']),np.sum(logs['trainingTimes']),
+                        np.min(logs['trainingLosses_total']), 
+                        np.min(logs['trainingLosses_classifier_1']),np.min(logs['trainingAccuracies_classifier_1']),
+                        np.min(logs['trainingLosses_classifier_2']),np.min(logs['trainingAccuracies_classifier_2']),
+                        np.min(logs['trainingLosses_autoencoder_1']),np.min(logs['trainingAccuracies_autoencoder_1']),
+                        np.min(logs['trainingLosses_autoencoder_2']),np.min(logs['trainingAccuracies_autoencoder_2']),
+                        np.min(logs['trainingLosses_discriminator']),np.min(logs['trainingAccuracies_discriminator'])
+                        )
+                      )
+
+   if len(logs['testTimes'])>0 :
+    
+    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s" % 
+                       (trainingIterationNo,stage,'Test','Mean',np.sum(logs['testPrepareDataTimes']),np.sum(logs['testTimes']),
+                        np.mean(logs['testLosses_total']), 
+                        np.mean(logs['testLosses_classifier_1']),np.mean(logs['testAccuracies_classifier_1']),
+                        np.mean(logs['testLosses_classifier_2']),np.mean(logs['testAccuracies_classifier_2']),
+                        np.mean(logs['testLosses_autoencoder_1']),np.mean(logs['testAccuracies_autoencoder_1']),
+                        np.mean(logs['testLosses_autoencoder_2']),np.mean(logs['testAccuracies_autoencoder_2']),
+                        np.mean(logs['testLosses_discriminator']),np.mean(logs['testAccuracies_discriminator'])
+                        )
+                      )
+ 
+    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s" % 
+                       (trainingIterationNo,stage,'Test','Max',np.sum(logs['testPrepareDataTimes']),np.sum(logs['testTimes']),
+                        np.max(logs['testLosses_total']), 
+                        np.max(logs['testLosses_classifier_1']),np.max(logs['testAccuracies_classifier_1']),
+                        np.max(logs['testLosses_classifier_2']),np.max(logs['testAccuracies_classifier_2']),
+                        np.max(logs['testLosses_autoencoder_1']),np.max(logs['testAccuracies_autoencoder_1']),
+                        np.max(logs['testLosses_autoencoder_2']),np.max(logs['testAccuracies_autoencoder_2']),
+                        np.max(logs['testLosses_discriminator']),np.max(logs['testAccuracies_discriminator'])
+                        )
+                      )
+ 
+    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s" % 
+                       (trainingIterationNo,stage,'Test','Min',np.sum(logs['testPrepareDataTimes']),np.sum(logs['testTimes']),
+                        np.min(logs['testLosses_total']), 
+                        np.min(logs['testLosses_classifier_1']),np.min(logs['testAccuracies_classifier_1']),
+                        np.min(logs['testLosses_classifier_2']),np.min(logs['testAccuracies_classifier_2']),
+                        np.min(logs['testLosses_autoencoder_1']),np.min(logs['testAccuracies_autoencoder_1']),
+                        np.min(logs['testLosses_autoencoder_2']),np.min(logs['testAccuracies_autoencoder_2']),
+                        np.min(logs['testLosses_discriminator']),np.min(logs['testAccuracies_discriminator'])
+                        )
+                      )
+
+
+
     ## GRAPH (FOR LOGGING)
     #tariningAcuracySummary = session.run(self.tfSummaryAccuracyMergedWriter, {self.tf_summary_accuracy_log_var: np.mean(trainingAccuracies)})
     #self.trainingAccuracyWriter.add_summary(tariningAcuracySummary, trainingIterationNo)

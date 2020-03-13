@@ -26,7 +26,7 @@ class USCModel :
    self.load_weights()
    self.trainCount=0
 
-   self.model.summary()
+   self.model.summary(print_fn=uscLogger.logger.info)
 
 
 
@@ -92,32 +92,66 @@ class USCModel :
   #self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2,similarity], [y_data_1,y_data_2,x_data_1,x_data_2,similarity], epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   #self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2,similarity], None, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   
-  self.uscLogger.logger.info("model.train_on_batch started")
+  #self.uscLogger.logger.info("model.train_on_batch started")
   self.model.train_on_batch([x_data_1,x_data_2],[y_data_1,y_data_2,x_data_1,x_data_2,similarity] )
-  self.uscLogger.logger.info("model.train_on_batch ended")
+  #self.uscLogger.logger.info("model.train_on_batch ended")
 
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
+
   evaluation = self.model.evaluate([x_data_1,x_data_2], [y_data_1,y_data_2,x_data_1,x_data_2,similarity], batch_size = self.uscData.mini_batch_size,verbose=0)
-  print(evaluation) 
+
+  self.uscLogger.logger.info(self.model.metrics_names)
+  self.uscLogger.logger.info(evaluation)
+  
+
   trainingLoss = evaluation[0]
-  trainingAccuracy = evaluation[1]
-  #print(self.model.metrics_names) 
+  trainingLoss_classifier_1 = evaluation[1]
+  trainingLoss_classifier_2 = evaluation[2]
+  trainingLoss_autoencoder_1 = evaluation[3]
+  trainingLoss_autoencoder_2 = evaluation[4]
+  trainingLoss_discriminator = evaluation[5]
+
+  trainingAccuracy_classifier_1 = evaluation[6]
+  trainingAccuracy_classifier_2 = evaluation[7]
+  trainingAccuracy_autoencoder_1 = evaluation[8]
+  trainingAccuracy_autoencoder_2 = evaluation[9]
+  trainingAccuracy_discriminator = evaluation[10]
+
+  
   self.trainCount+=1
   if self.trainCount % 100 == 0 :
      self.save_weights()
 
-  return trainingTime,trainingAccuracy,trainingLoss,prepareDataTime
+  return trainingTime,trainingLoss ,  trainingLoss_classifier_1 ,  trainingLoss_classifier_2 ,  trainingLoss_autoencoder_1 ,  trainingLoss_autoencoder_2 ,  trainingLoss_discriminator ,  trainingAccuracy_classifier_1 ,  trainingAccuracy_classifier_2 ,  trainingAccuracy_autoencoder_1 ,  trainingAccuracy_autoencoder_2 ,  trainingAccuracy_discriminator ,prepareDataTime
      
  def test(self,data):
   testTimeStart = int(round(time.time())) 
   augment=False
+  prepareDataTimeStart = int(round(time.time())) 
   x_data_1,x_data_2,y_data_1,y_data_2,similarity=self.prepareData(data,augment) 
+  prepareDataTimeStop = int(round(time.time())) 
+  prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
+  
+  
   evaluation = self.model.evaluate([x_data_1,x_data_2], [y_data_1,y_data_2,x_data_1,x_data_2,similarity],batch_size = self.uscData.mini_batch_size,verbose=0)
-  testAccuracy = evaluation[1]
+  testLoss = evaluation[0]
+  testLoss_classifier_1 = evaluation[1]
+  testLoss_classifier_2 = evaluation[2]
+  testLoss_autoencoder_1 = evaluation[3]
+  testLoss_autoencoder_2 = evaluation[4]
+  testLoss_discriminator = evaluation[5]
+
+  testAccuracy_classifier_1 = evaluation[6]
+  testAccuracy_classifier_2 = evaluation[7]
+  testAccuracy_autoencoder_1 = evaluation[8]
+  testAccuracy_autoencoder_2 = evaluation[9]
+  testAccuracy_discriminator = evaluation[10]
+  
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
-  return testTime,testAccuracy
+  
+  return testTime,testLoss ,  testLoss_classifier_1 ,  testLoss_classifier_2 ,  testLoss_autoencoder_1 ,  testLoss_autoencoder_2 ,  testLoss_discriminator ,  testAccuracy_classifier_1 ,  testAccuracy_classifier_2 ,  testAccuracy_autoencoder_1 ,  testAccuracy_autoencoder_2 ,  testAccuracy_discriminator ,prepareDataTime
   
 
  def buildModel(self):
@@ -132,7 +166,7 @@ class USCModel :
    self.uscLogger.logger.info("layer_input.shape="+str(layer_input.shape))
    
    # Convolution1D(filters, kernel_size,...)
-   out=keras.layers.Convolution1D(128, 64,strides=25,activation='relu', padding='same')(layer_input)
+   out=keras.layers.Convolution1D(16, 64,strides=25,activation='relu', padding='same')(layer_input)
    out=keras.layers.Dropout(0.2)(out)
    out=keras.layers.Convolution1D(32,32,strides=7,activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
@@ -173,7 +207,7 @@ class USCModel :
    autoencoder_common_out=keras.layers.UpSampling1D(7)(autoencoder_common_out)
    autoencoder_common_out=keras.layers.Convolution1D(32,32, activation='relu', padding='same')(autoencoder_common_out)
    autoencoder_common_out=keras.layers.UpSampling1D(7)(autoencoder_common_out)
-   autoencoder_common_out=keras.layers.Convolution1D(128,64, activation='relu', padding='same')(autoencoder_common_out)
+   autoencoder_common_out=keras.layers.Convolution1D(16,64, activation='relu', padding='same')(autoencoder_common_out)
    autoencoder_common_out=keras.layers.UpSampling1D(25)(autoencoder_common_out)
 
 

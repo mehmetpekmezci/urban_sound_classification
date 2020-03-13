@@ -135,7 +135,7 @@ class USCData :
     for i in range(arrayOfYData.shape[0]):
        classNumber=arrayOfYData[i]
        if classNumber<10 :
-         one_hot_encoded_class_number[i,classNumber]=1
+         returnMatrix[i,classNumber]=1
 #       else :
 #         let the row be all 0 (M.P.)
     return returnMatrix
