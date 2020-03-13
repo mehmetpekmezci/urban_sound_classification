@@ -133,7 +133,7 @@ class USCData :
     # all-zero for unknown class youtube data
     returnMatrix=np.zeros([arrayOfYData.shape[0],self.number_of_classes]);
     for i in range(arrayOfYData.shape[0]):
-       classNumber=arrayOfYData[i]
+       classNumber=int(arrayOfYData[i])
        if classNumber<10 :
          returnMatrix[i,classNumber]=1
 #       else :
