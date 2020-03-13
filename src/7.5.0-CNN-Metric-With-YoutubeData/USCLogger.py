@@ -47,7 +47,7 @@ class USCLogger :
 
  def logStepStart(self,trainingIterationNo):
     self.logger.info("###########################################################################################")
-    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s " % 
+    self.logger.info("%-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s " % 
                        ('Epoch','Stage','Test/Train','Mean/Max/Min','Data Prep. Time','Duration',
                         'Total Loss', 
                         'Class. 1 Loss','Class. 1 Acc.',
@@ -57,7 +57,7 @@ class USCLogger :
                         'Discrim. Loss','Discrim. Acc.'
                         )
                       )
-    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s " % 
+    self.logger.info("%-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s " % 
                        ('---------------','---------------','---------------','---------------','---------------','---------------',
                         '---------------', 
                         '---------------','---------------',
@@ -74,7 +74,7 @@ class USCLogger :
  
    if len(logs['testTimes'])>0 :
 
-    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s " % 
+    self.logger.info("%-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s " % 
                        (trainingIterationNo,stage,'Training','Mean',np.sum(logs['trainingPrepareDataTimes']),np.sum(logs['trainingTimes']),
                         np.mean(logs['trainingLosses_total']), 
                         np.mean(logs['trainingLosses_classifier_1']),np.mean(logs['trainingAccuracies_classifier_1']),
@@ -85,7 +85,7 @@ class USCLogger :
                         )
                       )
  
-    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s" % 
+    self.logger.info("%-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s" % 
                        (trainingIterationNo,stage,'Training','Max',np.sum(logs['trainingPrepareDataTimes']),np.sum(logs['trainingTimes']),
                         np.max(logs['trainingLosses_total']), 
                         np.max(logs['trainingLosses_classifier_1']),np.max(logs['trainingAccuracies_classifier_1']),
@@ -96,7 +96,7 @@ class USCLogger :
                         )
                       )
  
-    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s" % 
+    self.logger.info("%-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s" % 
                        (trainingIterationNo,stage,'Training','Min',np.sum(logs['trainingPrepareDataTimes']),np.sum(logs['trainingTimes']),
                         np.min(logs['trainingLosses_total']), 
                         np.min(logs['trainingLosses_classifier_1']),np.min(logs['trainingAccuracies_classifier_1']),
@@ -109,7 +109,7 @@ class USCLogger :
 
    if len(logs['testTimes'])>0 :
     
-    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s" % 
+    self.logger.info("%-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s" % 
                        (trainingIterationNo,stage,'Test','Mean',np.sum(logs['testPrepareDataTimes']),np.sum(logs['testTimes']),
                         np.mean(logs['testLosses_total']), 
                         np.mean(logs['testLosses_classifier_1']),np.mean(logs['testAccuracies_classifier_1']),
@@ -120,7 +120,7 @@ class USCLogger :
                         )
                       )
  
-    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s" % 
+    self.logger.info("%-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s" % 
                        (trainingIterationNo,stage,'Test','Max',np.sum(logs['testPrepareDataTimes']),np.sum(logs['testTimes']),
                         np.max(logs['testLosses_total']), 
                         np.max(logs['testLosses_classifier_1']),np.max(logs['testAccuracies_classifier_1']),
@@ -131,7 +131,7 @@ class USCLogger :
                         )
                       )
  
-    self.logger.info("%-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s %-15s" % 
+    self.logger.info("%-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s" % 
                        (trainingIterationNo,stage,'Test','Min',np.sum(logs['testPrepareDataTimes']),np.sum(logs['testTimes']),
                         np.min(logs['testLosses_total']), 
                         np.min(logs['testLosses_classifier_1']),np.min(logs['testAccuracies_classifier_1']),

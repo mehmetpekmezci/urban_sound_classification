@@ -105,18 +105,18 @@ class USCModel :
   #self.uscLogger.logger.info(evaluation)
   
 
-  trainingLoss = round(evaluation[0],10)
-  trainingLoss_classifier_1 = round(evaluation[1],10)
-  trainingLoss_classifier_2 = round(evaluation[2],10)
-  trainingLoss_autoencoder_1 = round(evaluation[3],10)
-  trainingLoss_autoencoder_2 = round(evaluation[4],10)
-  trainingLoss_discriminator = round(evaluation[5],10)
+  trainingLoss = evaluation[0]
+  trainingLoss_classifier_1 = evaluation[1]
+  trainingLoss_classifier_2 = evaluation[2]
+  trainingLoss_autoencoder_1 = evaluation[3]
+  trainingLoss_autoencoder_2 = evaluation[4]
+  trainingLoss_discriminator = evaluation[5]
 
-  trainingAccuracy_classifier_1 = round(evaluation[6],10)
-  trainingAccuracy_classifier_2 = round(evaluation[7],10)
-  trainingAccuracy_autoencoder_1 = round(evaluation[8],10)
-  trainingAccuracy_autoencoder_2 = round(evaluation[9],10)
-  trainingAccuracy_discriminator = round(evaluation[10],10)
+  trainingAccuracy_classifier_1 = evaluation[6]
+  trainingAccuracy_classifier_2 = evaluation[7]
+  trainingAccuracy_autoencoder_1 = evaluation[8]
+  trainingAccuracy_autoencoder_2 = evaluation[9]
+  trainingAccuracy_discriminator = evaluation[10]
 
   
   self.trainCount+=1
@@ -135,18 +135,18 @@ class USCModel :
   
   
   evaluation = self.model.evaluate([x_data_1,x_data_2], [y_data_1,y_data_2,x_data_1,x_data_2,similarity],batch_size = self.uscData.mini_batch_size,verbose=0)
-  testLoss = round(evaluation[0],10)
-  testLoss_classifier_1 = round(evaluation[1],10)
-  testLoss_classifier_2 = round(evaluation[2],10)
-  testLoss_autoencoder_1 = round(evaluation[3],10)
-  testLoss_autoencoder_2 = round(evaluation[4],10)
-  testLoss_discriminator = round(evaluation[5],10)
+  testLoss = evaluation[0]
+  testLoss_classifier_1 = evaluation[1]
+  testLoss_classifier_2 = evaluation[2]
+  testLoss_autoencoder_1 = evaluation[3]
+  testLoss_autoencoder_2 = evaluation[4]
+  testLoss_discriminator = evaluation[5]
 
-  testAccuracy_classifier_1 = round(evaluation[6],10)
-  testAccuracy_classifier_2 = round(evaluation[7],10)
-  testAccuracy_autoencoder_1 = round(evaluation[8],10)
-  testAccuracy_autoencoder_2 = round(evaluation[9],10)
-  testAccuracy_discriminator = round(evaluation[10],10)
+  testAccuracy_classifier_1 = evaluation[6]
+  testAccuracy_classifier_2 = evaluation[7]
+  testAccuracy_autoencoder_1 = evaluation[8]
+  testAccuracy_autoencoder_2 = evaluation[9]
+  testAccuracy_discriminator = evaluation[10]
   
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
