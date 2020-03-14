@@ -151,14 +151,18 @@ class USCLogger :
  
          logDictionary['PrepareDataTimes'].append(logData[12])
          logDictionary['Times'].append(logData[0])
-         logDictionary['Accuracies_classifier_1'].append(logData[7])
-         logDictionary['Accuracies_classifier_2'].append(logData[8])
+         if logData[7] >0 and logData[7] < 1 :
+           logDictionary['Accuracies_classifier_1'].append(logData[7])
+         if logData[8] >0 and logData[8] < 1 :
+           logDictionary['Accuracies_classifier_2'].append(logData[8])
          logDictionary['Accuracies_autoencoder_1'].append(logData[9])
          logDictionary['Accuracies_autoencoder_2'].append(logData[10])
          logDictionary['Accuracies_discriminator'].append(logData[11])
          logDictionary['Losses_total'].append(logData[1])
-         logDictionary['Losses_classifier_1'].append(logData[2])
-         logDictionary['Losses_classifier_2'].append(logData[3])
+         if logData[2] >0 and logData[2] < 1 :
+           logDictionary['Losses_classifier_1'].append(logData[2])
+         if logData[2] >0 and logData[2] < 1 :
+           logDictionary['Losses_classifier_2'].append(logData[3])
          logDictionary['Losses_autoencoder_1'].append(logData[4])
          logDictionary['Losses_autoencoder_2'].append(logData[5])
          logDictionary['Losses_discriminator'].append(logData[6])
