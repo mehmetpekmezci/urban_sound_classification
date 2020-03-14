@@ -248,7 +248,7 @@ class USCModel :
    ## dolayisiyla youtube data icin keras.losses.categorical_crossentropy otomatik olarak 0 gelecektir.
    
    self.model.compile(
-       optimizer=keras.optimizers.Adam(lr=0.00001),
+       optimizer=keras.optimizers.Adam(lr=0.000001),
        loss=['categorical_crossentropy','categorical_crossentropy','mse','mse','mse'],
        loss_weights=[8/20,   8/20,   1/20,   1/20,   2/20],
        metrics=[['accuracy'],['accuracy'],['accuracy'],['accuracy'],['accuracy']]

@@ -159,9 +159,9 @@ class USCLogger :
          logDictionary['Accuracies_autoencoder_2'].append(logData[10])
          logDictionary['Accuracies_discriminator'].append(logData[11])
          logDictionary['Losses_total'].append(logData[1])
-         if logData[2] >0 and logData[2] < 1 :
+         if logData[2] >0  :
            logDictionary['Losses_classifier_1'].append(logData[2])
-         if logData[2] >0 and logData[2] < 1 :
+         if logData[2] >0  :
            logDictionary['Losses_classifier_2'].append(logData[3])
          logDictionary['Losses_autoencoder_1'].append(logData[4])
          logDictionary['Losses_autoencoder_2'].append(logData[5])
