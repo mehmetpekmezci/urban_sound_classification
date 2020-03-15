@@ -37,7 +37,7 @@ def main(_):
          uscLogger.appendLogData(epoch_logs[mode],logData)
          
          
-         if current_batch_counter % 1 == 0:
+         if current_batch_counter % 50 == 0:
            uscLogger.logStepEnd('YoutubeData-'+str(current_batch_counter),mode,stage_logs,trainingIterationNo)
                  
     for fold in np.random.permutation(uscData.fold_dirs):

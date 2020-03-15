@@ -168,7 +168,7 @@ class USCModel :
    # Convolution1D(filters, kernel_size,...)
    out=keras.layers.Convolution1D(16, 64,strides=25,activation='relu', padding='same')(layer_input)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Convolution1D(32,32,strides=7,activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(64,32,strides=7,activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
    out=keras.layers.Convolution1D(64, 16,strides=7,activation='relu', padding='same')(out)
    out=keras.layers.BatchNormalization()(out)
@@ -206,7 +206,7 @@ class USCModel :
    autoencoder_common_out=keras.layers.BatchNormalization()(autoencoder_common_out)
    autoencoder_common_out=keras.layers.Convolution1D(64,16, activation='relu', padding='same')(autoencoder_common_out)
    autoencoder_common_out=keras.layers.UpSampling1D(7)(autoencoder_common_out)
-   autoencoder_common_out=keras.layers.Convolution1D(32,32, activation='relu', padding='same')(autoencoder_common_out)
+   autoencoder_common_out=keras.layers.Convolution1D(64,32, activation='relu', padding='same')(autoencoder_common_out)
    autoencoder_common_out=keras.layers.UpSampling1D(7)(autoencoder_common_out)
    autoencoder_common_out=keras.layers.Convolution1D(16,64, activation='relu', padding='same')(autoencoder_common_out)
    autoencoder_common_out=keras.layers.UpSampling1D(25)(autoencoder_common_out)
@@ -226,7 +226,7 @@ class USCModel :
    discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(discriminator_out)
    discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(discriminator_out)
    discriminator_out=keras.layers.Flatten()(discriminator_out)
-   discriminator_out=keras.layers.Dense(units = 256,activation='sigmoid')(discriminator_out)
+   discriminator_out=keras.layers.Dense(units = 512,activation='sigmoid')(discriminator_out)
    discriminator_out=keras.layers.BatchNormalization()(discriminator_out)
    discriminator_out=keras.layers.Dense(units = 1,activation='softmax')(discriminator_out)
    
@@ -248,9 +248,9 @@ class USCModel :
    ## dolayisiyla youtube data icin keras.losses.categorical_crossentropy otomatik olarak 0 gelecektir.
    
    self.model.compile(
-       optimizer=keras.optimizers.Adam(lr=0.000001),
+       optimizer=keras.optimizers.Adam(lr=0.00001),
        loss=['categorical_crossentropy','categorical_crossentropy','mse','mse','mse'],
-       loss_weights=[8/20,   8/20,   1/20,   1/20,   2/20],
+       loss_weights=[4/20,   4/20,   3/20,   3/20,   6/20],
        metrics=[['accuracy'],['accuracy'],['accuracy'],['accuracy'],['accuracy']]
    )
 
