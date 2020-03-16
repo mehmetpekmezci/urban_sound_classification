@@ -31,7 +31,7 @@ def main(_):
                     
          batch_data=np.random.permutation(current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size])
 
-         logData = uscModel.train(batch_data,np.zeros((1,1,1)))
+         logData = uscModel.train(batch_data,np.zeros((uscData.mini_batch_size,1,1)))
          
          uscLogger.appendLogData(stage_logs[mode],logData)
          uscLogger.appendLogData(epoch_logs[mode],logData)
@@ -53,10 +53,10 @@ def main(_):
          if fold == "fold10":
               mode='Testing'
               ## FOLD10 is reserved for testing
-              logData=uscModel.test(batch_data,np.ones((1,1,1)))
+              logData=uscModel.test(batch_data,np.ones((uscData.mini_batch_size,1,1)))
          else:
               mode='Training'
-              logData = uscModel.train(batch_data,np.ones((1,1,1)))
+              logData = uscModel.train(batch_data,np.ones((uscData.mini_batch_size,1,1)))
          uscLogger.appendLogData(stage_logs[mode],logData) 
          uscLogger.appendLogData(epoch_logs[mode],logData)
        uscLogger.logStepEnd(fold,mode,stage_logs,trainingIterationNo)
