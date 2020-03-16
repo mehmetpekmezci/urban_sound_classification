@@ -93,7 +93,7 @@ class USCModel :
   #self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2,similarity], None, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   
   #self.uscLogger.logger.info("model.train_on_batch started")
-  self.model.train_on_batch([x_data_1,x_data_2],[y_data_1,y_data_2,similarity] )
+  self.model.train_on_batch([x_data_1,x_data_2,categorical_weight],[y_data_1,y_data_2,similarity] )
   #self.uscLogger.logger.info("model.train_on_batch ended")
 
   trainingTimeStop = int(round(time.time())) 
@@ -208,7 +208,7 @@ class USCModel :
    self.uscLogger.logger.info("discriminator_out.shape="+str(discriminator_out.shape))
    
    self.model = keras.models.Model(
-                          inputs=[layer_input_1,layer_input_2], 
+                          inputs=[layer_input_1,layer_input_2,layer_categorical_weight], 
                           outputs=[classifier_out_1,classifier_out_2,discriminator_out]
                           )
     
