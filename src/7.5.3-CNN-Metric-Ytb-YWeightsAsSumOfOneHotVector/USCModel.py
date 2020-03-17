@@ -119,7 +119,7 @@ class USCModel :
   if self.trainCount % 100 == 0 :
      self.save_weights()
 
-  return trainingTime,trainingLoss ,  trainingLoss_classifier_1 ,  trainingLoss_classifier_2 ,  0 ,  0 ,  trainingLoss_discriminator ,  trainingAccuracy_classifier_1 ,  trainingAccuracy_classifier_2 ,  0 ,  0 ,  trainingAccuracy_discriminator ,prepareDataTime
+  return trainingTime,trainingLoss ,  categorical_weight[0][0][0]*trainingLoss_classifier_1 ,  categorical_weight[0][0][0]*trainingLoss_classifier_2 ,  0 ,  0 ,  trainingLoss_discriminator ,  categorical_weight[0][0][0]*trainingAccuracy_classifier_1 ,  categorical_weight[0][0][0]*trainingAccuracy_classifier_2 ,  0 ,  0 ,  trainingAccuracy_discriminator ,prepareDataTime
      
  def test(self,data,categorical_weight):
   testTimeStart = int(round(time.time())) 
@@ -157,7 +157,7 @@ class USCModel :
    layer_categorical_weight = keras.layers.Input(shape=(1,1),name="layer_categorical_weight")
    self.uscLogger.logger.info("layer_categorical_weight.shape="+str(layer_categorical_weight.shape))
 
-   layer_input=keras.layers.concatenate([layer_input_1,layer_input_2])
+   layer_input=keras.layers.concatenate([layer_input_1,layer_input_2],axis=1)
    self.uscLogger.logger.info("layer_input.shape="+str(layer_input.shape))
    
    # Convolution1D(filters, kernel_size,...)
@@ -198,7 +198,7 @@ class USCModel :
    discriminator_out=keras.layers.Flatten()(discriminator_out)
    discriminator_out=keras.layers.Dense(units = 512,activation='sigmoid')(discriminator_out)
    discriminator_out=keras.layers.BatchNormalization()(discriminator_out)
-   discriminator_out=keras.layers.Dense(units = 1,activation='softmax')(discriminator_out)
+   discriminator_out=keras.layers.Dense(units = 1,activation='sigmoid')(discriminator_out)
    
 
    self.uscLogger.logger.info("classifier_out_1.shape="+str(classifier_out_1.shape))
@@ -216,7 +216,7 @@ class USCModel :
    ## dolayisiyla youtube data icin keras.losses.categorical_crossentropy otomatik olarak 0 gelecektir.
    
    self.model.compile(
-       optimizer=keras.optimizers.Adam(lr=0.00001),
+       optimizer=keras.optimizers.Adam(lr=0.0005),
        loss=['categorical_crossentropy','categorical_crossentropy','mse'],
        loss_weights=[layer_categorical_weight/4,   layer_categorical_weight/4,   2/4],
        metrics=[['accuracy'],['accuracy'],['accuracy']]
