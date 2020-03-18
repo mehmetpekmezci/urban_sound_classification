@@ -191,7 +191,7 @@ class NeuralNetworkModel :
        H = tf.nn.relu(C)
        self.logger.info(cnnLayerName+"_H.shape="+str(H.shape))
 
-     if cnnPoolSizeY != 1 :
+     if cnnPoolSizeY != 1 or cnnStrideSizeY != 1 :
       with tf.name_scope(cnnLayerName+"-pool"):
        P = tf.nn.max_pool(H, ksize=[1, cnnPoolSizeX,cnnPoolSizeY, 1],strides=[1, cnnPoolSizeX,cnnPoolSizeY , 1], padding='SAME') 
        ## put the output of this layer to the next layer's input layer.
@@ -453,9 +453,9 @@ class NeuralNetworkModel :
    ## SET OPTIMIZER
    ##
    with tf.name_scope('optimizer'):
-    self.optimizer_1 = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss_1)
-    self.optimizer_2 = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss_2)
-    self.optimizer_adverserial = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss_adverserial)
+    #self.optimizer_1 = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss_1)
+    #self.optimizer_2 = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss_2)
+    #self.optimizer_adverserial = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss_adverserial)
     self.optimizer_single = tf.train.AdamOptimizer(learning_rate=self.learning_rate,beta1=self.learning_rate_beta1,beta2=self.learning_rate_beta2).minimize(self.loss_single)
 
    ##
@@ -524,6 +524,8 @@ class NeuralNetworkModel :
   
   #self.optimizer_1.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
   #self.optimizer_2.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
+  #logger.info("Optimize  : ")
+
   self.optimizer_single.run(feed_dict={self.x_input_1: x_data1, self.real_y_values_1:y_data1,self.x_input_2: x_data2, self.real_y_values_2:y_data2,self.real_y_values_adverserial:y_values_adverserial,self.keep_prob:self.keep_prob_constant})
 
   #logger.info("Calculate Accuracy  : ")

@@ -127,9 +127,9 @@ FOURIER_CNN_KERNEL_COUNTS       = np.array([ 32,32,64])
 FOURIER_CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1])
 FOURIER_CNN_KERNEL_Y_SIZES      = np.array([ 64,32,16])
 FOURIER_CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1])
-FOURIER_CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1])
+FOURIER_CNN_STRIDE_Y_SIZES      = np.array([ 16, 8, 4])
 FOURIER_CNN_POOL_X_SIZES        = np.array([  1, 1, 1])
-FOURIER_CNN_POOL_Y_SIZES        = np.array([ 16, 8, 4])
+FOURIER_CNN_POOL_Y_SIZES        = np.array([  2, 2, 2])
 
 FULLY_CONNECTED_LAYERS=[1024,1024]
 METRIC_FULLY_CONNECTED_LAYERS=[1024] # DICRIMINATOR
@@ -147,21 +147,21 @@ METRIC_FULLY_CONNECTED_LAYERS=[1024] # DICRIMINATOR
 #CNN_POOL_X_SIZES        = np.array([ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 #CNN_POOL_Y_SIZES        = np.array([ 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
 
-CNN_KERNEL_COUNTS       = np.array([ 16,16,16,16,16,16,16])
-CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1])
-CNN_KERNEL_Y_SIZES      = np.array([  4, 4, 4, 4, 4, 4, 4])
-CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1])
-CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1])
-CNN_POOL_Y_SIZES        = np.array([  2, 2, 2, 2, 2, 1, 1])
+CNN_KERNEL_COUNTS       = np.array([ 16,16,16,16,16,16,16,16,16])
+CNN_KERNEL_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_KERNEL_Y_SIZES      = np.array([  4, 4, 4, 4, 4, 4, 4, 4, 4])
+CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_STRIDE_Y_SIZES      = np.array([  2, 2, 2, 2, 1, 1, 1, 1, 1])
+CNN_POOL_X_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1])
+CNN_POOL_Y_SIZES        = np.array([  1, 1, 1, 1, 1, 1, 1, 1, 1])
 
 METRIC_CNN_KERNEL_COUNTS       = np.array([ 16,16,16])
 METRIC_CNN_KERNEL_X_SIZES      = np.array([  2, 2, 2])
 METRIC_CNN_KERNEL_Y_SIZES      = np.array([  4, 4, 4])
 METRIC_CNN_STRIDE_X_SIZES      = np.array([  1, 1, 1])
-METRIC_CNN_STRIDE_Y_SIZES      = np.array([  1, 1, 1])
+METRIC_CNN_STRIDE_Y_SIZES      = np.array([  2, 2, 2])
 METRIC_CNN_POOL_X_SIZES        = np.array([  1, 1, 1])
-METRIC_CNN_POOL_Y_SIZES        = np.array([  1, 1, 1])
+METRIC_CNN_POOL_Y_SIZES        = np.array([  2, 2, 2])
 
 
 
@@ -170,17 +170,17 @@ METRIC_CNN_POOL_Y_SIZES        = np.array([  1, 1, 1])
 ##
 #LEARNING_RATE = 0.00001
 #LEARNING_RATE = 0.000001
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.0005
 LEARNING_RATE_BETA1 = 0.9
 LEARNING_RATE_BETA2 = 0.999
 
-LOSS_WEIGHT_1=9/20
-LOSS_WEIGHT_2=9/20
-LOSS_WEIGHT_3=2/20
+LOSS_WEIGHT_1=8/20
+LOSS_WEIGHT_2=8/20
+LOSS_WEIGHT_3=4/20
 
 
 TRAINING_ITERATIONS=9999
-MINI_BATCH_SIZE=10
+MINI_BATCH_SIZE=40
 
 ##
 ## GLOBAL VARIABLES
