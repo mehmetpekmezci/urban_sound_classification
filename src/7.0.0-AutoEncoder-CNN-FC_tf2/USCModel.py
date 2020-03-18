@@ -137,7 +137,6 @@ class USCModel :
    out=keras.layers.Dense(units = 128,activation='sigmoid')(out)
    out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Dense(units = 128,activation='sigmoid')(out)
-   out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
    self.model = keras.models.Model(inputs=[layer_input], outputs=[out])
    selectedOptimizer=keras.optimizers.Adam(lr=0.0001)
