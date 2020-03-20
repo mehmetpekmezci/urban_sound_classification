@@ -20,25 +20,25 @@ def main(_):
     epoch_logs=uscLogger.getNewLogDictionary()
   
     ## youtube dta also contain fold1-9 of urban sound data 
-#    current_youtube_data_as_list=np.random.permutation(uscData.loadNextYoutubeData())
+    current_youtube_data_as_list=np.random.permutation(uscData.loadNextYoutubeData())
     
     uscLogger.logStepStart(trainingIterationNo)
      
     mode='Training' 
-#    for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)) :
-#    
-#         stage_logs=uscLogger.getNewLogDictionary()
-#                    
-#         batch_data=np.random.permutation(current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size])
-#
-#         logData = uscModel.train(batch_data,np.zeros((uscData.mini_batch_size,1,1)))
-#         
-#         uscLogger.appendLogData(stage_logs[mode],logData)
-#         uscLogger.appendLogData(epoch_logs[mode],logData)
-#         
-#         
-#         if current_batch_counter % 50 == 0:
-#           uscLogger.logStepEnd('YoutubeData-'+str(current_batch_counter),mode,stage_logs,trainingIterationNo)
+    for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)) :
+    
+         stage_logs=uscLogger.getNewLogDictionary()
+                    
+         batch_data=np.random.permutation(current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size])
+
+         logData = uscModel.train(batch_data,np.zeros((uscData.mini_batch_size,1,1)))
+         
+         uscLogger.appendLogData(stage_logs[mode],logData)
+         uscLogger.appendLogData(epoch_logs[mode],logData)
+         
+         
+         if current_batch_counter % 50 == 0:
+           uscLogger.logStepEnd('YoutubeData-'+str(current_batch_counter),mode,stage_logs,trainingIterationNo)
                  
     for fold in np.random.permutation(uscData.fold_dirs):
 
