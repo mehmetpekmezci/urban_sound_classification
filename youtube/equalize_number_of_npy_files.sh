@@ -9,14 +9,17 @@ do
     cd $YOUTUBE_DATA_DIR/$d
     N=$(ls *.npy| wc -l)
     I=$N
-    J=0
+    real_files=$( find . -name '*.npy' -type f | sed -e 's#./##'| tr ' ' '\n' )
+    num_real_files=$(echo $real_files| tr ' ' '\n' | wc -l)
     while (( $I < 110))
     do   
        echo $I
+       J=$(($I%$num_real_files)); 
        ln -s data.$J.npy data.$I.npy;
-       J=$((J+1)); 
        I=$((I+1));
     done
   fi
 done
+
+
 
