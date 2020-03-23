@@ -306,7 +306,7 @@ class USCData :
        if choice%10 != 0 :
          SPEED_FACTOR=0.8+choice/40
          TRANSLATION_FACTOR=int(1000*choice)+1
-         ZER0_INDEX=int(x_data.shape[1]-choice*1000)
+         ZER0_INDEX=int(x_data.shape[1]-choice*2000)
          INVERSE_FACTOR=choice%2
          if INVERSE_FACTOR == 1 :
           augmented_data[i]=-augmented_data[i]
