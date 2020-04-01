@@ -105,7 +105,9 @@ class USCModel :
   trainingTimeStop = int(round(time.time())) 
   trainingTime=trainingTimeStop-trainingTimeStart
 
-  evaluation = self.model.evaluate([x_data_1,x_data_2,categorical_weight], [y_data_1,y_data_2,similarity], batch_size = self.uscData.mini_batch_size,verbose=0)
+  #sample_weight
+  evaluation = self.model.evaluate([x_data_1,x_data_2,categorical_weight], [y_data_1,y_data_2,similarity],  batch_size = self.uscData.mini_batch_size,verbose=0)
+  #prediction = self.model.predict([x_data_1,x_data_2,categorical_weight])
 
   #self.uscLogger.logger.info(self.model.metrics_names)
   #self.uscLogger.logger.info(evaluation)
@@ -119,13 +121,26 @@ class USCModel :
   trainingAccuracy_classifier_2 = evaluation[5]
   trainingAccuracy_discriminator = evaluation[6]
 
+  #self.uscLogger.logger.info("------------------------------------------------------------")
+  #self.uscLogger.logger.info(np.argmax(prediction[0], axis=1))
+  #self.uscLogger.logger.info(np.argmax(prediction[1], axis=1))
+  #self.uscLogger.logger.info(np.argmax(prediction[2], axis=1))
+  #self.uscLogger.logger.info(np.argmax(y_data_1, axis=1))
+  #self.uscLogger.logger.info(np.argmax(y_data_2, axis=1))
+  #self.uscLogger.logger.info(similarity)
+  #self.uscLogger.logger.info(trainingAccuracy_classifier_1)
+  #self.uscLogger.logger.info(trainingAccuracy_classifier_2)
+  #self.uscLogger.logger.info(trainingAccuracy_discriminator)
+   
+
 
   
   self.trainCount+=1
   if self.trainCount % 100 == 0 :
      self.save_weights()
 
-  return trainingTime,trainingLoss ,  categorical_weight[0][0][0]*trainingLoss_classifier_1 ,  categorical_weight[0][0][0]*trainingLoss_classifier_2 ,  0 ,  0 ,  trainingLoss_discriminator ,  categorical_weight[0][0][0]*trainingAccuracy_classifier_1 ,  categorical_weight[0][0][0]*trainingAccuracy_classifier_2 ,  0 ,  0 ,  trainingAccuracy_discriminator ,prepareDataTime
+  #return trainingTime,trainingLoss ,  categorical_weight[0][0][0]*trainingLoss_classifier_1 ,  categorical_weight[0][0][0]*trainingLoss_classifier_2 ,  0 ,  0 ,  trainingLoss_discriminator ,  categorical_weight[0][0][0]*trainingAccuracy_classifier_1 ,  categorical_weight[0][0][0]*trainingAccuracy_classifier_2 ,  0 ,  0 ,  trainingAccuracy_discriminator ,prepareDataTime
+  return trainingTime,trainingLoss ,  trainingLoss_classifier_1 ,  trainingLoss_classifier_2 ,  0 ,  0 ,  trainingLoss_discriminator ,  trainingAccuracy_classifier_1 ,  trainingAccuracy_classifier_2 ,  0 ,  0 ,  trainingAccuracy_discriminator ,prepareDataTime
      
  def test(self,data,categorical_weight):
   testTimeStart = int(round(time.time())) 
@@ -201,7 +216,7 @@ class USCModel :
    self.uscLogger.logger.info("classifier_out_1.shape="+str(classifier_out_1.shape))
    classifier_cnn_out_1=classifier_out_1
    classifier_out_1=keras.layers.Flatten()(classifier_out_1)
-   classifier_out_1=keras.layers.Dense(units = 64,activation='tanh')(classifier_out_1)
+   classifier_out_1=keras.layers.Dense(units = 64,activation='sigmoid')(classifier_out_1)
    classifier_out_1=keras.layers.BatchNormalization()(classifier_out_1)
    classifier_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1)
    classifier_out_1=keras.layers.BatchNormalization()(classifier_out_1)
@@ -214,7 +229,7 @@ class USCModel :
    classifier_out_2=keras.layers.Convolution1D(8, 4,activation='relu', padding='same')(classifier_out_2)
    classifier_cnn_out_2=classifier_out_2
    classifier_out_2=keras.layers.Flatten()(classifier_out_2)
-   classifier_out_2=keras.layers.Dense(units = 64,activation='tanh')(classifier_out_2)
+   classifier_out_2=keras.layers.Dense(units = 64,activation='sigmoid')(classifier_out_2)
    classifier_out_2=keras.layers.BatchNormalization()(classifier_out_2)
    classifier_out_2=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2)
    classifier_out_2=keras.layers.BatchNormalization()(classifier_out_2)
@@ -231,7 +246,7 @@ class USCModel :
    discriminator_out=keras.layers.Convolution1D(8,4, activation='relu', padding='same')(classifier_out)
    discriminator_out=keras.layers.Convolution1D(8,4, activation='relu', padding='same')(discriminator_out)
    discriminator_out=keras.layers.Flatten()(discriminator_out)
-   discriminator_out=keras.layers.Dense(units = 64,activation='tanh')(discriminator_out)
+   discriminator_out=keras.layers.Dense(units = 64,activation='sigmoid')(discriminator_out)
    discriminator_out=keras.layers.BatchNormalization()(discriminator_out)
    discriminator_out=keras.layers.Dense(units = 128,activation='sigmoid')(discriminator_out)
    discriminator_out=keras.layers.BatchNormalization()(discriminator_out)
