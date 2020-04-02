@@ -23,7 +23,7 @@ class USCData :
    #self.time_slice_overlap_length=30
    self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
-   self.mini_batch_size=80
+   self.mini_batch_size=100
 
    #self.mini_batch_size=40  # very slow learning
    self.fold_data_dictionary=dict()
@@ -318,23 +318,31 @@ class USCData :
       result=result+x_list
      return np.random.permutation(result)
 
- def augment_random(self,x_data):
-    augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
-    for i in range(x_data.shape[0]) :
+ def augment_parallel(self,x_data):
        choice=np.random.rand()*20
-       augmented_data[i]=x_data[i]
        # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
        if choice%10 != 0 :
          SPEED_FACTOR=0.8+choice/40
          TRANSLATION_FACTOR=int(500*choice)+1
-         ZERO_INDEX=int(x_data.shape[1]-choice*500)
+         ZERO_INDEX=int(x_data.shape[0]-choice*500)
          INVERSE_FACTOR=choice%2
          if INVERSE_FACTOR == 1 :
-          augmented_data[i]=-augmented_data[i]
-         augmented_data[i]=self.augment_speedx(augmented_data[i],SPEED_FACTOR)
-         augmented_data[i]=self.augment_translate(augmented_data[i],TRANSLATION_FACTOR)
-         augmented_data[i]=self.augment_set_zero(augmented_data[i],ZERO_INDEX)
-         #augmented_data[i]=self.augment_volume(augmented_data[i],VOLUME_FACTOR)
+          x_data=-x_data
+         x_data=self.augment_speedx(x_data,SPEED_FACTOR)
+         x_data=self.augment_translate(x_data,TRANSLATION_FACTOR)
+         x_data=self.augment_set_zero(x_data,ZERO_INDEX)
+         #x_data=self.augment_volume(x_data,VOLUME_FACTOR) 
+         
+ def augment_random(self,x_data):
+    augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
+    thread_list=[]
+    for i in range(x_data.shape[0]) :
+       augmented_data[i]=x_data[i]
+       t=threading.Thread(target=self.augment_parallel, args=(augmented_data[i],))
+       t.start()
+       thread_list.append(t)
+    for t in thread_list:
+       t.join()   
     return augmented_data
 
 '''
