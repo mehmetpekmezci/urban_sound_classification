@@ -182,13 +182,13 @@ class USCModel :
    self.uscLogger.logger.info("layer_input.shape="+str(layer_input.shape))
    
    # Convolution1D(filters, kernel_size,...)
-   out=keras.layers.Convolution1D(8, 32,strides=8,activation='linear', padding='same')(layer_input)
+   out=keras.layers.Convolution1D(32, 32,strides=8,activation='linear', padding='same')(layer_input)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Convolution1D(8, 32,strides=8,activation='linear', padding='same')(out)
+   out=keras.layers.Convolution1D(32, 32,strides=8,activation='linear', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Convolution1D(8, 32,strides=8,activation='linear', padding='same')(out)
+   out=keras.layers.Convolution1D(32, 32,strides=8,activation='linear', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Convolution1D(8, 32,strides=8,activation='linear', padding='same')(out)
+   out=keras.layers.Convolution1D(32, 32,strides=8,activation='linear', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
 #   out=keras.layers.Convolution1D(256, 128,strides=32,activation='relu', padding='same')(out)
 #   out=keras.layers.Dropout(0.2)(out)
@@ -270,7 +270,7 @@ class USCModel :
    ## dolayisiyla youtube data icin keras.losses.categorical_crossentropy otomatik olarak 0 gelecektir.
    
    self.model.compile(
-       optimizer=keras.optimizers.Adam(lr=0.000001),
+       optimizer=keras.optimizers.Adam(lr=0.00001),
        #loss=['categorical_crossentropy','categorical_crossentropy','mse'],
        loss=['categorical_crossentropy','categorical_crossentropy','binary_crossentropy'],
        loss_weights=[layer_categorical_weight*2/5,   layer_categorical_weight*2/5,   1/5],
