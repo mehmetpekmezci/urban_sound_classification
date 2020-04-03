@@ -15,30 +15,30 @@ def main(_):
      
     epoch_logs=uscLogger.getNewLogDictionary()
   
-    while uscData.current_youtube_data is None:
-       uscLogger.logger.info('Waiting 5 seconds for youtube data loader thread  ....')
-       time.sleep(5)
-    current_youtube_data_as_list=uscData.getNextYoutubeData()
+#    while uscData.current_youtube_data is None:
+#       uscLogger.logger.info('Waiting 5 seconds for youtube data loader thread  ....')
+#       time.sleep(5)
+#    current_youtube_data_as_list=uscData.getNextYoutubeData()
     
 
     
     uscLogger.logStepStart(trainingIterationNo)
      
     mode='Training' 
-    for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)) :
-    
-         stage_logs=uscLogger.getNewLogDictionary()
-                    
-         batch_data=np.random.permutation(current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size])
-
-         logData = uscModel.train(batch_data,np.zeros((uscData.mini_batch_size,1,1)))
-         
-         uscLogger.appendLogData(stage_logs[mode],logData,True)
-         uscLogger.appendLogData(epoch_logs[mode],logData,True)
-         
-         
-         if current_batch_counter % 50 == 0:
-           uscLogger.logStepEnd('YoutubeData-'+str(current_batch_counter),mode,stage_logs,trainingIterationNo)
+#    for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)) :
+#    
+#         stage_logs=uscLogger.getNewLogDictionary()
+#                    
+#         batch_data=np.random.permutation(current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size])
+#
+#         logData = uscModel.train(batch_data,np.zeros((uscData.mini_batch_size,1,1)))
+#         
+#         uscLogger.appendLogData(stage_logs[mode],logData,True)
+#         uscLogger.appendLogData(epoch_logs[mode],logData,True)
+#         
+#         
+#         if current_batch_counter % 50 == 0:
+#           uscLogger.logStepEnd('YoutubeData-'+str(current_batch_counter),mode,stage_logs,trainingIterationNo)
                
     for fold in np.random.permutation(uscData.fold_dirs):
 

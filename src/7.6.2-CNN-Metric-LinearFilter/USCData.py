@@ -23,7 +23,7 @@ class USCData :
    #self.time_slice_overlap_length=30
    self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
-   self.mini_batch_size=100
+   self.mini_batch_size=20
 
    #self.mini_batch_size=40  # very slow learning
    self.fold_data_dictionary=dict()
@@ -262,15 +262,15 @@ class USCData :
 
  def augment_volume(self,sound_array,factor):
     return factor * sound_array
-
- def augment_set_zero(self,sound_array,zero_index):
-    sound_array[zero_index:]=0
-    return sound_array
     
- def augment_translate(self,snd_array, n):
+ def augment_translate_and_set_zero_and_occlude(self,snd_array,TRANSLATION_FACTOR,ZERO_INDEX,OCCLUDE_START_INDEX,OCCLUDE_WIDTH):
     """ Translates the sound wave by n indices, fill the first n elements of the array with zeros """
     new_array=np.zeros(len(snd_array))
-    new_array[n:]=snd_array[:-n]
+    
+
+
+    new_array[TRANSLATION_FACTOR:OCCLUDE_START_INDEX]=snd_array[:(-TRANSLATION_FACTOR+OCCLUDE_START_INDEX)]
+    new_array[OCCLUDE_START_INDEX+OCCLUDE_WIDTH:-ZERO_INDEX]=snd_array[OCCLUDE_START_INDEX+OCCLUDE_WIDTH:-ZERO_INDEX]
     return new_array
 
  def overlapping_slice(self,x_data,hanning=False):
@@ -324,13 +324,14 @@ class USCData :
        if choice%10 != 0 :
          SPEED_FACTOR=0.8+choice/40
          TRANSLATION_FACTOR=int(500*choice)+1
-         ZERO_INDEX=int(x_data.shape[0]-choice*500)
+         ZERO_INDEX=int(choice*750)+1
+         OCCLUDE_START_INDEX=int(choice*3000)+1
+         OCCLUDE_WIDTH=500
          INVERSE_FACTOR=choice%2
          if INVERSE_FACTOR == 1 :
           x_data=-x_data
          x_data=self.augment_speedx(x_data,SPEED_FACTOR)
-         x_data=self.augment_translate(x_data,TRANSLATION_FACTOR)
-         x_data=self.augment_set_zero(x_data,ZERO_INDEX)
+         x_data=self.augment_translate_and_set_zero_and_occlude(x_data,TRANSLATION_FACTOR,ZERO_INDEX,OCCLUDE_START_INDEX,OCCLUDE_WIDTH)
          #x_data=self.augment_volume(x_data,VOLUME_FACTOR) 
          
  def augment_random(self,x_data):
