@@ -266,9 +266,6 @@ class USCData :
  def augment_translate_and_set_zero_and_occlude(self,snd_array,TRANSLATION_FACTOR,ZERO_INDEX,OCCLUDE_START_INDEX,OCCLUDE_WIDTH):
     """ Translates the sound wave by n indices, fill the first n elements of the array with zeros """
     new_array=np.zeros(len(snd_array))
-    
-
-
     new_array[TRANSLATION_FACTOR:OCCLUDE_START_INDEX]=snd_array[:(-TRANSLATION_FACTOR+OCCLUDE_START_INDEX)]
     new_array[OCCLUDE_START_INDEX+OCCLUDE_WIDTH:-ZERO_INDEX]=snd_array[OCCLUDE_START_INDEX+OCCLUDE_WIDTH:-ZERO_INDEX]
     return new_array
@@ -330,7 +327,7 @@ class USCData :
          INVERSE_FACTOR=choice%2
          if INVERSE_FACTOR == 1 :
           x_data=-x_data
-         x_data=self.augment_speedx(x_data,SPEED_FACTOR)
+         #x_data=self.augment_speedx(x_data,SPEED_FACTOR)
          x_data=self.augment_translate_and_set_zero_and_occlude(x_data,TRANSLATION_FACTOR,ZERO_INDEX,OCCLUDE_START_INDEX,OCCLUDE_WIDTH)
          #x_data=self.augment_volume(x_data,VOLUME_FACTOR) 
          

@@ -152,7 +152,12 @@ class USCModel :
   
   
   evaluation = self.model.evaluate([x_data_1,x_data_2,categorical_weight], [y_data_1,y_data_2,similarity],batch_size = self.uscData.mini_batch_size,verbose=0)
-
+  y_pred=self.model.predict([x_data_1,x_data_2,categorical_weight])
+  y_pred= np.argmax(y_pred[0], axis=1)
+  y_raw_data_1= np.argmax(y_data_1, axis=1)
+  confusionMatrix=tf.math.confusion_matrix(labels=y_raw_data_1, predictions=y_pred,num_classes=self.uscData.number_of_classes).numpy()
+ 
+  
   testLoss = evaluation[0]
   testLoss_classifier_1 = evaluation[1]
   testLoss_classifier_2 = evaluation[2]
@@ -164,7 +169,7 @@ class USCModel :
   testTimeStop = int(round(time.time())) 
   testTime=testTimeStop-testTimeStart
   
-  return testTime,testLoss ,  testLoss_classifier_1 ,  testLoss_classifier_2 ,  0 ,  0 ,  testLoss_discriminator ,  testAccuracy_classifier_1 ,  testAccuracy_classifier_2 ,  0 ,  0 ,  testAccuracy_discriminator ,prepareDataTime
+  return testTime,testLoss ,  testLoss_classifier_1 ,  testLoss_classifier_2 ,  0 ,  0 ,  testLoss_discriminator ,  testAccuracy_classifier_1 ,  testAccuracy_classifier_2 ,  0 ,  0 ,  testAccuracy_discriminator ,prepareDataTime,confusionMatrix
   
 
  def buildModel(self):

@@ -27,6 +27,7 @@ class USCLogger :
      loggingConsoleHandler.setFormatter(formatter)
      self.logger.addHandler(loggingFileHandler)
      self.logger.addHandler(loggingConsoleHandler)
+     self.confusionMatrix=None
 
 
 
@@ -69,6 +70,42 @@ class USCLogger :
                         )
                       )
 
+ def printConfusionMatrix(self):
+    self.logger.info("-------------------------------------")
+    #self.logger.info("0 = air_conditioner, 1 = car_horn , 2 = children_playing , 3 = dog_bark , 4 = drilling , 5 = engine_idling , 6 = gun_shot , 7 = jackhammer , 8 = siren , 9 = street_music")
+    self.logger.info("%-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s %-15.15s  " % 
+                       ('air_conditioner',
+                        'car_horn',
+                        'children_playing',
+                        'dog_bark',
+                        'drilling',
+                        'engine_idling',
+                        'gun_shot',
+                        'jackhammer',
+                        'siren',
+                        'street_music'
+                        )
+                      )
+
+    for i in range(self.confusionMatrix.shape[0]) :
+       self.logger.info("%-15d %-15d %-15d %-15d %-15d %-15d %-15d %-15d %-15d %-15d  " % 
+                       (self.confusionMatrix[i][0], 
+                        self.confusionMatrix[i][1],
+                        self.confusionMatrix[i][2],
+                        self.confusionMatrix[i][3],
+                        self.confusionMatrix[i][4],
+                        self.confusionMatrix[i][5],
+                        self.confusionMatrix[i][6],
+                        self.confusionMatrix[i][7],
+                        self.confusionMatrix[i][8],
+                        self.confusionMatrix[i][9]
+                        )
+                      )
+          
+
+    self.logger.info("")
+    self.logger.info("")
+   
 
  def printLog(self,stage,mode,logs,IterationNo):
     self.logger.info("%-15.15s %-15.15s %-15.15s %-15.15s %-15.5f %-15.5f %-15.5f %-15.5f %-15.5f %-15.5f %-15.5f %-15.5f %-15.5f %-15.5f %-15.5f %-15.5f %-15.5f " % 
@@ -89,6 +126,8 @@ class USCLogger :
       self.printLog(stage,mode,logs,IterationNo)
       mode='Testing'
       self.printLog(stage,mode,logs,IterationNo)
+      self.printConfusionMatrix()
+      self.confusionMatrix=None
     else :
       self.printLog(stage,mode,logs,IterationNo)
     
@@ -113,6 +152,7 @@ class USCLogger :
 
 
  def getNewLogDictionary(self):
+    
     logs=dict()
     logs['Training']=dict()
     logs['Training']['PrepareDataTimes']=[]
@@ -170,6 +210,9 @@ class USCLogger :
          logDictionary['Losses_autoencoder_1'].append(logData[4])
          logDictionary['Losses_autoencoder_2'].append(logData[5])
          logDictionary['Losses_discriminator'].append(logData[6])
-
-
+         if len(logData) >13 :
+            if self.confusionMatrix is None :
+               self.confusionMatrix=logData[13]
+            else:
+               self.confusionMatrix=self.confusionMatrix+logData[13]
 
