@@ -1,5 +1,7 @@
 #!/bin/bash
 
+PATH=$PATH:/usr/local/bin
+
 mkdir -p downloads
 
 
