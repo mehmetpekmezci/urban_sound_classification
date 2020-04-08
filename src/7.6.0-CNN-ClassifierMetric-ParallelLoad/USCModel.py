@@ -161,26 +161,30 @@ class USCModel :
    self.uscLogger.logger.info("layer_input.shape="+str(layer_input.shape))
    
    # Convolution1D(filters, kernel_size,...)
-   out=keras.layers.Convolution1D(1024, 128,strides=49,activation='relu', padding='same')(layer_input)
+   out=keras.layers.Convolution1D(256, 128,strides=32,activation='relu', padding='same')(layer_input)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Convolution1D(16,32,strides=10,activation='relu', padding='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Convolution1D(16, 16,strides=5,activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(8, 64,strides=16,activation='relu', padding='same')(out)
    out=keras.layers.BatchNormalization()(out)
-   out=keras.layers.Convolution1D(16, 8,strides=2,activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(16, 32,strides=8,activation='relu', padding='same')(out)
    out=keras.layers.BatchNormalization()(out)
+
+   out1=out   
    out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
    out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
    out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
    out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
    out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
    out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,out1])# first-last residual
    out=keras.layers.BatchNormalization()(out)
    
    common_cnn_out=out
    self.uscLogger.logger.info("common_cnn_out.shape="+str(common_cnn_out.shape))
 
    classifier_out_1=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(common_cnn_out)
+   classifier_out_1=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_1)
    classifier_out_1=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_1)
    self.uscLogger.logger.info("classifier_out_1.shape="+str(classifier_out_1.shape))
    classifier_cnn_out_1=classifier_out_1
@@ -192,6 +196,7 @@ class USCModel :
    classifier_out_1=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(classifier_out_1)
 
    classifier_out_2=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(common_cnn_out)
+   classifier_out_2=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_2)
    classifier_out_2=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_2)
    classifier_cnn_out_2=classifier_out_2
    classifier_out_2=keras.layers.Flatten()(classifier_out_2)
@@ -236,7 +241,7 @@ class USCModel :
        optimizer=keras.optimizers.Adam(lr=0.0001),
        loss=['categorical_crossentropy','categorical_crossentropy','mse'],
        #loss=['categorical_crossentropy','categorical_crossentropy','binary_crossentropy'],
-       loss_weights=[layer_categorical_weight*2/20,   layer_categorical_weight*2/20,   16/20],
+       loss_weights=[layer_categorical_weight*8/20,   layer_categorical_weight*8/20,   4/20],
        metrics=[['accuracy'],['accuracy'],['accuracy']]
    )
 

@@ -23,7 +23,7 @@ class USCData :
    #self.time_slice_overlap_length=30
    self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
-   self.mini_batch_size=10
+   self.mini_batch_size=40
    self.fold_data_dictionary=dict()
    self.youtube_data_file_dictionary=dict()
    self.youtube_data_file_category_enumeration=dict()
@@ -325,7 +325,7 @@ class USCData :
        if choice%10 != 0 :
          SPEED_FACTOR=0.8+choice/40
          TRANSLATION_FACTOR=int(1000*choice)+1
-         ZERO_INDEX=int(x_data.shape[1]-choice*2000)
+         ZERO_INDEX=int(x_data.shape[1]-choice*500)
          INVERSE_FACTOR=choice%2
          if INVERSE_FACTOR == 1 :
           augmented_data[i]=-augmented_data[i]
