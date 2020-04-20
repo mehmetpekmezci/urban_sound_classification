@@ -94,7 +94,7 @@ class USCData :
                 e = sys.exc_info()[0]
                 self.logger.info ("Exception :")
                 self.logger.info (e)      
-      np.save(self.np_data_dir+"/"+fold+".npy",  fold_data_dictionary[fold]) 
+      np.save(self.np_data_dir+"/"+fold+".npy",  sound_data_in_4_second) 
       self.logger.info("sub4SecondSoundFilesCount="+str(sub4SecondSoundFilesCount));  
 
 
