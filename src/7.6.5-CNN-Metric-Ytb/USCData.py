@@ -319,11 +319,11 @@ class USCData :
        choice=int(np.random.rand()*20)
        # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
        if choice%10 != 0 :
-         SPEED_FACTOR=0.9+choice/20*0.2
+         SPEED_FACTOR=0.8+choice/20*0.3
          TRANSLATION_FACTOR=int(1000*choice)+1
          ZERO_INDEX=int(choice*1000)+1
-         OCCLUDE_START_INDEX=int(choice*3000)+1
-         OCCLUDE_WIDTH=2000
+         OCCLUDE_START_INDEX=int(choice*3500)+1
+         OCCLUDE_WIDTH=4000
          INVERSE_FACTOR=choice%2
          if INVERSE_FACTOR == 1 :
           x_data=-x_data

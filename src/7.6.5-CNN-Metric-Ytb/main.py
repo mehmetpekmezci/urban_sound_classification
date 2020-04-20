@@ -23,7 +23,7 @@ def main(_):
      
     ### YOUTUBE DATA
     #if trainingIterationNo % 5 == 0 and uscLogger.lastAccuracy > 0.6 :
-    if (trainingIterationNo+1) % 5 == 0  :
+    if (trainingIterationNo+1) % 20000 == 0  :
       while uscData.current_youtube_data is None:
         uscLogger.logger.info('Waiting 5 seconds for youtube data loader thread  ....')
         time.sleep(5)
@@ -34,7 +34,7 @@ def main(_):
          stage_logs=uscLogger.getNewLogDictionary()
          batch_data=np.random.permutation(current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size])
          
-         if uscLogger.lastAccuracy > 0.65 :           
+         if uscLogger.lastAccuracy > 1 : ## disable this branch >1           
            batch_data=uscModel.setPredictedLabel(batch_data,np.ones((uscData.mini_batch_size,1,1)))
            logData = uscModel.train(batch_data,np.ones((uscData.mini_batch_size,1,1)))
            uscLogger.appendLogData(stage_logs[mode],logData,False,mode)

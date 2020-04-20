@@ -229,7 +229,7 @@ class USCModel :
    self.model.compile(
        optimizer=keras.optimizers.Adam(lr=0.0001),
        loss=['categorical_crossentropy','categorical_crossentropy','mse'],
-       loss_weights=[layer_categorical_weight/10,   layer_categorical_weight/10,   8/10],
+       loss_weights=[layer_categorical_weight*3/10,   layer_categorical_weight*3/10,   4/10],
        metrics=[['accuracy'],['accuracy'],['accuracy']]
    )
 

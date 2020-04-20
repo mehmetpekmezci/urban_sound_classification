@@ -20,7 +20,7 @@ class USCModel :
 
    ## so we will have nearly 400 time steps in 4 secs record. (88200) (with %50 overlapping)
    self.lstm_time_steps       = self.uscData.number_of_time_slices
-   self.training_iterations   = 10000
+   self.training_iterations   = 20000
    self.buildModel()
 
    self.load_weights()
@@ -145,7 +145,7 @@ class USCModel :
  def setPredictedLabel(self,data,categorical_weight):
      x_data_1,x_data_2,y_data_1,y_data_2,similarity=self.prepareData(data,False) 
      y_pred=self.model.predict([x_data_1,x_data_2,categorical_weight])
-     # we know that similarity is real label even for youtube data, so we will use it to augment accuracy (like xor)
+     # we know that similarity is real label even for youtube data, so we will use it to augment accuracy 
      if data[0][0]> 0 : # cheap randomness 50%, (may be the other prediction is true :) )
          predicted_value=y_pred[0]+y_pred[1]*similarity
          ## how to use similarity ?:
@@ -209,63 +209,71 @@ class USCModel :
    # Convolution1D(filters, kernel_size,...)
 
 
-   out=keras.layers.Convolution1D(32, 64,strides=16,activation='relu', padding='same')(layer_input)
+   out=keras.layers.Convolution1D(64, 64,strides=16,activation='relu', padding='same')(layer_input)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Convolution1D(32, 64,strides=8,activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(64, 64,strides=16,activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Convolution1D(32, 32,strides=8,activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(64, 32,strides=8,activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Convolution1D(32, 32,strides=4,activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(64, 32,strides=8,activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Convolution1D(32, 16 ,strides=4,activation='relu', padding='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.Convolution1D(32, 16 ,strides=2,activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)
    out=keras.layers.BatchNormalization()(out)
 #   out=keras.layers.Dropout(0.2)(out)
 
 #   out1=out   
-#   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
-#   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
-#   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
-#   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
-#   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
-#   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
-#   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
-#   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
-#   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
-#   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
-#   out=keras.layers.add([out,keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)])# residuals
+   out=keras.layers.add([out,keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(out)])# residuals
 #   out=keras.layers.add([out,out1])# first-last residual
    
    common_cnn_out=out
    self.uscLogger.logger.info("common_cnn_out.shape="+str(common_cnn_out.shape))
 
    classifier_out_1=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(common_cnn_out)
-   classifier_out_1=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_1)
-   classifier_out_1=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_1)
+#   classifier_out_1=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_1)
+#   classifier_out_1=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_1)
    self.uscLogger.logger.info("classifier_out_1.shape="+str(classifier_out_1.shape))
    classifier_cnn_out_1=classifier_out_1
    classifier_flat_out_1=keras.layers.Flatten()(classifier_out_1)
-   classifier_out_1_1=keras.layers.Dense(units = 8,activation='sigmoid')(classifier_flat_out_1)
+   classifier_out_1_1=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_1)
    classifier_out_1_2=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_1)
-   classifier_out_1_3=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_flat_out_1)
-   classifier_out_1_4=keras.layers.Dense(units = 64,activation='sigmoid')(classifier_flat_out_1)
+   classifier_out_1_3=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_1)
+   classifier_out_1_4=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_1)
+   classifier_flat_out_1=keras.layers.concatenate([classifier_out_1_1,classifier_out_1_2,classifier_out_1_3,classifier_out_1_4])
+   classifier_out_1_1=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_1)
+   classifier_out_1_2=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_1)
+   classifier_out_1_3=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_1)
+   classifier_out_1_4=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_1)
    classifier_out_1=keras.layers.concatenate([classifier_out_1_1,classifier_out_1_2,classifier_out_1_3,classifier_out_1_4])
    classifier_out_1=keras.layers.BatchNormalization()(classifier_out_1)
-   classifier_out_1=keras.layers.Dense(units = 64,activation='sigmoid')(classifier_out_1)
+   classifier_out_1=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_out_1)
    classifier_out_1=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(classifier_out_1)
 
    classifier_out_2=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(common_cnn_out)
-   classifier_out_2=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_2)
-   classifier_out_2=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_2)
+#   classifier_out_2=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_2)
+#   classifier_out_2=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(classifier_out_2)
    classifier_cnn_out_2=classifier_out_2
    classifier_flat_out_2=keras.layers.Flatten()(classifier_out_2)
-   classifier_out_2_1=keras.layers.Dense(units = 8,activation='sigmoid')(classifier_flat_out_2)
+   classifier_out_2_1=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_2)
    classifier_out_2_2=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_2)
-   classifier_out_2_3=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_flat_out_2)
-   classifier_out_2_4=keras.layers.Dense(units = 64,activation='sigmoid')(classifier_flat_out_2)
+   classifier_out_2_3=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_2)
+   classifier_out_2_4=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_2)
+   classifier_flat_out_2=keras.layers.concatenate([classifier_out_2_1,classifier_out_2_2,classifier_out_2_3,classifier_out_2_4])   
+   classifier_out_2_1=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_2)
+   classifier_out_2_2=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_2)
+   classifier_out_2_3=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_2)
+   classifier_out_2_4=keras.layers.Dense(units = 16,activation='sigmoid')(classifier_flat_out_2)
    classifier_out_2=keras.layers.concatenate([classifier_out_2_1,classifier_out_2_2,classifier_out_2_3,classifier_out_2_4])   
-   classifier_out_2=keras.layers.Dense(units = 64,activation='sigmoid')(classifier_out_2)
+   classifier_out_2=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_out_2)
    classifier_out_2=keras.layers.BatchNormalization()(classifier_out_2)
    classifier_out_2=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(classifier_out_2)
 
@@ -276,13 +284,13 @@ class USCModel :
    self.uscLogger.logger.info("classifier_cnn_out_1.shape="+str(classifier_cnn_out_1.shape))
    self.uscLogger.logger.info("classifier_cnn_out_2.shape="+str(classifier_cnn_out_2.shape))
    discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(classifier_out)
-   discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(discriminator_out)
-   discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(discriminator_out)
+#   discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(discriminator_out)
+#   discriminator_out=keras.layers.Convolution1D(16,4, activation='relu', padding='same')(discriminator_out)
    discriminator_flat_out=keras.layers.Flatten()(discriminator_out)
-   discriminator_flat_out_1=keras.layers.Dense(units = 16,activation='sigmoid')(discriminator_flat_out)
+   discriminator_flat_out_1=keras.layers.Dense(units = 32,activation='sigmoid')(discriminator_flat_out)
    discriminator_flat_out_2=keras.layers.Dense(units = 32,activation='sigmoid')(discriminator_flat_out)
-   discriminator_flat_out_3=keras.layers.Dense(units = 64,activation='sigmoid')(discriminator_flat_out)
-   discriminator_flat_out_4=keras.layers.Dense(units = 128,activation='sigmoid')(discriminator_flat_out)
+   discriminator_flat_out_3=keras.layers.Dense(units = 32,activation='sigmoid')(discriminator_flat_out)
+   discriminator_flat_out_4=keras.layers.Dense(units = 32,activation='sigmoid')(discriminator_flat_out)
    discriminator_out=keras.layers.concatenate([discriminator_flat_out_1,discriminator_flat_out_2,discriminator_flat_out_3,discriminator_flat_out_4])   
    discriminator_out=keras.layers.Dense(units = 128,activation='sigmoid')(discriminator_out)
    discriminator_out=keras.layers.BatchNormalization()(discriminator_out)
@@ -307,7 +315,7 @@ class USCModel :
        optimizer=keras.optimizers.Adam(lr=0.00001),
        #loss=['categorical_crossentropy','categorical_crossentropy','mse'],
        loss=['categorical_crossentropy','categorical_crossentropy','binary_crossentropy'],
-       loss_weights=[layer_categorical_weight*8/20,   layer_categorical_weight*8/20,   4/20],
+       loss_weights=[layer_categorical_weight*4/20,   layer_categorical_weight*4/20,   12/20],
        metrics=[['accuracy'],['accuracy'],['accuracy']]
    )
 

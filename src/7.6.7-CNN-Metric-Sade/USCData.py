@@ -24,6 +24,24 @@ class USCData :
    self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
    self.number_of_classes=10
    self.mini_batch_size=20
+   self.track_duration_in_seconds=4
+   
+   
+   self.max_number_of_possible_distinct_frequencies_per_second=200
+   self.generated_data_count=1000
+   self.generated_data_usage_count=0
+   self.generated_synthetic_data=None
+   self.generate_synthetic_sample()
+   self.generated_data_reset_count=0
+   self.generated_data_reset_max_number=2000
+   
+
+   #self.mini_batch_size=40  # very slow learning
+   self.fold_data_dictionary=dict()
+   self.synthetic_data_file_dictionary=dict()
+   self.synthetic_data_file_category_enumeration=dict()
+
+
 
    #self.mini_batch_size=40  # very slow learning
    self.fold_data_dictionary=dict()
@@ -319,19 +337,31 @@ class USCData :
        choice=int(np.random.rand()*20)
        # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
        if choice%10 != 0 :
-         SPEED_FACTOR=0.9+choice/20*0.2
+         SPEED_FACTOR=0.8+choice/20*0.3
+         VOLUME_FACTOR=0.7+choice/20*0.8 # 0.7 ile 1.5 kati arasi 
          TRANSLATION_FACTOR=int(1000*choice)+1
          ZERO_INDEX=int(choice*1000)+1
-         OCCLUDE_START_INDEX=int(choice*3000)+1
-         OCCLUDE_WIDTH=2000
+         OCCLUDE_START_INDEX=int(choice*3500)+1
+         OCCLUDE_WIDTH=4000
          INVERSE_FACTOR=choice%2
          if INVERSE_FACTOR == 1 :
           x_data=-x_data
          x_data=self.augment_speedx(x_data,SPEED_FACTOR)
          x_data=self.augment_translate_and_set_zero_and_occlude(x_data,TRANSLATION_FACTOR,ZERO_INDEX,OCCLUDE_START_INDEX,OCCLUDE_WIDTH)
-         #x_data=self.augment_volume(x_data,VOLUME_FACTOR) 
+         x_data=self.augment_volume(x_data,VOLUME_FACTOR) 
          
  def augment_random(self,x_data):
+ 
+    if  self.generated_data_reset_count > self.generated_data_reset_max_number :
+         self.generated_data_reset_count=0
+         self.generated_data_usage_count=0
+         self.generated_synthetic_data=self.generate_synthetic_sample()
+ 
+    if  (self.generated_data_usage_count+1)*self.mini_batch_size > self.generated_data_count :
+         self.generated_data_reset_count=self.generated_data_reset_count+1
+         self.generated_data_usage_count=0
+         np.random.shuffle(self.generated_synthetic_data)
+    
     augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
     thread_list=[]
     for i in range(x_data.shape[0]) :
@@ -341,7 +371,84 @@ class USCData :
        thread_list.append(t)
     for t in thread_list:
        t.join()   
+    #augmented_data=augmented_data+self.generated_synthetic_data[self.generated_data_usage_count*self.mini_batch_size:(self.generated_data_usage_count+1)*self.mini_batch_size,:]
+    #self.generated_data_usage_count=self.generated_data_usage_count+1
     return augmented_data
+    
+ def generate_synthetic_sample(self):
+ 
+
+    if self.generated_synthetic_data is None :
+     self.generated_synthetic_data=np.zeros([self.generated_data_count,self.track_length],np.float32)
+    else :
+     self.generated_synthetic_data.fill(0)
+#    expected_cochlear_output_data=np.zeros([self.mini_batch_size,self.track_length/(self.max_number_of_possible_distinct_frequencies_per_second*self.track_duration_in_seconds),self.max_number_of_possible_distinct_frequencies_per_second*self.track_duration_in_seconds],np.float32)
+
+    thread_list=[]
+    for generated_data_no in range(self.generated_data_count):
+     if generated_data_no % 500 == 0 :
+        self.logger.info ("Generating Data : "+str(generated_data_no+500)+"/"+str(self.generated_data_count))
+        for t in thread_list:
+          t.join()  
+        thread_list=[]
+     t=threading.Thread(target=self.generate_single_synthetic_sample, args=(generated_data_no,))
+     t.start()
+     thread_list.append(t)
+    
+    for t in thread_list:
+       t.join()      
+#      expected_cochlear_output_data[batch_no,
+#    return generated_synthetic_data, expected_cochlear_output_data
+    self.generated_synthetic_data=self.normalize(self.generated_synthetic_data)
+    
+    return self.generated_synthetic_data
+ 
+ 
+ def generate_single_synthetic_sample(self,generated_data_no):
+ 
+     for time_period in range(self.track_duration_in_seconds-1):
+      
+      for frequency_no in range(self.max_number_of_possible_distinct_frequencies_per_second):
+       randomValue=np.random.rand()
+       randomValueDuration=randomValue*self.track_duration_in_seconds
+       frequency=randomValue*self.sound_record_sampling_rate/2+20 # this generates 10-11025 float number,  from uniform dist. ( +20 = we can hear at minimum 20 hz ) 
+       #T=(1/frequency)*self.sound_record_sampling_rate# this generates 2-1102 float number,  from uniform dist.
+       volume=randomValue*2
+       sine_cosine_choice=int(randomValue*2)
+       #frequency_data=2*np.pi*np.arange(T)*frequency/self.sound_record_sampling_rate
+       frequency_data=2*np.pi*np.arange(self.sound_record_sampling_rate*randomValueDuration)*frequency/self.sound_record_sampling_rate
+       if sine_cosine_choice == 0 :
+          wave_data = (np.sin(frequency_data)).astype(np.float32)
+       else :
+          wave_data = (np.cos(frequency_data)).astype(np.float32)
+       wave_data=volume*wave_data
+       
+       start_point=int(randomValue*(self.sound_record_sampling_rate/2))+time_period*self.sound_record_sampling_rate
+       
+       if  start_point+wave_data.shape[0] > self.track_duration_in_seconds*self.sound_record_sampling_rate :
+           wave_data=wave_data[:self.track_duration_in_seconds*self.sound_record_sampling_rate-start_point]
+       
+       self.generated_synthetic_data[generated_data_no,start_point:start_point+wave_data.shape[0]]+=wave_data
+       #self.play(self.generated_synthetic_data[generated_data_no])
+
+     
+     
+ def play(self,sound_data):
+    SOUND_RECORD_SAMPLING_RATE=self.sound_record_sampling_rate
+    self.logger.info("sound_data.shape="+str(sound_data.shape))
+    self.logger.info("SOUND_RECORD_SAMPLING_RATE="+str(SOUND_RECORD_SAMPLING_RATE))
+    p = pyaudio.PyAudio()
+
+    stream = p.open(format=pyaudio.paFloat32, channels=1, rate=SOUND_RECORD_SAMPLING_RATE, output=True)
+    stream.write(sound_data[:22050],SOUND_RECORD_SAMPLING_RATE)
+    stream.write(sound_data[22050:44100],SOUND_RECORD_SAMPLING_RATE)
+    stream.write(sound_data[44100:66150],SOUND_RECORD_SAMPLING_RATE)
+    stream.write(sound_data[66150:88200],SOUND_RECORD_SAMPLING_RATE)
+    stream.stop_stream()
+    stream.close()
+    p.terminate()
+    self.logger.info("Finished To Play Sound")
+    #input("Press Enter to continue...")
 
 '''
  def generate_single_synthetic_sample(self,single_data):
