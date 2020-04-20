@@ -58,10 +58,21 @@ def main(_):
 
        current_fold_data=np.random.permutation(uscData.get_fold_data(fold))
        for current_batch_counter in range(int(current_fold_data.shape[0]/uscData.mini_batch_size)) :
+       
+
+    
          if (current_batch_counter+1)*uscData.mini_batch_size <= current_fold_data.shape[0] :
            batch_data=current_fold_data[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size,:]
          else:
            batch_data=current_fold_data[current_batch_counter*uscData.mini_batch_size:,:]
+           
+         #self.play(self.augment_echo(x_data[5],2.5))
+         plt.plot(batch_data[9]*100)
+         plt.show()
+         uscData.play(batch_data[9]*100)
+         sys.exit(0)         
+         
+         
          if fold == "fold10":
               mode='Testing'
               ## FOLD10 is reserved for testing

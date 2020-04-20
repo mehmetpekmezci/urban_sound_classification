@@ -1,8 +1,16 @@
 #!/usr/bin/env python3
 from USCHeader import *
 
+
 class USCData :
  def __init__(self, logger):
+ 
+   self.track_duration_in_seconds=4
+   self.sound_record_sampling_rate=44100
+   self.track_length=self.track_duration_in_seconds*self.sound_record_sampling_rate # 4 seconds record
+   self.number_of_classes=10
+   self.mini_batch_size=20
+
    self.logger  = logger
    self.script_dir=os.path.dirname(os.path.realpath(__file__))
    self.script_name=os.path.basename(self.script_dir)
@@ -11,24 +19,20 @@ class USCData :
    #self.fold_dirs=['fold1']
    self.main_data_dir=self.script_dir+'/../../data/'
    self.raw_data_dir=self.main_data_dir+'/0.raw/UrbanSound8K/audio'
-   self.csv_data_dir=self.main_data_dir+'/1.csv'
-   self.np_data_dir=self.main_data_dir+'/2.np'
-   self.sound_record_sampling_rate=22050 # 22050 sample points per second
-   self.track_length=4*self.sound_record_sampling_rate # 4 seconds record
-   self.time_slice_length=2000
-   #self.time_slice_length=440
-   #self.time_slice_length=55
-   self.time_slice_overlap_length=200
-   #self.time_slice_overlap_length=265
-   #self.time_slice_overlap_length=30
-   self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
-   self.number_of_classes=10
-   self.mini_batch_size=20
-   self.track_duration_in_seconds=4
+   self.np_data_dir=self.main_data_dir+'/1.np'
+    # 44100 sample points per second
    
+   
+   
+   
+   self.time_slice_length=2000
+   self.time_slice_overlap_length=200
+   self.number_of_time_slices=math.ceil(self.track_length/(self.time_slice_length-self.time_slice_overlap_length))
+
+     
    
    self.max_number_of_possible_distinct_frequencies_per_second=200
-   self.generated_data_count=1000
+   self.generated_data_count=0
    self.generated_data_usage_count=0
    self.generated_synthetic_data=None
    self.generate_synthetic_sample()
@@ -56,33 +60,41 @@ class USCData :
    self.youtubeDataLoaderThread.start()
    
 
- def parse_audio_files(self):
+ def parse_audio_files_and_save_as_np(self):
     sub4SecondSoundFilesCount=0
     for sub_dir in self.fold_dirs:
       self.logger.info("Parsing : "+sub_dir)
-      csvDataFile=open(self.csv_data_dir+"/"+sub_dir+".csv", 'w')
-      csvDataWriter = csv.writer(csvDataFile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL, lineterminator='\n')
+      fold=sub_dir
+      number_of_wav_files_in_fold=len(glob.glob(os.path.join(self.raw_data_dir, sub_dir, '*.wav')))
+      self.logger.info("number_of_wav_files_in_fold : "+str(number_of_wav_files_in_fold))
+      sound_data_in_4_second=np.zeros((number_of_wav_files_in_fold,self.track_length+1),dtype=np.float32) # +1 for class number
+      counter=0
       for file_path in glob.glob(os.path.join(self.raw_data_dir, sub_dir, '*.wav')):
          self.logger.info(file_path)
          try :
           classNumber=file_path.split('/')[-1].split('.')[0].split('-')[1]
-          sound_data,sampling_rate=librosa.load(file_path)
+          sound_data,sampling_rate=librosa.load(file_path,sr=self.sound_record_sampling_rate)
           sound_data=np.array(sound_data)
-          sound_data_duration=int(sound_data.shape[0]/self.sound_record_sampling_rate)
-          if sound_data_duration < 4 :
-             sub4SecondSoundFilesCount=sub4SecondSoundFilesCount+1
-             sound_data_in_4_second=np.zeros(4*self.sound_record_sampling_rate)
-             for i in range(sound_data.shape[0]):
-               sound_data_in_4_second[i]=sound_data[i]
-          else  :  
-             sound_data_in_4_second=sound_data[:4*self.sound_record_sampling_rate]
-          sound_data_in_4_second=np.append(sound_data_in_4_second,[classNumber])
-          csvDataWriter.writerow(sound_data_in_4_second)       
+          
+          plt.plot(sound_data)
+          plt.show()
+          self.play(sound_data)
+          
+          sound_data_diff=self.track_length-sound_data.shape[0]
+          sound_data_in_4_second[counter,int(sound_data_diff/2):int(sound_data_diff/2+sound_data.shape[0])]=sound_data
+          #sound_data_in_4_second[counter,0:sound_data.shape[0]]=sound_data
+          sound_data_in_4_second[counter,-1]=classNumber
+
+          plt.plot(sound_data_in_4_second[counter,0:self.track_length])
+          plt.show()
+          self.play(sound_data_in_4_second[counter,0:self.track_length])
+           
+          counter=counter+1      
          except :
                 e = sys.exc_info()[0]
                 self.logger.info ("Exception :")
-                self.logger.info (e)
-      csvDataFile.close()       
+                self.logger.info (e)      
+      np.save(self.np_data_dir+"/"+fold+".npy",  fold_data_dictionary[fold]) 
       self.logger.info("sub4SecondSoundFilesCount="+str(sub4SecondSoundFilesCount));  
 
 
@@ -113,40 +125,13 @@ class USCData :
 #           out.write(data)
 #         r.release_conn()
 
-    if not os.path.exists(self.csv_data_dir) :
-       os.makedirs(self.csv_data_dir)  
-       parse_audio_files()
     if not os.path.exists(self.np_data_dir) :
        os.makedirs(self.np_data_dir)  
-       save_as_np()
-    self.logger.info("Data is READY  in CSV format. ")
+       self.parse_audio_files_and_save_as_np()
+       
+    self.logger.info("Data is READY  in NPY format. ")
     self.load_all_np_data_back_to_memory()
 
-    
- def save_as_np(self):
-    self.logger.info ("save_as_np function started ...")
-    fold_data_dictionary=dict()
-    max_value_for_normalization=0
-    min_value_for_normalization=0
- 
-    for fold in self.fold_dirs:
-      fold_data_dictionary[fold]=np.array(np.loadtxt(open(self.csv_data_dir+"/"+fold+".csv", "rb"), delimiter=","))
-      for i in range(fold_data_dictionary[fold].shape[0]) :
-           loadedData=fold_data_dictionary[fold][i]
-           loadedDataX=loadedData[:4*self.sound_record_sampling_rate]
-           loadedDataY=loadedData[4*self.sound_record_sampling_rate]
-           maxOfArray=np.amax(loadedDataX)
-           minOfArray=np.amin(loadedDataX)
-           if max_value_for_normalization < maxOfArray :
-               max_value_for_normalization = maxOfArray
-           if min_value_for_normalization > minOfArray :
-               min_value_for_normalization = minOfArray
-           ## Then append Y data to the end of row
-         
-      np.save(self.main_data_dir+"/2.np/"+fold+".npy",  fold_data_dictionary[fold]) 
-      
-    np.save(self.main_data_dir+"/2.np/minmax.npy",[min_value_for_normalization,max_value_for_normalization]) 
-    self.logger.info ("save_as_np function finished ...")
 
  def normalize(self,data):
     normalized_data = data/np.linalg.norm(data) 
@@ -250,14 +235,10 @@ class USCData :
  def load_all_np_data_back_to_memory(self):
     self.logger.info ("load_all_np_data_back_to_memory function started ...")
     for fold in self.fold_dirs:
-        self.logger.info ("loading from "+self.main_data_dir+"/2.np/"+fold+".npy  ...")
-        self.fold_data_dictionary[fold]=np.load(self.main_data_dir+"/2.np/"+fold+".npy")
-    minmax=np.load(self.main_data_dir+"/2.np/minmax.npy")
-    min_value_for_normalization=minmax[0]
-    max_value_for_normalization=minmax[1]
- 
+        self.logger.info ("loading from "+self.np_data_dir+"/"+fold+".npy  ...")
+        self.fold_data_dictionary[fold]=np.load(self.np_data_dir+"/"+fold+".npy")
     self.logger.info ("load_all_np_data_back_to_memory function finished ...")
-    return max_value_for_normalization,min_value_for_normalization
+
    
 
  def get_fold_data(self,fold):
@@ -280,6 +261,12 @@ class USCData :
 
  def augment_volume(self,sound_array,factor):
     return factor * sound_array
+    
+ def augment_echo(self,sound_array,echo_time):
+    echo_start_index=int(echo_time*self.sound_record_sampling_rate)
+    sound_array[echo_start_index:]=sound_array[:int(sound_array.shape[0]-echo_start_index)]
+    
+    return sound_array/2
     
  def augment_translate_and_set_zero_and_occlude(self,snd_array,TRANSLATION_FACTOR,ZERO_INDEX,OCCLUDE_START_INDEX,OCCLUDE_WIDTH):
     """ Translates the sound wave by n indices, fill the first n elements of the array with zeros """
@@ -337,21 +324,33 @@ class USCData :
        choice=int(np.random.rand()*20)
        # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
        if choice%10 != 0 :
-         SPEED_FACTOR=0.8+choice/20*0.3
-         VOLUME_FACTOR=0.7+choice/20*0.8 # 0.7 ile 1.5 kati arasi 
+         SPEED_FACTOR=0.8+choice/20*0.6
+         VOLUME_FACTOR=0.8+choice/20*0.6 # 0.8 ile 1.4 kati arasi 
          TRANSLATION_FACTOR=int(1000*choice)+1
          ZERO_INDEX=int(choice*1000)+1
          OCCLUDE_START_INDEX=int(choice*3500)+1
          OCCLUDE_WIDTH=4000
          INVERSE_FACTOR=choice%2
-         if INVERSE_FACTOR == 1 :
+         ECHO_TIME=choice/20*3 ## 0 sn. ile 3 sn arasi echo
+         if INVERSE_FACTOR == 0 :
           x_data=-x_data
+         if choice%3 == 0 :
+          x_data=self.augment_echo(x_data,ECHO_TIME)
+
+             
          x_data=self.augment_speedx(x_data,SPEED_FACTOR)
          x_data=self.augment_translate_and_set_zero_and_occlude(x_data,TRANSLATION_FACTOR,ZERO_INDEX,OCCLUDE_START_INDEX,OCCLUDE_WIDTH)
          x_data=self.augment_volume(x_data,VOLUME_FACTOR) 
+          
          
  def augment_random(self,x_data):
- 
+
+    #self.play(self.augment_echo(x_data[5],2.5))
+    plt.plot(x_data[9])
+    plt.show()
+    self.play(x_data[2])
+    sys.exit(0)
+         
     if  self.generated_data_reset_count > self.generated_data_reset_max_number :
          self.generated_data_reset_count=0
          self.generated_data_usage_count=0
@@ -399,7 +398,16 @@ class USCData :
        t.join()      
 #      expected_cochlear_output_data[batch_no,
 #    return generated_synthetic_data, expected_cochlear_output_data
+
+    #self.play(self.augment_echo(x_data[5],2.5))
+    #plt.plot(self.generated_synthetic_data[9])
+    #plt.show()
+    #self.play(self.generated_synthetic_data[2])
+    #sys.exit(0)
+    
     self.generated_synthetic_data=self.normalize(self.generated_synthetic_data)
+    
+
     
     return self.generated_synthetic_data
  
@@ -440,10 +448,10 @@ class USCData :
     p = pyaudio.PyAudio()
 
     stream = p.open(format=pyaudio.paFloat32, channels=1, rate=SOUND_RECORD_SAMPLING_RATE, output=True)
-    stream.write(sound_data[:22050],SOUND_RECORD_SAMPLING_RATE)
-    stream.write(sound_data[22050:44100],SOUND_RECORD_SAMPLING_RATE)
-    stream.write(sound_data[44100:66150],SOUND_RECORD_SAMPLING_RATE)
-    stream.write(sound_data[66150:88200],SOUND_RECORD_SAMPLING_RATE)
+    stream.write(sound_data[:44100],SOUND_RECORD_SAMPLING_RATE)
+    stream.write(sound_data[44100:88200],SOUND_RECORD_SAMPLING_RATE)
+    stream.write(sound_data[88200:132300],SOUND_RECORD_SAMPLING_RATE)
+    stream.write(sound_data[122300:176400],SOUND_RECORD_SAMPLING_RATE)
     stream.stop_stream()
     stream.close()
     p.terminate()
