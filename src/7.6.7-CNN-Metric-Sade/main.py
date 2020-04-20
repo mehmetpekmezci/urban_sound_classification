@@ -67,10 +67,10 @@ def main(_):
            batch_data=current_fold_data[current_batch_counter*uscData.mini_batch_size:,:]
            
          #self.play(self.augment_echo(x_data[5],2.5))
-         plt.plot(batch_data[9]*100)
-         plt.show()
-         uscData.play(batch_data[9]*100)
-         sys.exit(0)         
+         #plt.plot(batch_data[9]*100)
+         #plt.show()
+         #uscData.play(batch_data[9]*100)
+         #sys.exit(0)         
          
          
          if fold == "fold10":

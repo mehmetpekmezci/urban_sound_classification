@@ -31,8 +31,8 @@ class USCData :
 
      
    
-   self.max_number_of_possible_distinct_frequencies_per_second=200
-   self.generated_data_count=0
+   self.max_number_of_possible_distinct_frequencies_per_second=20
+   self.generated_data_count=500
    self.generated_data_usage_count=0
    self.generated_synthetic_data=None
    self.generate_synthetic_sample()
@@ -76,18 +76,18 @@ class USCData :
           sound_data,sampling_rate=librosa.load(file_path,sr=self.sound_record_sampling_rate)
           sound_data=np.array(sound_data)
           
-          plt.plot(sound_data)
-          plt.show()
-          self.play(sound_data)
+          #plt.plot(sound_data)
+          #plt.show()
+          #self.play(sound_data)
           
           sound_data_diff=self.track_length-sound_data.shape[0]
           sound_data_in_4_second[counter,int(sound_data_diff/2):int(sound_data_diff/2+sound_data.shape[0])]=sound_data
           #sound_data_in_4_second[counter,0:sound_data.shape[0]]=sound_data
           sound_data_in_4_second[counter,-1]=classNumber
 
-          plt.plot(sound_data_in_4_second[counter,0:self.track_length])
-          plt.show()
-          self.play(sound_data_in_4_second[counter,0:self.track_length])
+          #plt.plot(sound_data_in_4_second[counter,0:self.track_length])
+          #plt.show()
+          #self.play(sound_data_in_4_second[counter,0:self.track_length])
            
           counter=counter+1      
          except :
@@ -210,7 +210,7 @@ class USCData :
              #self.logger.info("loading"+ category+'/data.'+str(self.current_data_file_number)+'.npy')
              loadedData=np.load(category+'/data.'+str(self.current_data_file_number)+'.npy')
              loadedData=loadedData[:,:4*self.sound_record_sampling_rate]
-             newLoadedData=np.zeros((loadedData.shape[0],loadedData.shape[1]+1))
+             newLoadedData=np.zeros((loadedData.shape[0],loadedData.shape[1]+1),dtype=np.float32)
              newLoadedData[:,:-1]=loadedData
              loadedData=newLoadedData
              #SET out of range category of current data
@@ -246,7 +246,7 @@ class USCData :
 
  def augment_speedx(self,sound_array, factor):
     """ Multiplies the sound's speed by some `factor` """
-    result=np.zeros(len(sound_array))
+    result=np.zeros(len(sound_array),dtype=np.float32)
     indices = np.round( np.arange(0, len(sound_array), factor) )
     indices = indices[indices < len(sound_array)].astype(int)
     result_calculated= sound_array[ indices.astype(int) ]
@@ -270,20 +270,20 @@ class USCData :
     
  def augment_translate_and_set_zero_and_occlude(self,snd_array,TRANSLATION_FACTOR,ZERO_INDEX,OCCLUDE_START_INDEX,OCCLUDE_WIDTH):
     """ Translates the sound wave by n indices, fill the first n elements of the array with zeros """
-    new_array=np.zeros(len(snd_array))
+    new_array=np.zeros(len(snd_array),dtype=np.float32)
     new_array[TRANSLATION_FACTOR:OCCLUDE_START_INDEX]=snd_array[:(-TRANSLATION_FACTOR+OCCLUDE_START_INDEX)]
     new_array[OCCLUDE_START_INDEX+OCCLUDE_WIDTH:-ZERO_INDEX]=snd_array[OCCLUDE_START_INDEX+OCCLUDE_WIDTH:-ZERO_INDEX]
     return new_array
 
  def overlapping_slice(self,x_data,hanning=False):
-    sliced_and_overlapped_data=np.zeros([self.mini_batch_size,self.number_of_time_slices,self.time_slice_length])
+    sliced_and_overlapped_data=np.zeros([self.mini_batch_size,self.number_of_time_slices,self.time_slice_length],dtype=np.float32)
     step=self.time_slice_length-self.time_slice_overlap_length
     hanning_window=np.hanning(self.time_slice_length)
     for i in range(self.mini_batch_size):
         for j in range(self.number_of_time_slices):
             step_index=j*step
             if step_index+self.time_slice_length>x_data.shape[1]:
-                overlapped_time_slice=np.zeros(self.time_slice_length)
+                overlapped_time_slice=np.zeros(self.time_slice_length,dtype=np.float32)
                 overlapped_time_slice[0:int(x_data.shape[1]-step_index)]=x_data[i,step_index:x_data.shape[1]]
             else :
                 overlapped_time_slice=x_data[i,step_index:step_index+self.time_slice_length]
