@@ -98,6 +98,18 @@ class USCModel :
   #self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2,similarity], [y_data_1,y_data_2,x_data_1,x_data_2,similarity], epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   #self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2,similarity], None, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   
+  
+  #plt.plot(x_data_1[0])
+  #plt.show()
+  #self.uscData.play(20*x_data_1[0])
+  
+  #plt.plot(x_data_2[0])
+  #plt.show()
+  #self.uscData.play(20*x_data_2[0])
+  
+  
+  
+    
   #self.uscLogger.logger.info("model.train_on_batch started")
   self.model.train_on_batch([x_data_1,x_data_2,categorical_weight],[y_data_1,y_data_2,similarity] )
   #self.uscLogger.logger.info("model.train_on_batch ended")

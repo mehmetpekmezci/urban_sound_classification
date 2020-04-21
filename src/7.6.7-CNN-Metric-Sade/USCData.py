@@ -32,7 +32,7 @@ class USCData :
      
    
    self.max_number_of_possible_distinct_frequencies_per_second=20
-   self.generated_data_count=500
+   self.generated_data_count=0
    self.generated_data_usage_count=0
    self.generated_synthetic_data=None
    self.generate_synthetic_sample()
@@ -55,9 +55,9 @@ class USCData :
    self.youtube_data_max_category_data_file_count=0
    self.current_data_file_number=0
    self.prepareData()
-   self.findListOfYoutubeDataFiles()
-   self.youtubeDataLoaderThread=threading.Thread(target=self.youtube_data_loader_thread_worker_method, daemon=True)
-   self.youtubeDataLoaderThread.start()
+   #self.findListOfYoutubeDataFiles()
+   #self.youtubeDataLoaderThread=threading.Thread(target=self.youtube_data_loader_thread_worker_method, daemon=True)
+   #self.youtubeDataLoaderThread.start()
    
 
  def parse_audio_files_and_save_as_np(self):
@@ -134,7 +134,14 @@ class USCData :
 
 
  def normalize(self,data):
-    normalized_data = data/np.linalg.norm(data) 
+    #normalized_data = data/np.linalg.norm(data) 
+    normalized_data = data
+    if data.shape[0]>0 :
+       minimum=np.amin(data)
+       maximum=np.amax(data)
+       delta=maximum-minimum
+       normalized_data = (data-minimum)/delta
+
     return normalized_data
 
  def one_hot_encode_array(self,arrayOfYData):
@@ -246,34 +253,46 @@ class USCData :
 
  def augment_speedx(self,sound_array, factor):
     """ Multiplies the sound's speed by some `factor` """
-    result=np.zeros(len(sound_array),dtype=np.float32)
+    temp=np.copy(sound_array)
+    sound_array[:]=0
     indices = np.round( np.arange(0, len(sound_array), factor) )
     indices = indices[indices < len(sound_array)].astype(int)
-    result_calculated= sound_array[ indices.astype(int) ]
-    if len(result) > len(result_calculated) :
-       result[:len(result_calculated)]=result_calculated
+    result_calculated= temp[ indices.astype(int) ]
+    if len(sound_array) > len(result_calculated) :
+       sound_array[:len(result_calculated)]=result_calculated
     else :
-        result=result_calculated[:len(result)]
-    return result
+       sound_array[:]=result_calculated[:len(sound_array)]
+
 
  def augment_inverse(self,sound_array):
-    return -sound_array
+    sound_array[:]=-sound_array
 
  def augment_volume(self,sound_array,factor):
-    return factor * sound_array
+    sound_array[:]=sound_array*factor
     
  def augment_echo(self,sound_array,echo_time):
     echo_start_index=int(echo_time*self.sound_record_sampling_rate)
-    sound_array[echo_start_index:]=sound_array[:int(sound_array.shape[0]-echo_start_index)]
+    sound_array[echo_start_index:]=sound_array[echo_start_index:]+sound_array[:int(sound_array.shape[0]-echo_start_index)]/2
+
     
-    return sound_array/2
-    
- def augment_translate_and_set_zero_and_occlude(self,snd_array,TRANSLATION_FACTOR,ZERO_INDEX,OCCLUDE_START_INDEX,OCCLUDE_WIDTH):
+ def augment_translate(self,snd_array,TRANSLATION_FACTOR):
+    ## CAUTION DO NOT CREATE A NEW ARRAY, use always x_data, because this runs in a thread.
     """ Translates the sound wave by n indices, fill the first n elements of the array with zeros """
-    new_array=np.zeros(len(snd_array),dtype=np.float32)
-    new_array[TRANSLATION_FACTOR:OCCLUDE_START_INDEX]=snd_array[:(-TRANSLATION_FACTOR+OCCLUDE_START_INDEX)]
-    new_array[OCCLUDE_START_INDEX+OCCLUDE_WIDTH:-ZERO_INDEX]=snd_array[OCCLUDE_START_INDEX+OCCLUDE_WIDTH:-ZERO_INDEX]
-    return new_array
+    snd_array[TRANSLATION_FACTOR:]=snd_array[:snd_array.shape[0]-TRANSLATION_FACTOR]
+    snd_array[:TRANSLATION_FACTOR]=0
+
+
+ def augment_set_zero(self,snd_array,ZERO_INDEX):
+    """ Translates the sound wave by n indices, fill the first n elements of the array with zeros """
+    ## CAUTION DO NOT CREATE A NEW ARRAY, use always x_data, because this runs in a thread.
+    snd_array[-ZERO_INDEX:]=0
+
+
+ def augment_occlude(self,snd_array,OCCLUDE_START_INDEX,OCCLUDE_WIDTH):
+    """ Translates the sound wave by n indices, fill the first n elements of the array with zeros """
+    snd_array[OCCLUDE_START_INDEX:OCCLUDE_START_INDEX+OCCLUDE_WIDTH]=0
+    ## CAUTION DO NOT CREATE A NEW ARRAY, use always x_data, because this runs in a thread.
+
 
  def overlapping_slice(self,x_data,hanning=False):
     sliced_and_overlapped_data=np.zeros([self.mini_batch_size,self.number_of_time_slices,self.time_slice_length],dtype=np.float32)
@@ -320,36 +339,46 @@ class USCData :
       result=result+x_list
      return np.random.permutation(result)
 
- def augment_parallel(self,x_data):
-       choice=int(np.random.rand()*20)
+ def augment(self,x_data):
+       ## CAUTION DO NOT CREATE A NEW ARRAY, use always x_data, because this runs in a thread.
+       choice1=int(np.random.rand()*20)
+       choice2=int(np.random.rand()*20)
        # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
-       if choice%10 != 0 :
-         SPEED_FACTOR=0.8+choice/20*0.6
-         VOLUME_FACTOR=0.8+choice/20*0.6 # 0.8 ile 1.4 kati arasi 
-         TRANSLATION_FACTOR=int(1000*choice)+1
-         ZERO_INDEX=int(choice*1000)+1
-         OCCLUDE_START_INDEX=int(choice*3500)+1
-         OCCLUDE_WIDTH=4000
-         INVERSE_FACTOR=choice%2
-         ECHO_TIME=choice/20*3 ## 0 sn. ile 3 sn arasi echo
-         if INVERSE_FACTOR == 0 :
-          x_data=-x_data
-         if choice%3 == 0 :
-          x_data=self.augment_echo(x_data,ECHO_TIME)
+       if choice1>=3  :
 
-             
-         x_data=self.augment_speedx(x_data,SPEED_FACTOR)
-         x_data=self.augment_translate_and_set_zero_and_occlude(x_data,TRANSLATION_FACTOR,ZERO_INDEX,OCCLUDE_START_INDEX,OCCLUDE_WIDTH)
-         x_data=self.augment_volume(x_data,VOLUME_FACTOR) 
+         SPEED_FACTOR=0.8+choice1/20*0.5
+         VOLUME_FACTOR=0.8+choice2/20*0.5 # 0.8 ile 1.4 kati arasi 
+         TRANSLATION_FACTOR=int(1000*choice1)+1
+         ZERO_INDEX=int(choice2*1500)+1
+         OCCLUDE_START_INDEX=int(choice1*4410)+1000
+         OCCLUDE_WIDTH=int(1000*choice2)+1
+         ECHO_TIME=choice1/20*3 ## 0 sn. ile 3 sn arasi echo
+         
+         if choice2%2 == 0 :
+          self.augment_inverse(x_data)
+         if choice1%2 == 1 :
+          self.augment_echo(x_data,ECHO_TIME)
+
+
+
+         self.augment_speedx(x_data,SPEED_FACTOR)
+         self.augment_translate(x_data,TRANSLATION_FACTOR)
+         self.augment_set_zero(x_data,ZERO_INDEX)
+         self.augment_occlude(x_data,OCCLUDE_START_INDEX,OCCLUDE_WIDTH)
+         self.augment_volume(x_data,VOLUME_FACTOR) 
+
           
+
+    
+    
          
  def augment_random(self,x_data):
 
     #self.play(self.augment_echo(x_data[5],2.5))
-    plt.plot(x_data[9])
-    plt.show()
-    self.play(x_data[2])
-    sys.exit(0)
+    #plt.plot(x_data[9])
+    #plt.show()
+    #self.play(x_data[2])
+    #sys.exit(0)
          
     if  self.generated_data_reset_count > self.generated_data_reset_max_number :
          self.generated_data_reset_count=0
@@ -361,15 +390,13 @@ class USCData :
          self.generated_data_usage_count=0
          np.random.shuffle(self.generated_synthetic_data)
     
-    augmented_data= np.zeros([x_data.shape[0],x_data.shape[1]],np.float32)
-    thread_list=[]
+    augmented_data= np.copy(x_data)
     for i in range(x_data.shape[0]) :
-       augmented_data[i]=x_data[i]
-       t=threading.Thread(target=self.augment_parallel, args=(augmented_data[i],))
-       t.start()
-       thread_list.append(t)
-    for t in thread_list:
-       t.join()   
+       self.augment(augmented_data[i])  
+    
+    #print( "augmented_data[7,7000]")
+    #print( augmented_data[7,7000])
+    #print( x_data[7,7000])
     #augmented_data=augmented_data+self.generated_synthetic_data[self.generated_data_usage_count*self.mini_batch_size:(self.generated_data_usage_count+1)*self.mini_batch_size,:]
     #self.generated_data_usage_count=self.generated_data_usage_count+1
     return augmented_data
