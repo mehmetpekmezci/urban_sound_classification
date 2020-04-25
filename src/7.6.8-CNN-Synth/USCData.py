@@ -32,7 +32,7 @@ class USCData :
      
    
    self.max_number_of_possible_distinct_frequencies_per_second=60
-   self.generated_data_count=5000
+   self.generated_data_count=10000
    self.generated_data_usage_count=0
    self.generated_synthetic_data=None
    self.generate_synthetic_sample()
