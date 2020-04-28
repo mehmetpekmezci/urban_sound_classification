@@ -31,8 +31,8 @@ class USCData :
 
      
    
-   self.max_number_of_possible_distinct_frequencies_per_second=60
-   self.generated_data_count=10000
+   self.max_number_of_possible_distinct_frequencies_per_second=50
+   self.generated_data_count=20000
    self.generated_data_usage_count=0
    self.generated_synthetic_data=None
    self.generate_synthetic_sample()
@@ -359,7 +359,7 @@ class USCData :
          if choice1%2 == 1 :
           self.augment_echo(x_data,ECHO_TIME)
 
-         self.augment_speedx(x_data,SPEED_FACTOR)
+         #self.augment_speedx(x_data,SPEED_FACTOR)
          self.augment_translate(x_data,TRANSLATION_FACTOR)
          self.augment_set_zero(x_data,ZERO_INDEX)
          self.augment_occlude(x_data,OCCLUDE_START_INDEX,OCCLUDE_WIDTH)
@@ -447,7 +447,7 @@ class USCData :
        randomValueDuration=randomValue*self.track_duration_in_seconds
        frequency=randomValue*self.sound_record_sampling_rate+20 # this generates 10-11025 float number,  from uniform dist. ( +20 = we can hear at minimum 20 hz ) 
        #T=(1/frequency)*self.sound_record_sampling_rate# this generates 2-1102 float number,  from uniform dist.
-       volume=randomValue*4
+       volume=randomValue*10
        sine_cosine_choice=int(randomValue*2)
        #frequency_data=2*np.pi*np.arange(T)*frequency/self.sound_record_sampling_rate
        frequency_data=2*np.pi*np.arange(self.sound_record_sampling_rate*randomValueDuration)*frequency/self.sound_record_sampling_rate

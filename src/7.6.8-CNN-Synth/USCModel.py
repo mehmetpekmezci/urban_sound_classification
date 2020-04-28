@@ -236,9 +236,9 @@ class USCModel :
    common_cnn_out=out
    self.uscLogger.logger.info("common_cnn_out.shape="+str(common_cnn_out.shape))
 
-   classifier_out_1=keras.layers.Convolution1D(64, 4,activation='relu', padding='same')(common_cnn_out)
-   classifier_out_1=keras.layers.Convolution1D(64, 4,activation='relu', padding='same')(classifier_out_1)
-   classifier_out_1=keras.layers.Convolution1D(64, 4,activation='relu', padding='same')(classifier_out_1)
+   classifier_out_1=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(common_cnn_out)
+   classifier_out_1=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(classifier_out_1)
+   classifier_out_1=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(classifier_out_1)
    classifier_cnn_out_1=classifier_out_1
    classifier_out_1_flat=keras.layers.Flatten()(classifier_out_1)
    classifier_out_1_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1_flat)
@@ -249,9 +249,9 @@ class USCModel :
    classifier_out_1=keras.layers.BatchNormalization()(classifier_out_1)
    classifier_out_1=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(classifier_out_1)
 
-   classifier_out_2=keras.layers.Convolution1D(64, 4,activation='relu', padding='same')(common_cnn_out)
-   classifier_out_2=keras.layers.Convolution1D(64, 4,activation='relu', padding='same')(classifier_out_2)
-   classifier_out_2=keras.layers.Convolution1D(64, 4,activation='relu', padding='same')(classifier_out_2)
+   classifier_out_2=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(common_cnn_out)
+   classifier_out_2=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(classifier_out_2)
+   classifier_out_2=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(classifier_out_2)
    classifier_cnn_out_2=classifier_out_2
    classifier_out_2_flat=keras.layers.Flatten()(classifier_out_2)
    classifier_out_2_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2_flat)
@@ -270,7 +270,6 @@ class USCModel :
    discriminator_out=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(discriminator_out)
    discriminator_out=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(discriminator_out)
    discriminator_out=keras.layers.Flatten()(discriminator_out)
-   discriminator_out=keras.layers.Dense(units = 64,activation='sigmoid')(discriminator_out)
    discriminator_out=keras.layers.Dense(units = 64,activation='sigmoid')(discriminator_out)
    discriminator_out=keras.layers.BatchNormalization()(discriminator_out)
    discriminator_out=keras.layers.Dense(units = 1,activation='sigmoid')(discriminator_out)
@@ -291,7 +290,9 @@ class USCModel :
    ## dolayisiyla youtube data icin keras.losses.categorical_crossentropy otomatik olarak 0 gelecektir.
    
    self.model.compile(
-       optimizer=keras.optimizers.Adam(lr=0.0001,beta_1=0.65, beta_2=0.85),
+       #optimizer=keras.optimizers.Adam(lr=0.0001,beta_1=0.9, beta_2=0.999),
+       #optimizer=keras.optimizers.Adam(lr=0.0001),
+       optimizer=keras.optimizers.SGD(learning_rate=0.01, momentum=0.0, nesterov=False),
        #loss=['categorical_crossentropy','categorical_crossentropy','mse'],
        loss=['categorical_crossentropy','categorical_crossentropy','binary_crossentropy'],
        loss_weights=[layer_categorical_weight*8/20,   layer_categorical_weight*8/20,   4/20],
