@@ -31,13 +31,13 @@ class USCData :
 
      
    
-   self.max_number_of_possible_distinct_frequencies_per_second=20
-   self.generated_data_count=0
+   self.max_number_of_possible_distinct_frequencies_per_second=10
+   self.generated_data_count=5000
    self.generated_data_usage_count=0
    self.generated_synthetic_data=None
    self.generate_synthetic_sample()
    self.generated_data_reset_count=0
-   self.generated_data_reset_max_number=2000
+   self.generated_data_reset_max_number=5000
    
 
    #self.mini_batch_size=40  # very slow learning
@@ -137,10 +137,15 @@ class USCData :
     #normalized_data = data/np.linalg.norm(data) 
     normalized_data = data
     if data.shape[0]>0 :
+       #print("###########################################")
+       #print(np.amin(data))
+       #print(np.amax(data))
        minimum=np.amin(data)
        maximum=np.amax(data)
        delta=maximum-minimum
        normalized_data = (data-minimum)/delta
+       #print(np.amin(normalized_data))
+       #print(np.amax(normalized_data))
 
     return normalized_data
 
@@ -343,8 +348,8 @@ class USCData :
        ## CAUTION DO NOT CREATE A NEW ARRAY, use always x_data, because this runs in a thread.
        choice1=int(np.random.rand()*20)
        choice2=int(np.random.rand()*20)
-       # 10 percent of being not augmented , if equals 0, then not augment, return directly real value
-       if choice1>=3  :
+       # 20 percent of being not augmented , if equals 0, then not augment, return directly real value
+       if choice1>=6  :
 
          SPEED_FACTOR=0.8+choice1/20*0.5
          VOLUME_FACTOR=0.8+choice2/20*0.5 # 0.8 ile 1.4 kati arasi 
@@ -359,7 +364,7 @@ class USCData :
          if choice1%2 == 1 :
           self.augment_echo(x_data,ECHO_TIME)
 
-         self.augment_speedx(x_data,SPEED_FACTOR)
+         #self.augment_speedx(x_data,SPEED_FACTOR)
          self.augment_translate(x_data,TRANSLATION_FACTOR)
          self.augment_set_zero(x_data,ZERO_INDEX)
          self.augment_occlude(x_data,OCCLUDE_START_INDEX,OCCLUDE_WIDTH)
@@ -395,8 +400,8 @@ class USCData :
     #print( "augmented_data[7,7000]")
     #print( augmented_data[7,7000])
     #print( x_data[7,7000])
-    #augmented_data=augmented_data+self.generated_synthetic_data[self.generated_data_usage_count*self.mini_batch_size:(self.generated_data_usage_count+1)*self.mini_batch_size,:]
-    #self.generated_data_usage_count=self.generated_data_usage_count+1
+    augmented_data=augmented_data+self.generated_synthetic_data[self.generated_data_usage_count*self.mini_batch_size:(self.generated_data_usage_count+1)*self.mini_batch_size,:]
+    self.generated_data_usage_count=self.generated_data_usage_count+1
     return augmented_data
     
  def generate_synthetic_sample(self):
@@ -442,21 +447,23 @@ class USCData :
      for time_period in range(self.track_duration_in_seconds-1):
       
       for frequency_no in range(self.max_number_of_possible_distinct_frequencies_per_second):
+       randomValueFreq=np.random.gamma(2,2)
        randomValue=np.random.rand()
-       randomValueDuration=randomValue*self.track_duration_in_seconds
-       frequency=randomValue*self.sound_record_sampling_rate/2+20 # this generates 10-11025 float number,  from uniform dist. ( +20 = we can hear at minimum 20 hz ) 
+       #randomValueDuration=randomValue*self.track_duration_in_seconds
+       randomValueDuration=randomValue
+       frequency=randomValue*self.sound_record_sampling_rate+20 # this generates 10-11025 float number,  from uniform dist. ( +20 = we can hear at minimum 20 hz ) 
        #T=(1/frequency)*self.sound_record_sampling_rate# this generates 2-1102 float number,  from uniform dist.
-       volume=randomValue*2
+       volume=randomValue*10
        sine_cosine_choice=int(randomValue*2)
        #frequency_data=2*np.pi*np.arange(T)*frequency/self.sound_record_sampling_rate
-       frequency_data=2*np.pi*np.arange(self.sound_record_sampling_rate*randomValueDuration)*frequency/self.sound_record_sampling_rate
+       frequency_data=2*np.pi*np.arange(self.sound_record_sampling_rate*randomValueDuration+500)*frequency/self.sound_record_sampling_rate
        if sine_cosine_choice == 0 :
           wave_data = (np.sin(frequency_data)).astype(np.float32)
        else :
           wave_data = (np.cos(frequency_data)).astype(np.float32)
        wave_data=volume*wave_data
        
-       start_point=int(randomValue*(self.sound_record_sampling_rate/2))+time_period*self.sound_record_sampling_rate
+       start_point=int(randomValue*(self.sound_record_sampling_rate/4))+time_period*self.sound_record_sampling_rate
        
        if  start_point+wave_data.shape[0] > self.track_duration_in_seconds*self.sound_record_sampling_rate :
            wave_data=wave_data[:self.track_duration_in_seconds*self.sound_record_sampling_rate-start_point]

@@ -251,7 +251,7 @@ class USCModel :
    #classifier_out_1_2=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_out_1_flat)
    #classifier_out_1_3=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_out_1_flat)
    #classifier_out_1=keras.layers.add([classifier_out_1_1,classifier_out_1_2,classifier_out_1_3])
-   classifier_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1_flat)
+   classifier_out_1=keras.layers.Dense(units = 256,activation='sigmoid')(classifier_out_1_flat)
    classifier_out_1=keras.layers.BatchNormalization()(classifier_out_1)
    classifier_out_1=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(classifier_out_1)
 
