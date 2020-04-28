@@ -241,11 +241,11 @@ class USCModel :
    classifier_out_1=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(classifier_out_1)
    classifier_cnn_out_1=classifier_out_1
    classifier_out_1_flat=keras.layers.Flatten()(classifier_out_1)
-   classifier_out_1_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1_flat)
-   classifier_out_1_2=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1_flat)
-   classifier_out_1_3=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1_flat)
-   classifier_out_1=keras.layers.add([classifier_out_1_1,classifier_out_1_2,classifier_out_1_3])
-   classifier_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1)
+   #classifier_out_1_1=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_out_1_flat)
+   #classifier_out_1_2=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_out_1_flat)
+   #classifier_out_1_3=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_out_1_flat)
+   #classifier_out_1=keras.layers.add([classifier_out_1_1,classifier_out_1_2,classifier_out_1_3])
+   classifier_out_1=keras.layers.Dense(units = 256,activation='sigmoid')(classifier_out_1_flat)
    classifier_out_1=keras.layers.BatchNormalization()(classifier_out_1)
    classifier_out_1=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(classifier_out_1)
 
@@ -254,11 +254,11 @@ class USCModel :
    classifier_out_2=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(classifier_out_2)
    classifier_cnn_out_2=classifier_out_2
    classifier_out_2_flat=keras.layers.Flatten()(classifier_out_2)
-   classifier_out_2_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2_flat)
-   classifier_out_2_2=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2_flat)
-   classifier_out_2_3=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2_flat)
-   classifier_out_2=keras.layers.add([classifier_out_2_1,classifier_out_2_2,classifier_out_2_3])
-   classifier_out_2=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2)
+   #classifier_out_2_1=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_out_2_flat)
+   #classifier_out_2_2=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_out_2_flat)
+   #classifier_out_2_3=keras.layers.Dense(units = 32,activation='sigmoid')(classifier_out_2_flat)
+   #classifier_out_2=keras.layers.add([classifier_out_2_1,classifier_out_2_2,classifier_out_2_3])
+   classifier_out_2=keras.layers.Dense(units = 256,activation='sigmoid')(classifier_out_2_flat)
    classifier_out_2=keras.layers.BatchNormalization()(classifier_out_2)
    classifier_out_2=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(classifier_out_2)
 
@@ -266,11 +266,11 @@ class USCModel :
    classifier_out=keras.layers.concatenate([classifier_cnn_out_1,classifier_cnn_out_2])
    #classifier_out=common_cnn_out
 
-   discriminator_out=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(classifier_out)
-   discriminator_out=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(discriminator_out)
-   discriminator_out=keras.layers.Convolution1D(32, 4,activation='relu', padding='same')(discriminator_out)
+   discriminator_out=keras.layers.Convolution1D(4, 4,activation='relu', padding='same')(classifier_out)
+   discriminator_out=keras.layers.Convolution1D(4, 4,activation='relu', padding='same')(discriminator_out)
+   discriminator_out=keras.layers.Convolution1D(4, 4,activation='relu', padding='same')(discriminator_out)
    discriminator_out=keras.layers.Flatten()(discriminator_out)
-   discriminator_out=keras.layers.Dense(units = 64,activation='sigmoid')(discriminator_out)
+   discriminator_out=keras.layers.Dense(units = 4,activation='sigmoid')(discriminator_out)
    discriminator_out=keras.layers.BatchNormalization()(discriminator_out)
    discriminator_out=keras.layers.Dense(units = 1,activation='sigmoid')(discriminator_out)
    
@@ -291,8 +291,8 @@ class USCModel :
    
    self.model.compile(
        #optimizer=keras.optimizers.Adam(lr=0.0001,beta_1=0.9, beta_2=0.999),
-       #optimizer=keras.optimizers.Adam(lr=0.0001),
-       optimizer=keras.optimizers.SGD(learning_rate=0.01, momentum=0.0, nesterov=False),
+       optimizer=keras.optimizers.Adam(lr=0.0001),
+       #optimizer=keras.optimizers.SGD(learning_rate=0.01, momentum=0.0, nesterov=False),
        #loss=['categorical_crossentropy','categorical_crossentropy','mse'],
        loss=['categorical_crossentropy','categorical_crossentropy','binary_crossentropy'],
        loss_weights=[layer_categorical_weight*8/20,   layer_categorical_weight*8/20,   4/20],

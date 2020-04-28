@@ -32,7 +32,7 @@ class USCData :
      
    
    self.max_number_of_possible_distinct_frequencies_per_second=50
-   self.generated_data_count=20000
+   self.generated_data_count=2000
    self.generated_data_usage_count=0
    self.generated_synthetic_data=None
    self.generate_synthetic_sample()
@@ -137,10 +137,15 @@ class USCData :
     #normalized_data = data/np.linalg.norm(data) 
     normalized_data = data
     if data.shape[0]>0 :
+       #print("###########################################")
+       #print(np.amin(data))
+       #print(np.amax(data))
        minimum=np.amin(data)
        maximum=np.amax(data)
        delta=maximum-minimum
        normalized_data = (data-minimum)/delta
+       #print(np.amin(normalized_data))
+       #print(np.amax(normalized_data))
 
     return normalized_data
 
