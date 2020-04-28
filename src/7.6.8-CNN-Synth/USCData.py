@@ -31,8 +31,8 @@ class USCData :
 
      
    
-   self.max_number_of_possible_distinct_frequencies_per_second=50
-   self.generated_data_count=2000
+   self.max_number_of_possible_distinct_frequencies_per_second=10
+   self.generated_data_count=5000
    self.generated_data_usage_count=0
    self.generated_synthetic_data=None
    self.generate_synthetic_sample()
@@ -449,13 +449,14 @@ class USCData :
       for frequency_no in range(self.max_number_of_possible_distinct_frequencies_per_second):
        randomValueFreq=np.random.gamma(2,2)
        randomValue=np.random.rand()
-       randomValueDuration=randomValue*self.track_duration_in_seconds
+       #randomValueDuration=randomValue*self.track_duration_in_seconds
+       randomValueDuration=randomValue
        frequency=randomValue*self.sound_record_sampling_rate+20 # this generates 10-11025 float number,  from uniform dist. ( +20 = we can hear at minimum 20 hz ) 
        #T=(1/frequency)*self.sound_record_sampling_rate# this generates 2-1102 float number,  from uniform dist.
        volume=randomValue*10
        sine_cosine_choice=int(randomValue*2)
        #frequency_data=2*np.pi*np.arange(T)*frequency/self.sound_record_sampling_rate
-       frequency_data=2*np.pi*np.arange(self.sound_record_sampling_rate*randomValueDuration)*frequency/self.sound_record_sampling_rate
+       frequency_data=2*np.pi*np.arange(self.sound_record_sampling_rate*randomValueDuration+500)*frequency/self.sound_record_sampling_rate
        if sine_cosine_choice == 0 :
           wave_data = (np.sin(frequency_data)).astype(np.float32)
        else :
