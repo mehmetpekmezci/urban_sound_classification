@@ -400,8 +400,12 @@ class USCData :
     #print( "augmented_data[7,7000]")
     #print( augmented_data[7,7000])
     #print( x_data[7,7000])
+    
+    
     augmented_data=augmented_data+self.generated_synthetic_data[self.generated_data_usage_count*self.mini_batch_size:(self.generated_data_usage_count+1)*self.mini_batch_size,:]
     self.generated_data_usage_count=self.generated_data_usage_count+1
+    
+    
     return augmented_data
     
  def generate_synthetic_sample(self):
