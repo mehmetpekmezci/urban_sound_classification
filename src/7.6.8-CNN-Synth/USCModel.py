@@ -304,7 +304,7 @@ class USCModel :
    
    self.model.compile(
        #optimizer=keras.optimizers.Adam(lr=0.0001,beta_1=0.9, beta_2=0.999),
-       optimizer=keras.optimizers.Adam(lr=0.00001),
+       optimizer=keras.optimizers.Adam(lr=0.0001),
        #optimizer=keras.optimizers.SGD(learning_rate=0.01, momentum=0.0, nesterov=False),
        #loss=['categorical_crossentropy','categorical_crossentropy','mse'],
        loss=['categorical_crossentropy','categorical_crossentropy','binary_crossentropy'],
