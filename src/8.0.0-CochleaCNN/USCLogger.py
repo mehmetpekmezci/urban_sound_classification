@@ -102,7 +102,7 @@ class USCLogger :
     
 
 
- def getNewLogDictionaryCochlea(self):
+ def getNewLogDictionary(self):
     
     logs=dict()
     logs['Training']=dict()
