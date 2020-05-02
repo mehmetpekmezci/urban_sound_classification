@@ -12,7 +12,7 @@ random      = importlib.import_module("random")
 
 
 # 1 RECORD is 4 seconds = 4 x sampling rate double values = 4 x 22050 = 88200 = (2^3) x ( 3^2) x (5^2) x (7^2)
-SOUND_RECORD_SAMPLING_RATE=22050
+SOUND_RECORD_SAMPLING_RATE=44100
 TRACK_LENGTH=4*SOUND_RECORD_SAMPLING_RATE
 NUMBER_OF_RECORDS_PER_NPY_FILE=100
 
@@ -29,7 +29,7 @@ for category in glob.glob('raw/*/'):
           sound_data=np.array(sound_data)
 
           if sound_data.shape[0] < TRACK_LENGTH :
-             sound_data_in_4_second=np.zeros(4*SOUND_RECORD_SAMPLING_RATE)
+             sound_data_in_4_second=np.zeros((4*SOUND_RECORD_SAMPLING_RATE),dtype=np.float32)
              sound_data_in_4_second[:sound_data.shape[0]]=sound_data
           else  :
              sound_data_in_4_second=sound_data[:4*SOUND_RECORD_SAMPLING_RATE]
