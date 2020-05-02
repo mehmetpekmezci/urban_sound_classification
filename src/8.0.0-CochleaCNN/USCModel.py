@@ -14,13 +14,16 @@ class USCModel :
    self.uscCochlea            = uscCochlea
    ## self.uscData.time_slice_length = 440
 
+
+   self.uscLogger.logger.info("###########################################")
+   self.uscLogger.logger.info("STARTING CLASSIFIER DEFINITION")
+   self.uscLogger.logger.info("")
+   
    script_dir=os.path.dirname(os.path.realpath(__file__))
    script_name=os.path.basename(script_dir)
    self.model_save_dir=script_dir+"/../../save/"+script_name
    self.model_save_file="model.h5"
 
-   ## so we will have nearly 400 time steps in 4 secs record. (88200) (with %50 overlapping)
-   self.lstm_time_steps       = self.uscData.number_of_time_slices
    self.training_iterations   = 20000
    self.buildModel()
 
@@ -57,7 +60,7 @@ class USCModel :
   y_data=data[:,4*self.uscData.sound_record_sampling_rate]
   y_data_one_hot_encoded=self.uscData.one_hot_encode_array(y_data)
 
-  #x_data=x_data.reshape(x_data.shape[0],x_data.shape[1],1)
+  x_data=x_data.reshape(x_data.shape[0],x_data.shape[1],x_data.shape[2],x_data.shape[3],1)
   #self.uscLogger.logger.info("x_data.shape="+str(x_data.shape))
 
   return x_data,y_data_one_hot_encoded
@@ -145,22 +148,33 @@ class USCModel :
 
  def buildModel(self):
 
-   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_windows,self.uscData.mfcc_image_dimensions[0],self.uscData.mfcc_image_dimensions[1]),name="layer_input")
+   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.number_of_windows,self.uscData.mfcc_image_dimensions[0],self.uscData.mfcc_image_dimensions[1],1),name="layer_input")
    self.uscLogger.logger.info("layer_input.shape="+str(layer_input.shape))
 
-   out=keras.layers.TimeDistributed(keras.layers.Convolution2D(64, (8, 8),activation='relu', padding='same'), input_shape=(self.uscData.number_of_windows, self.uscData.mfcc_image_dimensions[0],self.uscData.mfcc_image_dimensions[1]))(layer_input) 
-   out=keras.layers.TimeDistributed(keras.layers.MaxPooling2D((4, 4),strides=(4,4),activation='relu', padding='same'))(out) 
-   out=keras.layers.TimeDistributed(keras.layers.Convolution2D(64, (8, 8),activation='relu', padding='same'))(out) 
-   out=keras.layers.TimeDistributed(keras.layers.MaxPooling2D((4, 4),strides=(4,4),activation='relu', padding='same'))(out) 
-   out=keras.layers.TimeDistributed(keras.layers.Convolution2D(64, (8, 8),activation='relu', padding='same'))(out) 
-   out=keras.layers.TimeDistributed(keras.layers.MaxPooling2D((4, 4),strides=(4,4),activation='relu', padding='same'))(out) 
-   out=keras.layers.TimeDistributed(keras.layers.Convolution2D(64, (8, 8),activation='relu', padding='same'))(out) 
-   out=keras.layers.TimeDistributed(keras.layers.MaxPooling2D((4, 4),strides=(4,4),activation='relu', padding='same'))(out) 
-   out=keras.layers.TimeDistributed(keras.layers.Convolution2D(64, (8, 8),activation='relu', padding='same'))(out) 
-   out=keras.layers.TimeDistributed(keras.layers.MaxPooling2D((4, 4),strides=(4,4),activation='relu', padding='same'))(out) 
-   out=keras.layers.Flatten()(out)
+   #out=keras.layers.TimeDistributed(keras.layers.Convolution2D(64, (4, 2),activation='relu', padding='valid'), input_shape=(self.uscData.number_of_windows, self.uscData.mfcc_image_dimensions[0],self.uscData.mfcc_image_dimensions[1]))(layer_input) 
+   out=keras.layers.TimeDistributed(keras.layers.Convolution2D(64,(4,2),activation='relu'), input_shape=(self.uscData.number_of_windows, self.uscData.mfcc_image_dimensions[0],self.uscData.mfcc_image_dimensions[1],1))(layer_input) 
+   self.uscLogger.logger.info("1. out.shape="+str(out.shape))
+
+   out=keras.layers.TimeDistributed(keras.layers.MaxPooling2D((2,1),strides=(2,1)))(out) 
+   self.uscLogger.logger.info("2. out.shape="+str(out.shape))
+   
+   out=keras.layers.TimeDistributed(keras.layers.Convolution2D(64, (4, 2),activation='relu'))(out) 
+   self.uscLogger.logger.info("3. out.shape="+str(out.shape))
+
+   out=keras.layers.TimeDistributed(keras.layers.MaxPooling2D((2, 1),strides=(2,1)))(out) 
+   self.uscLogger.logger.info("4. out.shape="+str(out.shape))
+
+   out=keras.layers.TimeDistributed(keras.layers.Convolution2D(64, (4, 2),activation='relu'))(out) 
+   self.uscLogger.logger.info("5. out.shape="+str(out.shape))
+
+   out=keras.layers.TimeDistributed(keras.layers.Flatten())(out)
+   self.uscLogger.logger.info("6. out.shape="+str(out.shape))
+
    out=keras.layers.Dropout(0.5)(out)
-   out=keras.layers.LSTM(256, return_sequences=False, dropout=0.5)(out)
+   out=keras.layers.LSTM(128, return_sequences=False, dropout=0.5)(out)
+   self.uscLogger.logger.info("7. out.shape="+str(out.shape))
+
+
    out=keras.layers.Dense(units = 64,activation='sigmoid')(out)
    out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
    self.model = keras.models.Model(inputs=[layer_input],outputs=[out])

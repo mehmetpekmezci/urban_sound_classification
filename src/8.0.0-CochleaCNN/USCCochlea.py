@@ -17,6 +17,10 @@ class USCCochlea :
    self.uscLogger             = uscLogger
    self.uscData               = uscData
 
+   self.uscLogger.logger.info("###########################################")
+   self.uscLogger.logger.info("STARTING COCHLEA DEFINITION")
+   self.uscLogger.logger.info("")
+   
    script_dir=os.path.dirname(os.path.realpath(__file__))
    script_name=os.path.basename(script_dir)
    self.model_save_dir=script_dir+"/../../save/"+script_name
@@ -27,6 +31,9 @@ class USCCochlea :
    self.load_weights()
    self.trainCount=0
    self.model.summary(print_fn=uscLogger.logger.info)
+   self.uscLogger.logger.info("COCHLEA DEFINITION IS FINISHED")
+   self.uscLogger.logger.info("###########################################")
+   self.uscLogger.logger.info("")
 
 
  def load_weights(self):
@@ -134,9 +141,8 @@ class USCCochlea :
 
    out=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)
    
-   out=keras.layers.Dense(units = self.USCData.mfcc_image_dimensions,activation='sigmoid')(out)
+   out=keras.layers.Dense(units = self.uscData.number_of_windows*self.uscData.mfcc_image_dimensions[0]*self.uscData.mfcc_image_dimensions[1],activation='sigmoid')(out)
    
-   out=keras.layers.BatchNormalization()(out)
    
    
    self.model = keras.models.Model(
@@ -149,6 +155,7 @@ class USCCochlea :
        loss=['mse'],
        metrics=[['accuracy']]
    )
+
 
 
 

@@ -119,7 +119,7 @@ class USCLogger :
     return logs
 
  
-  def appendLogDataCochlea(self,logDictionary,logData,mode):
+ def appendLogDataCochlea(self,logDictionary,logData,mode):
          logDictionary['PrepareDataTimes'].append(logData[3])
          logDictionary['Times'].append(logData[0])
          logDictionary['Accuracies'].append(logData[2])

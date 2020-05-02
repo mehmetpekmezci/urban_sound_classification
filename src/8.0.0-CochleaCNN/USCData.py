@@ -22,8 +22,8 @@ class USCData :
    self.np_data_dir=self.main_data_dir+'/1.np'
     # 44100 sample points per second
   
-   self.max_number_of_possible_distinct_frequencies_per_second=20
-   self.generated_data_count=10000
+   self.max_number_of_possible_distinct_frequencies_per_second=1
+   self.generated_data_count=500
    self.generated_data_usage_count=0
    self.generated_synthetic_data=None
    self.generate_synthetic_sample()
@@ -50,7 +50,7 @@ class USCData :
    self.mfcc_fft_window_size=512
    self.n_mfcc=40
    self.window_size_in_milliseconds=50 #  1 second = 1000 milliseconds ,  Humans can hear 20Hz - 20000Hz , 20Hz -->> 1000/20 = 50 milliseconds. ( biggest sound wave )
-   self.window_size_array_length=int((window_size/1000)*self.sampling_rate)*
+   self.window_size_array_length=int((self.window_size_in_milliseconds/1000)*self.sound_record_sampling_rate)
    self.overlap_ratio=0.5
    self.number_of_windows=int(( self.track_length/self.window_size_array_length ) / self.overlap_ratio) ## /1000 is  milli seconds
    self.mfcc_image_dimensions=(self.n_mfcc, int(self.window_size_array_length / self.mfcc_fft_window_size) ) 
@@ -445,7 +445,7 @@ class USCData :
     
        
  def analytical_mfcc(self,x_data):
-     mfcc=np.zeros((x_data.shape[0],self.number_of_windows,self.mfcc_image_dimensions[0],self.mfcc_image_dimensions[1])
+     mfcc=np.zeros((x_data.shape[0],self.number_of_windows,self.mfcc_image_dimensions[0],self.mfcc_image_dimensions[1]))
      for batch_no in range(x_data.shape[0]):
         for window_no in range(self.number_of_windows):
            window_start_index=int(window_no*self.window_size_array_length*self.overlap_ratio)
