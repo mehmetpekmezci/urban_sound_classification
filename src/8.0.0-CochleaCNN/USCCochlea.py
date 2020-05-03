@@ -48,17 +48,18 @@ class USCCochlea :
 
  def prepareData(self,data):
   x_data=data[:,:4*self.uscData.sound_record_sampling_rate]
-  x_data=self.uscData.augment_random(x_data)
+  y_data=data[:,4*self.uscData.sound_record_sampling_rate:]
+  #x_data=self.uscData.augment_random(x_data)
   x_data=self.uscData.normalize(x_data)
-  mfcc=self.uscData.analytical_mfcc(x_data)
-  y_data=mfcc.rehape(mfcc.shape[0],mfcc.shape[1]*mfcc.shape[2]*mfcc.shape[3])
+  #mfcc=self.uscData.analytical_mfcc(x_data)
+  #y_data=mfcc.reshape(mfcc.shape[0],mfcc.shape[1]*mfcc.shape[2]*mfcc.shape[3])
   x_data=x_data.reshape(x_data.shape[0],x_data.shape[1],1)
   return x_data,y_data
 
 
- def train(self,data,categorical_weight):
+ def train(self,data):
   prepareDataTimeStart = int(round(time.time())) 
-  x_data,y_data=self.prepareData(data,augment)
+  x_data,y_data=self.prepareData(data)
   prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   trainingTimeStart = int(round(time.time())) 
@@ -97,11 +98,10 @@ class USCCochlea :
      y_pred.reshape(y_pred.shape[0],self.uscData.number_of_windows,self.uscData.mfcc_image_dimensions[0],self.uscData.mfcc_image_dimensions[1])
      return y_pred
 
- def test(self,data,categorical_weight):
+ def test(self,data):
   testTimeStart = int(round(time.time())) 
-  augment=False
   prepareDataTimeStart = int(round(time.time())) 
-  x_data,y_data=self.prepareData(data,augment) 
+  x_data,y_data=self.prepareData(data) 
   prepareDataTimeStop = int(round(time.time())) 
   prepareDataTime=prepareDataTimeStop-prepareDataTimeStart
   
@@ -125,13 +125,13 @@ class USCCochlea :
    out=keras.layers.Convolution1D(64, 64,strides=16,activation='relu', padding='same')(layer_input)
    out=keras.layers.Dropout(0.2)(out)
    
-   out=keras.layers.Convolution1D(64, 64,strides=16,activation='relu', padding='same')(layer_input)
+   out=keras.layers.Convolution1D(64, 64,strides=16,activation='relu', padding='same')(out)
    
-   out=keras.layers.Convolution1D(64, 64,strides=16,activation='relu', padding='same')(layer_input)
+   out=keras.layers.Convolution1D(64, 64,strides=16,activation='relu', padding='same')(out)
    
-   out=keras.layers.Convolution1D(64, 64,strides=16,activation='relu', padding='same')(layer_input)
-   
-   out=keras.layers.Convolution1D(64, 64,strides=16,activation='relu', padding='same')(layer_input)
+   out=keras.layers.Convolution1D(64, 64,strides=16,activation='relu', padding='same')(out)
+      
+   out=keras.layers.Convolution1D(16, 4,strides=2,activation='relu', padding='same')(out)
       
    out=keras.layers.BatchNormalization()(out)
 
@@ -140,6 +140,8 @@ class USCCochlea :
    out=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)
 
    out=keras.layers.Convolution1D(16, 4,activation='relu', padding='same')(out)
+   
+   out=keras.layers.Flatten()(out)
    
    out=keras.layers.Dense(units = self.uscData.number_of_windows*self.uscData.mfcc_image_dimensions[0]*self.uscData.mfcc_image_dimensions[1],activation='sigmoid')(out)
    
@@ -151,7 +153,7 @@ class USCCochlea :
                           )
    
    self.model.compile(
-       optimizer=keras.optimizers.Adam(lr=0.0001),
+       optimizer=keras.optimizers.Adam(lr=0.00001),
        loss=['mse'],
        metrics=[['accuracy']]
    )

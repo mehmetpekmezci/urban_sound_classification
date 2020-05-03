@@ -66,7 +66,7 @@ class USCModel :
   return x_data,y_data_one_hot_encoded
 
 
- def train(self,data,categorical_weight):
+ def train(self,data):
   augment=True
   prepareDataTimeStart = int(round(time.time())) 
   x_data,y_data=self.prepareData(data,augment)
@@ -121,7 +121,7 @@ class USCModel :
 #     data[:,4*self.uscData.sound_record_sampling_rate]= np.argmax(predicted_value, axis=1)
 #     return data
 
- def test(self,data,categorical_weight):
+ def test(self,data):
   testTimeStart = int(round(time.time())) 
   augment=False
   prepareDataTimeStart = int(round(time.time())) 

@@ -30,7 +30,7 @@ def main(_):
     current_youtube_data_as_list=uscData.getNextYoutubeData()
     
     for current_batch_counter in range(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)) :
-    
+         uscLogger.logger.info(str(current_batch_counter)+"/"+str(math.floor(len(current_youtube_data_as_list)/uscData.mini_batch_size)))
          stage_logs=uscLogger.getNewLogDictionary()
          batch_data=np.random.permutation(current_youtube_data_as_list[current_batch_counter*uscData.mini_batch_size:(current_batch_counter+1)*uscData.mini_batch_size])
          
@@ -38,12 +38,13 @@ def main(_):
            logData = uscCochlea.test(batch_data)
            uscLogger.appendLogData(stage_logs[mode],logData,mode)
            uscLogger.appendLogData(epoch_logs[mode],logData,mode)
-           uscLogger.logStepEnd('YoutubeData-'+str(current_batch_counter),mode,stage_logs,trainingIterationNo)
+           #uscLogger.logStepEnd('YoutubeData-'+str(current_batch_counter),mode,stage_logs,trainingIterationNo)
          else :
            logData = uscCochlea.train(batch_data)
            uscLogger.appendLogData(stage_logs[mode],logData,mode)
            uscLogger.appendLogData(epoch_logs[mode],logData,mode)
-
+           
+         uscLogger.logStepEnd('YoutubeData-'+str(current_batch_counter),mode,stage_logs,trainingIterationNo)
            
     uscLogger.logStepEnd('SUMMARY',mode,epoch_logs,trainingIterationNo)          
     ### YOUTUBE DATA

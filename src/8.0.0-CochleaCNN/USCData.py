@@ -2,6 +2,8 @@
 from USCHeader import *
 
 
+
+
 class USCData :
  def __init__(self, logger):
  
@@ -43,9 +45,9 @@ class USCData :
    self.youtube_data_max_category_data_file_count=0
    self.current_data_file_number=0
    self.prepareData()
-   #self.findListOfYoutubeDataFiles()
-   #self.youtubeDataLoaderThread=threading.Thread(target=self.youtube_data_loader_thread_worker_method, daemon=True)
-   #self.youtubeDataLoaderThread.start()
+   self.findListOfYoutubeDataFiles()
+   self.youtubeDataLoaderThread=threading.Thread(target=self.youtube_data_loader_thread_worker_method, daemon=True)
+   self.youtubeDataLoaderThread.start()
    
    self.mfcc_fft_window_size=512
    self.n_mfcc=40
@@ -53,7 +55,7 @@ class USCData :
    self.window_size_array_length=int((self.window_size_in_milliseconds/1000)*self.sound_record_sampling_rate)
    self.overlap_ratio=0.5
    self.number_of_windows=int(( self.track_length/self.window_size_array_length ) / self.overlap_ratio) ## /1000 is  milli seconds
-   self.mfcc_image_dimensions=(self.n_mfcc, int(self.window_size_array_length / self.mfcc_fft_window_size) ) 
+   self.mfcc_image_dimensions=(self.n_mfcc, int(self.window_size_array_length / self.mfcc_fft_window_size + 1) ) 
 
  
  
@@ -212,7 +214,8 @@ class USCData :
      return returnValue
 
  def loadNextYoutubeData(self):
-     local_youtube_data=np.empty([0,4*self.sound_record_sampling_rate+1])
+     self.logger.info("self.loadNextYoutubeData is Called")
+     local_youtube_data=np.empty([0,4*self.sound_record_sampling_rate+1],np.float32)
      for category in  self.youtube_data_file_dictionary :
          dataFileList= self.youtube_data_file_dictionary[category]
          if len(dataFileList) > self.current_data_file_number :
@@ -451,10 +454,15 @@ class USCData :
            window_start_index=int(window_no*self.window_size_array_length*self.overlap_ratio)
            window_end_index=window_start_index+self.window_size_array_length
            window=x_data[batch_no,window_start_index:window_end_index]
-           mfcc_image=librosa.feature.mfcc(y=window, sr=self.sampling_rate, n_mfcc=self.n_mfcc)
-           mfcc[batch_no,window_no]=mfcc_image      
+           mfcc_image=librosa.feature.mfcc(y=window, sr=self.sound_record_sampling_rate, n_mfcc=self.n_mfcc)
+           for i in range(mfcc_image.shape[1]):
+              mfcc[batch_no,window_no,:,i]=mfcc_image[:,i]      
      return mfcc 
      
+     
+     
+
+
 
    
 '''

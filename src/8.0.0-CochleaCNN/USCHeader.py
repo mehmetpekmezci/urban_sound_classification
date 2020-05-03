@@ -25,6 +25,9 @@ keras       = importlib.import_module("keras")
 threading   = importlib.import_module("threading")
 pyaudio     = importlib.import_module("pyaudio")
 plt         = importlib.import_module("matplotlib.pyplot")
+dali        = importlib.import_module("nvidia.dali")
+
+
 
 
        
