@@ -24,7 +24,7 @@ for category in glob.glob('raw/*/'):
         
    for wav_file in random.sample(fileList,len(fileList)):
 #     try :
-          print('Processing File: ',wav_file)
+          #print('Processing File: ',wav_file)
           sound_data,sampling_rate=librosa.load(wav_file)
           sound_data=np.array(sound_data)
 
@@ -36,11 +36,11 @@ for category in glob.glob('raw/*/'):
 
           sound_data_group.append(sound_data_in_4_second)
 
-          print('len(sound_data_group)= ',len(sound_data_group))
+          #print('len(sound_data_group)= ',len(sound_data_group))
 
           if len(fileList) >=  NUMBER_OF_RECORDS_PER_NPY_FILE :
             if len(sound_data_group) == NUMBER_OF_RECORDS_PER_NPY_FILE :
-               print('Writing Data File No: ',counter)
+              # print('Writing Data File No: ',counter)
                np.save(category+'/data.'+str(counter)+'.npy',sound_data_group) 
                sound_data_group=[]
                counter+=1
@@ -52,7 +52,7 @@ for category in glob.glob('raw/*/'):
                  counter+=1
           else :
              if len(sound_data_group) == len(fileList) :
-               print('Writing Data File No: ',counter)
+               #print('Writing Data File No: ',counter)
                np.save(category+'/data.'+str(counter)+'.npy',sound_data_group) 
                sound_data_group=[]
                counter+=1
