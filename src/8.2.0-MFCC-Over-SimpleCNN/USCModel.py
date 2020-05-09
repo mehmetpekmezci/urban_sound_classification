@@ -163,96 +163,38 @@ class USCModel :
 
  def buildModel(self):
    #layer_input_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1),name="layer_input_1")
-   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,169,52,1),name="layer_input")
+   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,341,52,1),name="layer_input")
    self.uscLogger.logger.info("layer_input.shape="+str(layer_input.shape))
 
 
    # Convolution1D(filters, kernel_size,...)
 
 
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(layer_input)
+   out=keras.layers.Convolution2D(16, (7, 7),activation='relu', padding='same')(layer_input)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
+   out=keras.layers.MaxPooling2D((7,7),strides=(4,4), padding='same')(out)
      
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
+   out=keras.layers.Convolution2D(16, (7, 7),activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
+   out=keras.layers.MaxPooling2D((7,7),strides=(4,4), padding='same')(out)
+     
+   out=keras.layers.Convolution2D(16, (7, 7),activation='relu', padding='same')(out)
+   out=keras.layers.Dropout(0.2)(out)
+   out=keras.layers.MaxPooling2D((7,7),strides=(4,2), padding='same')(out)
         
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
+   out=keras.layers.Convolution2D(16, (3, 3),activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
    out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-        
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
+   
+   out=keras.layers.Convolution2D(16, (3, 3),activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
    out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-        
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-        
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-
-
-        
- 
+   
    out=keras.layers.BatchNormalization()(out)
 
    out=keras.layers.Flatten()(out)
-   
-   
-   first_denses=[]
-   for i in range(32):
-      first_denses.append(keras.layers.Dense(units = 2,activation='sigmoid')(out))
-   
-   second_denses=[]
-   for i in range(32):
-      second_denses.append(keras.layers.add([first_denses[i],first_denses[-i]]))
-      
-   third_denses=[]
-   for i in range(32):
-      third_denses.append(keras.layers.add([second_denses[i],second_denses[-i]]))
-      
-   fourth_denses=[]
-   for i in range(32):
-      fourth_denses.append(keras.layers.add([third_denses[i],third_denses[-i]]))
-      
-   out=keras.layers.add(fourth_denses)
-
+   out=keras.layers.Dense(units = 128,activation='sigmoid')(out)
    out=keras.layers.BatchNormalization()(out)
-   
-   
-   first_denses=[]
-   for i in range(32):
-      first_denses.append(keras.layers.Dense(units = 2,activation='sigmoid')(out))
-   
-   second_denses=[]
-   for i in range(32):
-      second_denses.append(keras.layers.add([first_denses[i],first_denses[-i]]))
-      
-   third_denses=[]
-   for i in range(32):
-      third_denses.append(keras.layers.add([second_denses[i],second_denses[-i]]))
-      
-   fourth_denses=[]
-   for i in range(32):
-      fourth_denses.append(keras.layers.add([third_denses[i],third_denses[-i]]))
-      
-   out=keras.layers.add(fourth_denses)
-
-   out=keras.layers.BatchNormalization()(out)
-   
-   
-  
    out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
 
 
@@ -276,10 +218,10 @@ class USCModel :
 
 
  def mfcc(self,data):
-      stfts = tf.signal.stft(data, frame_length=4096, frame_step=1024,fft_length=4096)
+      stfts = tf.signal.stft(data, frame_length=2048, frame_step=512,fft_length=2048)
       spectrograms = tf.abs(stfts)
       num_spectrogram_bins = stfts.shape[-1]
-      lower_edge_hertz, upper_edge_hertz, num_mel_bins = 80.0, 12000.0, 80
+      lower_edge_hertz, upper_edge_hertz, num_mel_bins = 80.0, 10000.0, 80
       linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(
                                            num_mel_bins, num_spectrogram_bins, self.uscData.sound_record_sampling_rate, lower_edge_hertz,upper_edge_hertz)
       mel_spectrograms = tf.tensordot(spectrograms, linear_to_mel_weight_matrix, 1)

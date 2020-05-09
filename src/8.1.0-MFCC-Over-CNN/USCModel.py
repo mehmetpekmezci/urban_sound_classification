@@ -211,11 +211,11 @@ class USCModel :
 
  def buildModel(self):
    #layer_input_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1),name="layer_input_1")
-   layer_input_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,686,13,1),name="layer_input_1")
+   layer_input_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,686,26,1),name="layer_input_1")
    self.uscLogger.logger.info("layer_input_1.shape="+str(layer_input_1.shape))
 
    #layer_input_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1),name="layer_input_2")
-   layer_input_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,686,13,1),name="layer_input_2")
+   layer_input_2 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,686,26,1),name="layer_input_2")
    self.uscLogger.logger.info("layer_input_2.shape="+str(layer_input_2.shape))
 
    layer_categorical_weight = keras.layers.Input(shape=(1,1),name="layer_categorical_weight")
@@ -237,15 +237,15 @@ class USCModel :
    
    out=keras.layers.Convolution2D(64, (3, 3),activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,1), padding='same')(out)
+   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
    
    out=keras.layers.Convolution2D(64, (3, 3),activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,1), padding='same')(out)
+   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
    
    out=keras.layers.Convolution2D(64, (3, 3),activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,1), padding='same')(out)
+   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
    
    out=keras.layers.Convolution2D(64, (3, 3),activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
@@ -266,8 +266,8 @@ class USCModel :
    classifier_out_1=keras.layers.Convolution2D(64, (3, 3),activation='relu', padding='same')(classifier_out_1)
    classifier_cnn_out_1=classifier_out_1
    classifier_out_1_flat=keras.layers.Flatten()(classifier_out_1)
-   classifier_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1_flat)
-   classifier_out_1=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_1)
+   classifier_out_1=keras.layers.Dense(units = 64,activation='sigmoid')(classifier_out_1_flat)
+   classifier_out_1=keras.layers.Dense(units = 64,activation='sigmoid')(classifier_out_1)
    classifier_out_1=keras.layers.BatchNormalization()(classifier_out_1)
    classifier_out_1=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(classifier_out_1)
 
@@ -275,8 +275,8 @@ class USCModel :
    classifier_out_2=keras.layers.Convolution2D(64, (3, 3),activation='relu', padding='same')(classifier_out_2)
    classifier_cnn_out_2=classifier_out_2
    classifier_out_2_flat=keras.layers.Flatten()(classifier_out_2)
-   classifier_out_2=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2_flat)
-   classifier_out_2=keras.layers.Dense(units = 128,activation='sigmoid')(classifier_out_2)
+   classifier_out_2=keras.layers.Dense(units = 64,activation='sigmoid')(classifier_out_2_flat)
+   classifier_out_2=keras.layers.Dense(units = 64,activation='sigmoid')(classifier_out_2)
    classifier_out_2=keras.layers.BatchNormalization()(classifier_out_2)
    classifier_out_2=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(classifier_out_2)
 
@@ -284,7 +284,7 @@ class USCModel :
    classifier_out=keras.layers.concatenate([classifier_cnn_out_1,classifier_cnn_out_2])
    #classifier_out=common_cnn_out
 
-   discriminator_out=keras.layers.Convolution2D(64, (3, 3),activation='relu')(classifier_out)
+   discriminator_out=keras.layers.Convolution2D(64, (3, 3),activation='relu', padding='same')(classifier_out)
    discriminator_out=keras.layers.Flatten()(discriminator_out)
    discriminator_out=keras.layers.Dense(units = 64,activation='sigmoid')(discriminator_out)
    discriminator_out=keras.layers.BatchNormalization()(discriminator_out)
@@ -307,7 +307,7 @@ class USCModel :
    
    self.model.compile(
        #optimizer=keras.optimizers.Adam(lr=0.0001,beta_1=0.9, beta_2=0.999),
-       optimizer=keras.optimizers.Adam(lr=0.0001),
+       optimizer=keras.optimizers.Adam(lr=0.00001),
        #optimizer=keras.optimizers.SGD(learning_rate=0.01, momentum=0.0, nesterov=False),
        #loss=['categorical_crossentropy','categorical_crossentropy','mse'],
        loss=['categorical_crossentropy','categorical_crossentropy','binary_crossentropy'],
@@ -328,7 +328,7 @@ class USCModel :
       # Compute a stabilized log to get log-magnitude mel-scale spectrograms.
       log_mel_spectrograms = tf.math.log(mel_spectrograms + 1e-6)
       # Compute MFCCs from log_mel_spectrograms and take the first 13.
-      mfccs = np.array(tf.signal.mfccs_from_log_mel_spectrograms(log_mel_spectrograms)[..., :13])
+      mfccs = np.array(tf.signal.mfccs_from_log_mel_spectrograms(log_mel_spectrograms)[..., :26])
       return mfccs
  
 

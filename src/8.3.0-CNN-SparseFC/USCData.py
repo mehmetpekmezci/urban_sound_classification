@@ -410,9 +410,12 @@ class USCData :
     
     
     augmented_data=augmented_data+self.generated_synthetic_data[self.generated_data_usage_count*self.mini_batch_size:(self.generated_data_usage_count+1)*self.mini_batch_size,:]
+    
+    
+    ## PUT SOME DATA POINTS A LITTLE BIT FROM OTHER TYPES (RANDOM), SO THAT NN WILL TRAIN TO DISTINGUISH EVEN IF SOME PARTS ARE EQUAL WITH OTHER TYPES 
     start_point=int(np.random.rand()*self.track_length*3/4)
     x_data_shuffled_copy=np.random.permutation(x_data)
-    augmented_data[:,start_point:start_point+20000]=x_data_shuffled_copy[:,start_point:start_point+20000]
+    augmented_data[:,start_point:start_point+20000]=self.normalize(x_data_shuffled_copy[:,start_point:start_point+20000])
     self.generated_data_usage_count=self.generated_data_usage_count+1
     
     

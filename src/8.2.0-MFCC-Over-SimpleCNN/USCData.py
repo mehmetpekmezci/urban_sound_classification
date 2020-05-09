@@ -31,8 +31,8 @@ class USCData :
 
      
    
-   self.max_number_of_possible_distinct_frequencies_per_second=10
-   self.generated_data_count=5000
+   self.max_number_of_possible_distinct_frequencies_per_second=15
+   self.generated_data_count=50
    self.generated_data_usage_count=0
    self.generated_synthetic_data=None
    self.generate_synthetic_sample()
@@ -135,7 +135,7 @@ class USCData :
 
  def normalize(self,data):
     #normalized_data = data/np.linalg.norm(data) 
-    normalized_data = np.copy(data)
+    normalized_data = data
     if data.shape[0]>0 :
        #print("###########################################")
        #print(np.amin(data))
@@ -215,12 +215,12 @@ class USCData :
      return returnValue
 
  def loadNextYoutubeData(self):
-     local_youtube_data=np.empty([0,4*self.sound_record_sampling_rate+1],dtype=np.float32)
+     local_youtube_data=np.empty([0,4*self.sound_record_sampling_rate+1])
      for category in  self.youtube_data_file_dictionary :
          dataFileList= self.youtube_data_file_dictionary[category]
          if len(dataFileList) > self.current_data_file_number :
              #self.logger.info("loading"+ category+'/data.'+str(self.current_data_file_number)+'.npy')
-             loadedData=np.load(category+'/data.'+str(self.current_data_file_number)+'.npy',dtype=np.float32)
+             loadedData=np.load(category+'/data.'+str(self.current_data_file_number)+'.npy')
              loadedData=loadedData[:,:4*self.sound_record_sampling_rate]
              newLoadedData=np.zeros((loadedData.shape[0],loadedData.shape[1]+1),dtype=np.float32)
              newLoadedData[:,:-1]=loadedData
@@ -248,13 +248,7 @@ class USCData :
     self.logger.info ("load_all_np_data_back_to_memory function started ...")
     for fold in self.fold_dirs:
         self.logger.info ("loading from "+self.np_data_dir+"/"+fold+".npy  ...")
-        if fold == "fold10" :
-            self.fold_data_dictionary["test"]=np.load(self.np_data_dir+"/"+fold+".npy")    
-        else :        
-            if "training" not in self.fold_data_dictionary :
-              self.fold_data_dictionary["training"]=np.load(self.np_data_dir+"/"+fold+".npy")
-            self.fold_data_dictionary["training"]=np.concatenate((self.fold_data_dictionary["training"], np.load(self.np_data_dir+"/"+fold+".npy")), axis=0)
-    
+        self.fold_data_dictionary[fold]=np.load(self.np_data_dir+"/"+fold+".npy")
     self.logger.info ("load_all_np_data_back_to_memory function finished ...")
 
    
@@ -370,7 +364,7 @@ class USCData :
          if choice1%2 == 1 :
           self.augment_echo(x_data,ECHO_TIME)
 
-         self.augment_speedx(x_data,SPEED_FACTOR)
+         #self.augment_speedx(x_data,SPEED_FACTOR)
          self.augment_translate(x_data,TRANSLATION_FACTOR)
          self.augment_set_zero(x_data,ZERO_INDEX)
          self.augment_occlude(x_data,OCCLUDE_START_INDEX,OCCLUDE_WIDTH)
@@ -408,11 +402,7 @@ class USCData :
     #print( x_data[7,7000])
     
     
-    
     augmented_data=augmented_data+self.generated_synthetic_data[self.generated_data_usage_count*self.mini_batch_size:(self.generated_data_usage_count+1)*self.mini_batch_size,:]
-    start_point=int(np.random.rand()*self.track_length*3/4)
-    x_data_shuffled_copy=np.random.permutation(x_data)
-    augmented_data[:,start_point:start_point+20000]=x_data_shuffled_copy[:,start_point:start_point+20000]
     self.generated_data_usage_count=self.generated_data_usage_count+1
     
     

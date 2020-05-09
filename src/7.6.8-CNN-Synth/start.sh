@@ -4,7 +4,7 @@ read answer
 if [ "$answer" = "y" ]
 then
   echo "rm -Rf ../../save/$d"
-  rm -Rf ../../save/$d
+#  rm -Rf ../../save/$d
 else
   echo "Just continuing to train deep net. "
 fi 

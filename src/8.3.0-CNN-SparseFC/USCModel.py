@@ -51,8 +51,9 @@ class USCModel :
   x_data=data[:,:4*self.uscData.sound_record_sampling_rate]
   x_data=self.uscData.augment_random(x_data)
   x_data=self.uscData.normalize(x_data)
-  x_data=self.mfcc(x_data)
-  x_data=x_data.reshape(x_data.shape[0],x_data.shape[1],x_data.shape[2],1)
+  #x_data=self.mfcc(x_data)
+  #x_data=x_data.reshape(x_data.shape[0],x_data.shape[1],x_data.shape[2],1)
+  x_data=x_data.reshape(x_data.shape[0],x_data.shape[1],1)
     
   y_data=data[:,4*self.uscData.sound_record_sampling_rate]
   y_data_one_hot_encoded=self.uscData.one_hot_encode_array(y_data)
@@ -78,9 +79,9 @@ class USCModel :
   #self.model.fit([x_data_1,x_data_2,y_data_1,y_data_2,similarity], None, epochs = 1, batch_size = self.uscData.mini_batch_size,verbose=0)
   
   
-  #plt.plot(x_data_1[0])
+  #plt.plot(x_data[0])
   #plt.show()
-  #self.uscData.play(x_data_1[0])
+  #self.uscData.play(x_data[0])
   
   #plt.plot(x_data_2[0])
   #plt.show()
@@ -163,53 +164,46 @@ class USCModel :
 
  def buildModel(self):
    #layer_input_1 = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1),name="layer_input_1")
-   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,169,52,1),name="layer_input")
+   layer_input = keras.layers.Input(batch_shape=(self.uscData.mini_batch_size,self.uscData.track_length,1),name="layer_input")
    self.uscLogger.logger.info("layer_input.shape="+str(layer_input.shape))
 
 
    # Convolution1D(filters, kernel_size,...)
 
 
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(layer_input)
+   out=keras.layers.Convolution1D(16, 64,strides=16,activation='relu', padding='same')(layer_input)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-     
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(32, 32,strides=8,activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-        
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
+   out=keras.layers.Convolution1D(32, 16,strides=4,activation='relu', padding='same')(out)
    out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-        
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-        
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-        
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-
-   out=keras.layers.Convolution2D(32, (3, 3),activation='relu', padding='same')(out)
-   out=keras.layers.Dropout(0.2)(out)
-   out=keras.layers.MaxPooling2D((3,3),strides=(2,2), padding='same')(out)
-
-
-        
- 
    out=keras.layers.BatchNormalization()(out)
-
+   
+   
+   attention=keras.layers.Convolution1D(32, 16,activation='relu', padding='same')(out)
+   attention=keras.layers.Flatten()(attention)
+   attention=keras.layers.Reshape((attention.shape[1],1))(attention)
+   attention=keras.layers.Convolution1D(32, 64,activation='relu', padding='same')(attention)
+   attention=keras.layers.Convolution1D(32, 16,strides=4,activation='relu', padding='same')(attention)
+   attention=keras.layers.Convolution1D(32, 16,strides=4,activation='relu', padding='same')(attention)
+   attention=keras.layers.Convolution1D(32, 16,strides=2,activation='relu', padding='same')(attention)
+  
+   
+   out=keras.layers.concatenate([attention,out])
+   
+   out=keras.layers.Convolution1D(32, 16,strides=4,activation='relu', padding='same')(out)
+   out=keras.layers.Dropout(0.2)(out)
+   out=keras.layers.Convolution1D(32, 16,strides=4,activation='relu', padding='same')(out)
+   out=keras.layers.Dropout(0.2)(out)
+   out=keras.layers.Convolution1D(32, 16,strides=4,activation='relu', padding='same')(out)
+   out=keras.layers.Dropout(0.2)(out)
+   out=keras.layers.Convolution1D(32, 16,strides=4,activation='relu', padding='same')(out)
+   out=keras.layers.Dropout(0.2)(out)
+   out=keras.layers.Convolution1D(32, 16,strides=4,activation='relu', padding='same')(out)
+   out=keras.layers.Dropout(0.2)(out)
+   out=keras.layers.BatchNormalization()(out)
    out=keras.layers.Flatten()(out)
    
-   
    first_denses=[]
    for i in range(32):
       first_denses.append(keras.layers.Dense(units = 2,activation='sigmoid')(out))
@@ -230,29 +224,8 @@ class USCModel :
 
    out=keras.layers.BatchNormalization()(out)
    
-   
-   first_denses=[]
-   for i in range(32):
-      first_denses.append(keras.layers.Dense(units = 2,activation='sigmoid')(out))
-   
-   second_denses=[]
-   for i in range(32):
-      second_denses.append(keras.layers.add([first_denses[i],first_denses[-i]]))
-      
-   third_denses=[]
-   for i in range(32):
-      third_denses.append(keras.layers.add([second_denses[i],second_denses[-i]]))
-      
-   fourth_denses=[]
-   for i in range(32):
-      fourth_denses.append(keras.layers.add([third_denses[i],third_denses[-i]]))
-      
-   out=keras.layers.add(fourth_denses)
-
-   out=keras.layers.BatchNormalization()(out)
-   
-   
-  
+   out=keras.layers.Dense(units=64,activation='sigmoid')(out)
+     
    out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
 
 
