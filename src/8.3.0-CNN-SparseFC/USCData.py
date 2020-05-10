@@ -248,7 +248,7 @@ class USCData :
     self.logger.info ("load_all_np_data_back_to_memory function started ...")
     for fold in self.fold_dirs:
         self.logger.info ("loading from "+self.np_data_dir+"/"+fold+".npy  ...")
-        if fold == "fold10" :
+        if fold == "fold5" :
             self.fold_data_dictionary["test"]=np.load(self.np_data_dir+"/"+fold+".npy")    
         else :        
             if "training" not in self.fold_data_dictionary :
@@ -415,7 +415,18 @@ class USCData :
     ## PUT SOME DATA POINTS A LITTLE BIT FROM OTHER TYPES (RANDOM), SO THAT NN WILL TRAIN TO DISTINGUISH EVEN IF SOME PARTS ARE EQUAL WITH OTHER TYPES 
     start_point=int(np.random.rand()*self.track_length*3/4)
     x_data_shuffled_copy=np.random.permutation(x_data)
-    augmented_data[:,start_point:start_point+20000]=self.normalize(x_data_shuffled_copy[:,start_point:start_point+20000])
+    augmented_data[:,start_point:start_point+10000]=self.normalize(x_data_shuffled_copy[:,start_point:start_point+10000])
+
+    start_point=int(np.random.rand()*self.track_length*3/4)
+    np.random.shuffle(x_data_shuffled_copy)
+    augmented_data[:,start_point:start_point+10000]=self.normalize(x_data_shuffled_copy[:,start_point:start_point+10000])
+    
+    start_point=int(np.random.rand()*self.track_length*3/4)
+    np.random.shuffle(x_data_shuffled_copy)
+    augmented_data[:,start_point:start_point+10000]=self.normalize(x_data_shuffled_copy[:,start_point:start_point+10000])
+    
+    
+    
     self.generated_data_usage_count=self.generated_data_usage_count+1
     
     

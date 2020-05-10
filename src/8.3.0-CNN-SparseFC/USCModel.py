@@ -51,6 +51,7 @@ class USCModel :
   x_data=data[:,:4*self.uscData.sound_record_sampling_rate]
   x_data=self.uscData.augment_random(x_data)
   x_data=self.uscData.normalize(x_data)
+  
   #x_data=self.mfcc(x_data)
   #x_data=x_data.reshape(x_data.shape[0],x_data.shape[1],x_data.shape[2],1)
   x_data=x_data.reshape(x_data.shape[0],x_data.shape[1],1)
@@ -205,26 +206,26 @@ class USCModel :
    out=keras.layers.Flatten()(out)
    
    first_denses=[]
-   for i in range(32):
+   for i in range(64):
       first_denses.append(keras.layers.Dense(units = 2,activation='sigmoid')(out))
    
    second_denses=[]
-   for i in range(32):
+   for i in range(64):
       second_denses.append(keras.layers.add([first_denses[i],first_denses[-i]]))
       
    third_denses=[]
-   for i in range(32):
+   for i in range(64):
       third_denses.append(keras.layers.add([second_denses[i],second_denses[-i]]))
       
    fourth_denses=[]
-   for i in range(32):
+   for i in range(64):
       fourth_denses.append(keras.layers.add([third_denses[i],third_denses[-i]]))
       
    out=keras.layers.add(fourth_denses)
 
    out=keras.layers.BatchNormalization()(out)
    
-   out=keras.layers.Dense(units=64,activation='sigmoid')(out)
+   out=keras.layers.Dense(units=512,activation='sigmoid')(out)
      
    out=keras.layers.Dense(units = self.uscData.number_of_classes,activation='softmax')(out)
 
